@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- SweetAlert & FontAwesome -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- WAJIB UNTUK PWA: Hubungkan ke file Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        /* TEMA PREMIUM & GRADIENT BACKGROUND */
+        body { 
+            margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #0b3011 0%, #175222 100%); 
+            display: flex; flex-direction: column; min-height: 100vh; color: white;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* SPLASH SCREEN FULL LAYAR */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0b3011; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.6s ease-out;
+        }
+        .splash-logo { 
+            width: 95vw; max-width: 80vh; 
+            height: auto; max-height: 60vh; 
+            object-fit: contain; margin-bottom: 30px; 
+            animation: pulse 2s infinite; 
+            border-radius: 24px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3); 
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid #fff;
+            border-radius: 50%; width: 45px; height: 45px; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        /* HEADER PREMIUM DENGAN TOMBOL INSTAL & NOTIF KANAN */
+        header { 
+            background: rgba(11, 48, 17, 0.95); backdrop-filter: blur(10px);
+            padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); 
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 100;
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-left img { height: 42px; object-fit: contain; }
+        .header-left h1 { font-size: 18px; margin: 0; font-weight: 700; letter-spacing: 0.5px; }
+        
+        .header-right { display: flex; gap: 8px; align-items: center; }
+        
+        .install-btn {
+            background: linear-gradient(45deg, #FFD700, #FFA500); color: #000;
+            border: none; border-radius: 20px; padding: 8px 14px; font-size: 12px; font-weight: bold;
+            display: flex; align-items: center; gap: 6px; cursor: pointer;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4); transition: transform 0.2s;
+        }
+        .install-btn:active { transform: scale(0.9); }
+        
+        .notif-btn {
+            background: rgba(255,255,255,0.2); color: #fff;
+            border: none; border-radius: 50%; width: 34px; height: 34px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .notif-btn:active { transform: scale(0.9); }
+        .notif-btn:hover { background: rgba(255,255,255,0.3); }
+
+        /* CAROUSEL UTUH & EFEK SLIDE/GESER */
+        .carousel-container {
+            width: 100%; display: flex; justify-content: center; background: #051608;
+            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            position: relative; overflow: hidden;
+        }
+        .carousel { 
+            width: 100%; max-width: 800px; aspect-ratio: 16 / 9; 
+            display: flex; overflow-x: auto; 
+            scroll-snap-type: x mandatory; 
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; 
+        }
+        .carousel::-webkit-scrollbar { display: none; } 
+        .carousel img { 
+            flex: 0 0 100%; width: 100%; height: 100%; object-fit: contain; 
+            scroll-snap-align: center; border-radius: 8px;
+        } 
+
+        /* DASHBOARD MENU */
+        .dashboard-container { padding: 25px 15px; flex: 1; max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .shopee-menu-container { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); 
+            gap: 20px 10px; justify-items: center;
+        }
+        .menu-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; cursor: pointer; width: 100%; }
+        .icon-wrapper {
+            width: 58px; height: 58px; border-radius: 16px; background: #ffffff; 
+            display: flex; align-items: center; justify-content: center; margin-bottom: 8px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2); transition: all 0.2s ease;
+        }
+        .menu-item:hover .icon-wrapper { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
+        .menu-item:active .icon-wrapper { transform: scale(0.92); }
+        .menu-item span {
+            font-size: 11px; color: #ffffff; font-weight: 600; line-height: 1.3;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden; text-overflow: ellipsis; text-align: center; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .section-divider { border: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); margin: 30px 0 20px 0; }
+        .section-title { font-size: 12px; font-weight: 800; letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase; color: #FFD700; text-align: center; }
+
+        footer { background: rgba(5, 22, 8, 0.9); padding: 15px; text-align: center; font-size: 11px; margin-top: auto; letter-spacing: 1px; }
+
+        /* KELAS CUSTOM UNTUK IN-APP NOTIFICATION */
+        .rounded-popup { border-radius: 16px !important; font-family: 'Segoe UI', Arial, sans-serif !important; }
+        .swal2-close { font-size: 22px !important; color: #aaa !important; padding-top: 10px !important; padding-right: 10px !important; }
+        .swal2-close:hover { color: #666 !important; }
+        .swal2-html-container { margin: 0 !important; overflow: hidden !important; }
+
+        /* ANIMASI SVG & IKON */
+        .svg-icon { width: 30px; height: 30px; }
+        @keyframes nulis { 0%, 100% { transform: rotate(0deg) translateY(0); } 50% { transform: rotate(-10deg) translateY(-2px); } }
+        .anim-nulis { animation: nulis 2s infinite ease-in-out; }
+        @keyframes denyut { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+        .anim-denyut { animation: denyut 1.5s infinite ease-in-out; }
+        @keyframes naikTurun { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        .anim-naik { animation: naikTurun 1.8s infinite ease-in-out; }
+        @keyframes ayun { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+        .anim-ayun { animation: ayun 2s infinite ease-in-out; }
+        @keyframes wave { 
+            0% { transform: rotate(0deg); } 15% { transform: rotate(16deg); } 30% { transform: rotate(-10deg); }
+            45% { transform: rotate(16deg); } 60% { transform: rotate(-4deg); } 75% { transform: rotate(12deg); } 100% { transform: rotate(0deg); }
+        }
+        .anim-wave { display: inline-block !important; transform-origin: 70% 70% !important; animation: wave 2.2s infinite ease-in-out !important; }
+        @keyframes ring { 0% { transform: rotate(0); } 10% { transform: rotate(15deg); } 20% { transform: rotate(-10deg); } 30% { transform: rotate(5deg); } 40% { transform: rotate(-5deg); } 50% { transform: rotate(0); } 100% { transform: rotate(0); } }
+        .anim-ring { animation: ring 2s infinite ease-in-out; transform-origin: top center; }
+    </style>
+</head>
+<body>
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen">
+        <img src="https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ" alt="Logo Kacida" class="splash-logo">
+        <div class="spinner"></div>
+        <h3 id="splash-text" style="margin-top: 20px; font-weight: 400; font-size: 16px; letter-spacing: 1px;">Menyiapkan Aplikasi Pro</h3>
+    </div>
+
+    <!-- HEADER PRO -->
+    <header>
+        <div class="header-left">
+            <img src="https://lh3.googleusercontent.com/d/1RA3xI2wxlB30iaRlJb8Crx1Za8iJrNN-" alt="Header Kacida">
+            <h1>Kacida Bersatu</h1>
+        </div>
+        <div class="header-right">
+            <button id="btnUser" class="notif-btn" title="Lihat Kartu NIK / Ganti Akun">
+                <i class="fas fa-id-card"></i>
+            </button>
+            <button id="btnNotif" class="notif-btn" title="Aktifkan Notifikasi OS">
+                <i class="fas fa-bell anim-ring"></i>
+            </button>
+            <button id="btnInstal" class="install-btn anim-denyut" title="Instal Aplikasi" style="display: none;">
+                <i class="fas fa-download"></i> Instal
+            </button>
+        </div>
+    </header>
+    
+    <!-- CAROUSEL -->
+    <div class="carousel-container">
+        <div class="carousel" id="carousel-track">
+            <!-- Gambar dimuat otomatis -->
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div class="dashboard-container">
+        <div id="menuUtama" class="shopee-menu-container"></div>
+        <hr class="section-divider" id="divider" style="display:none;">
+        <div class="section-title" id="titleLainnya" style="display:none;">Layanan Lainnya</div>
+        <div id="menuLainnya" class="shopee-menu-container"></div>
+    </div>
+
+    <footer>@POWERED BY SERVER AREA &bull; PRO VERSION</footer>
+
+    <script>
+        // URL API Google Apps Script (JANGAN DIUBAH)
+        const API_URL = "https://script.google.com/macros/s/AKfycbwoZlEDPiV54XZ388hjkRZxbCA94xtevXpcj4GOdnDxRfz-Do18Es-q6Q4KiC7xl2ET/exec";
+        
+        // ==========================================
+        // 1. REGISTRASI SERVICE WORKER (UNTUK PWA)
+        // ==========================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker Terdaftar!'))
+                    .catch(err => console.error('Gagal daftar SW', err));
+            });
+        }
+
+        // ==========================================
+        // 2. FUNGSI KIRIM LOG (HANYA MENGIRIM NIK & OS)
+        // ==========================================
+        function kirimLogKeGoogle(action, dataTambahan = {}) {
+            let nikUser = localStorage.getItem('kacida_user_nik') || "-";
+            
+            let payload = { 
+                action: action, 
+                nik: nikUser, 
+                osData: navigator.platform + " (" + (navigator.userAgent.includes("Android") ? "Android" : "iOS/Web") + ")",
+                ...dataTambahan 
+            };
+            
+            fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            }).catch(e => console.log("Log error:", e));
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            
+            // Failsafe Splash Screen (Tutup paksa setelah 10 detik jika internet macet)
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                if(splash && splash.style.display !== 'none') {
+                    splash.style.opacity = '0';
+                    setTimeout(() => { splash.style.display = 'none'; }, 600);
+                }
+            }, 10000);
+
+            // ==========================================
+            // 3. SISTEM LOGIN (VERSI KETAT / BLOKIR NIK SALAH)
+            // ==========================================
+            let nikTersimpan = localStorage.getItem('kacida_user_nik');
+            
+            if (!nikTersimpan) {
+                const { value: nikInput } = await Swal.fire({
+                    title: 'Selamat Datang!',
+                    text: 'Silakan masukkan NIK Anda untuk mengakses Aplikasi:',
+                    input: 'number',
+                    inputPlaceholder: 'Ketik NIK Anda...',
+                    allowOutsideClick: false, // Tidak bisa diklik di luar kotak pop-up
+                    confirmButtonColor: '#0b3011',
+                    confirmButtonText: 'Validasi NIK <i class="fas fa-search"></i>',
+                    customClass: { popup: 'rounded-popup' },
+                    showLoaderOnConfirm: true,
+                    preConfirm: (nik) => {
+                        if (!nik) {
+                            Swal.showValidationMessage('NIK wajib diisi!');
+                            return false;
+                        }
+                        // Cek NIK ke Google Sheets (Master_User)
+                        return fetch(API_URL + "?action=getUserInfo&nik=" + nik)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Jika NIK tidak ditemukan di Master_User
+                                if (data.nama === "User Baru / Tidak Dikenal") {
+                                    Swal.showValidationMessage('? Akses Ditolak: NIK tidak terdaftar!');
+                                    return false;
+                                }
+                                return nik; // Berhasil, kembalikan NIK untuk disimpan
+                            })
+                            .catch(error => {
+                                Swal.showValidationMessage('Gagal mengecek server. Pastikan internet stabil.');
+                                return false;
+                            });
+                    }
+                });
+                
+                if (nikInput) {
+                    localStorage.setItem('kacida_user_nik', nikInput);
+                    kirimLogKeGoogle('Login PWA Baru');
+                    
+                    Swal.fire({
+                        title: 'Akses Diberikan!',
+                        text: 'NIK Anda terverifikasi.',
+                        icon: 'success',
+                        timer: 1800,
+                        showConfirmButton: false
+                    });
+                }
+            } else {
+                // Catat log jika dibuka kembali
+                kirimLogKeGoogle('Buka Aplikasi PWA');
+            }
+
+            // Event Tombol Profil / Ganti Akun NIK
+            document.getElementById('btnUser').addEventListener('click', () => {
+                let nikAktif = localStorage.getItem('kacida_user_nik') || '-';
+                Swal.fire({
+                    title: 'Kartu Pengguna',
+                    html: `
+                        <div style="font-size:15px; color:#333; margin-bottom:10px;">
+                            NIK yang terdaftar di perangkat ini:
+                        </div>
+                        <div style="font-size: 24px; font-weight: bold; color: #0b3011; letter-spacing: 2px;">
+                            ${nikAktif}
+                        </div>
+                        <div style="font-size:12px; color:#666; margin-top:10px;">
+                            <i>(Nama dan Toko disinkronisasi di sistem)</i>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fas fa-sync"></i> Ganti NIK',
+                    cancelButtonText: 'Tutup',
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#0b3011',
+                    customClass: { popup: 'rounded-popup' }
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        localStorage.removeItem('kacida_user_nik');
+                        location.reload(); // Reload halaman untuk memunculkan pop-up validasi NIK lagi
+                    }
+                });
+            });
+
+            // ==========================================
+            // 4. INSTALASI PWA (NATIVE INSTALL PROMPT)
+            // ==========================================
+            let deferredPrompt;
+            const btnInstal = document.getElementById('btnInstal');
+            
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                btnInstal.style.display = 'flex';
+            });
+
+            btnInstal.addEventListener('click', async () => {
+                kirimLogKeGoogle('Klik Instal PWA');
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                } else {
+                    Swal.fire({
+                        title: 'Pasang Pintasan',
+                        html: 'Ketuk ikon menu browser / Bagikan (<b>&#8942;</b>), lalu pilih <b>"Tambahkan ke Layar Utama"</b>.',
+                        icon: 'info',
+                        confirmButtonText: 'Mengerti',
+                        confirmButtonColor: '#0b3011',
+                        customClass: { popup: 'rounded-popup' }
+                    });
+                }
+            });
+
+            // ==========================================
+            // 5. FUNGSI PUSH NOTIFICATION (SISTEM OS)
+            // ==========================================
+            function sendPushNotification(title, message, linkTujuan) {
+                if (!("Notification" in window)) return;
+                if (Notification.permission === "granted") {
+                    navigator.serviceWorker.ready.then(reg => {
+                        reg.showNotification(title, {
+                            body: message,
+                            icon: "https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ",
+                            badge: "https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ",
+                            data: { url: linkTujuan }
+                        });
+                    });
+                }
+            }
+
+            document.getElementById('btnNotif').addEventListener('click', () => {
+                if (!("Notification" in window)) {
+                    Swal.fire('Maaf', 'Browser/HP Anda tidak mendukung push notifikasi.', 'error');
+                    return;
+                }
+                if (Notification.permission === "granted") {
+                    Swal.fire('Info', 'Notifikasi sistem sudah aktif.', 'info');
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === "granted") {
+                            Swal.fire('Berhasil!', 'Izin notifikasi diberikan.', 'success');
+                            sendPushNotification("Kacida Bersatu", "Terima kasih! Notifikasi berhasil diaktifkan.", "");
+                        } else {
+                            Swal.fire({ icon: 'warning', title: 'Terblokir', text: 'Izin notifikasi diblokir browser.', confirmButtonColor: '#0b3011' });
+                        }
+                    });
+                } else {
+                    Swal.fire({ icon: 'warning', title: 'Terblokir', text: 'Izin notifikasi telah Anda blokir di pengaturan.', confirmButtonColor: '#0b3011' });
+                }
+            });
+
+            // ==========================================
+            // 6. AMBIL POSTER CAROUSEL DARI DRIVE
+            // ==========================================
+            fetch(API_URL + "?action=getPosterFiles")
+                .then(res => res.json())
+                .then(urls => {
+                    const track = document.getElementById('carousel-track');
+                    if(urls && urls.length > 0) { 
+                        track.innerHTML = urls.map(url => `<img src="${url}" alt="Poster Promo">`).join('');
+                        setInterval(() => { 
+                            let itemWidth = track.clientWidth;
+                            let currentScroll = track.scrollLeft;
+                            let currentIndex = Math.round(currentScroll / itemWidth);
+                            let nextIndex = currentIndex + 1;
+                            if (nextIndex >= urls.length) { nextIndex = 0; }
+                            track.scrollTo({ left: itemWidth * nextIndex, behavior: 'smooth' }); 
+                        }, 4500); 
+                    }
+                }).catch(e => console.log("Poster gagal dimuat"));
+
+            // ==========================================
+            // 7. AMBIL DATA UTAMA (MENU & CEK NOTIFIKASI)
+            // ==========================================
+            fetch(API_URL + "?action=getAppData")
+                .then(res => res.json())
+                .then(res => {
+                    
+                    // --- GENERATE MENU NAVIGASI ---
+                    let utamaHtml = ''; let lainnyaHtml = '';
+                    const svgs = [
+                        `<svg class="svg-icon anim-nulis" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`,
+                        `<svg class="svg-icon anim-ayun" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
+                        `<svg class="svg-icon anim-denyut" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
+                        `<svg class="svg-icon anim-denyut" viewBox="0 0 24 24" fill="none" stroke="#00bcd4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+                        `<svg class="svg-icon anim-denyut" viewBox="0 0 24 24" fill="none" stroke="#f44336" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+                        `<svg class="svg-icon anim-naik" viewBox="0 0 24 24" fill="none" stroke="#9c27b0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
+                        `<svg class="svg-icon anim-naik" viewBox="0 0 24 24" fill="none" stroke="#e91e63" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`,
+                        `<svg class="svg-icon anim-ayun" viewBox="0 0 24 24" fill="none" stroke="#ffc107" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a4 4 0 0 1 4 4v7a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"></path></svg>`,
+                        `<svg class="svg-icon anim-denyut" viewBox="0 0 24 24" fill="none" stroke="#3f51b5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`,
+                        `<svg class="svg-icon anim-nulis" viewBox="0 0 24 24" fill="none" stroke="#607d8b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>`,
+                        `<svg class="svg-icon anim-ayun" viewBox="0 0 24 24" fill="none" stroke="#ff5722" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.5 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>`,
+                        `<svg class="svg-icon anim-naik" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>`
+                    ];
+
+                    if(res.menu && res.menu.length > 0) {
+                        res.menu.forEach((row, index) => { 
+                            if(row[2] && row[2].toString().trim().toLowerCase() === 'aktif') {
+                                let defaultSvg = `<svg class="svg-icon anim-denyut" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle></svg>`;
+                                let iconHtml = (index < svgs.length) ? svgs[index] : defaultSvg;
+                                let itemHtml = `
+                                    <a href="${row[1]}" class="menu-item" target="_blank" onclick="kirimLogKeGoogle('Klik Menu', {menu: '${row[0]}'})">
+                                        <div class="icon-wrapper">${iconHtml}</div>
+                                        <span>${row[0]}</span>
+                                    </a>`;
+                                if(index < 8) { utamaHtml += itemHtml; } else { lainnyaHtml += itemHtml; }
+                            }
+                        });
+                        document.getElementById('menuUtama').innerHTML = utamaHtml;
+                        if(lainnyaHtml !== '') {
+                            document.getElementById('menuLainnya').innerHTML = lainnyaHtml;
+                            document.getElementById('divider').style.display = 'block';
+                            document.getElementById('titleLainnya').style.display = 'block';
+                        }
+                    }
+
+                    // Tutup Splash Screen setelah data dimuat
+                    const splash = document.getElementById('splash-screen');
+                    if(splash && splash.style.display !== 'none') {
+                        splash.style.opacity = '0';
+                        setTimeout(() => { splash.style.display = 'none'; }, 600);
+                    }
+
+                    // --- CEK PUSH NOTIFIKASI (SISTEM 1X SEHARI) ---
+                    if(res.notifJadwal && res.notifJadwal.length > 0) {
+                        const now = new Date();
+                        const currentHours = now.getHours();
+                        const currentMinutes = now.getMinutes();
+                        const todayString = now.toDateString(); 
+
+                        res.notifJadwal.forEach((row, index) => {
+                            let isAktif = row[5] && row[5].toString().trim().toLowerCase() === 'aktif';
+                            if (!isAktif) return;
+
+                            let waktuKirim = row[2] ? row[2].toString().trim() : "";
+                            let targetHours = 0, targetMinutes = 0;
+
+                            if (waktuKirim !== "") {
+                                if (waktuKirim.includes("T")) { 
+                                    let d = new Date(waktuKirim);
+                                    targetHours = d.getHours();
+                                    targetMinutes = d.getMinutes();
+                                } else {
+                                    let timeParts = waktuKirim.split(":");
+                                    targetHours = parseInt(timeParts[0], 10) || 0;
+                                    targetMinutes = parseInt(timeParts[1], 10) || 0;
+                                }
+                            }
+
+                            let notifKey = `kacida_notif_${index}_${todayString}`;
+
+                            if (localStorage.getItem(notifKey) !== 'true') {
+                                if (currentHours > targetHours || (currentHours === targetHours && currentMinutes >= targetMinutes)) {
+                                    localStorage.setItem(notifKey, 'true');
+                                    setTimeout(() => { 
+                                        sendPushNotification("Kacida Bersatu", row[0], row[1]); 
+                                        kirimLogKeGoogle('Push Notif Terkirim', {pesan: row[0]});
+                                    }, 1000 + (index * 500));
+                                }
+                            }
+                        });
+                    }
+
+                    // --- POP UP IN-APP TANGAN MELAMBAI (SISTEM 1X SEHARI) ---
+                    if(res.notifApp && res.notifApp.length > 0) {
+                        const activeInApp = res.notifApp.find(row => row[1] && row[1].toString().trim().toLowerCase() === 'aktif');
+                        if (activeInApp) {
+                            const todayString = new Date().toDateString();
+                            let inAppKey = `kacida_inapp_${todayString}_${activeInApp[0].substring(0, 5)}`;
+                            
+                            if(localStorage.getItem(inAppKey) !== 'true') {
+                                setTimeout(() => {
+                                    Swal.fire({
+                                        html: `
+                                            <div style="padding: 20px 10px 5px 10px; text-align: center;">
+                                                <div style="font-size: 46px; margin-bottom: 12px; line-height: 1;" class="anim-wave">??</div>
+                                                <h2 style="margin: 0 0 12px 0; font-size: 24px; font-weight: 800; color: #111111; font-family: sans-serif;">Hey there!</h2>
+                                                <p style="font-size: 13.5px; color: #444444; line-height: 1.6; margin: 0 auto 20px auto; font-weight: 500; max-width: 290px;">
+                                                    ${activeInApp[0]}
+                                                </p>
+                                            </div>
+                                        `,
+                                        showCloseButton: true,
+                                        showConfirmButton: true,
+                                        confirmButtonText: "Tutup",
+                                        confirmButtonColor: '#10b981',
+                                        background: '#ffffff',
+                                        width: '360px',
+                                        padding: '0px 0px 20px 0px',
+                                        backdrop: `rgba(0,0,0,0.55)`,
+                                        customClass: { popup: 'rounded-popup' }
+                                    }).then(() => {
+                                        localStorage.setItem(inAppKey, 'true'); 
+                                    });
+                                }, 1500);
+                            }
+                        }
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('splash-text').innerText = 'Koneksi Terputus. Cek Internet Anda.';
+                });
+        });
+    </script>
+</body>
+</html>
+    
