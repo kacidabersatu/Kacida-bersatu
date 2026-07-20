@@ -134,8 +134,22 @@
         .anim-naik { animation: naikTurun 1.8s infinite ease-in-out; }
         @keyframes ayun { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
         .anim-ayun { animation: ayun 2s infinite ease-in-out; }
-        @keyframes wave { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(15deg); } }
-        .anim-wave { animation: wave 1.2s infinite alternate; transform-origin: bottom right; display: inline-block; }
+        
+        /* PERBAIKAN ANIMASI TANGAN MELAMBAI */
+        @keyframes wave { 
+            0% { transform: rotate(0deg); }
+            15% { transform: rotate(16deg); }
+            30% { transform: rotate(-10deg); }
+            45% { transform: rotate(16deg); }
+            60% { transform: rotate(-4deg); }
+            75% { transform: rotate(12deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .anim-wave { 
+            display: inline-block !important; 
+            transform-origin: 70% 70% !important; 
+            animation: wave 2.2s infinite ease-in-out !important; 
+        }
         
         @keyframes ring {
             0% { transform: rotate(0); }
@@ -165,6 +179,9 @@
             <h1>Kacida Bersatu</h1>
         </div>
         <div class="header-right">
+            <button id="btnUser" class="notif-btn" title="Ganti NIK / Akun">
+                <i class="fas fa-id-card"></i>
+            </button>
             <button id="btnNotif" class="notif-btn" title="Aktifkan Notifikasi OS">
                 <i class="fas fa-bell anim-ring"></i>
             </button>
@@ -207,13 +224,13 @@
         }
 
         // ==========================================
-        // 2. FUNGSI KIRIM LOG KE GOOGLE SHEETS
+        // 2. FUNGSI KIRIM LOG KE GOOGLE SHEETS (PAKAI NIK)
         // ==========================================
         function kirimLogKeGoogle(action, dataTambahan) {
-            let emailUser = localStorage.getItem('kacida_user_email') || "User (Guest)";
+            let nikUser = localStorage.getItem('kacida_user_nik') || "Guest";
             
-            // Bungkus data dengan format API yang kita buat
-            let payload = { action: action, userEmail: emailUser, ...dataTambahan };
+            // Bungkus data dengan format API NIK yang baru
+            let payload = { action: action, nik: nikUser, userNik: nikUser, ...dataTambahan };
             
             fetch(API_URL, {
                 method: "POST",
@@ -234,30 +251,55 @@
             }, 8000);
 
             // ==========================================
-            // 3. SISTEM LOGIN NAMA/EMAIL (SWEET ALERT)
+            // 3. SISTEM LOGIN NIK (SWEET ALERT - 1X INPUT PERMANEN)
             // ==========================================
-            let emailTersimpan = localStorage.getItem('kacida_user_email');
-            if (!emailTersimpan) {
-                const { value: namaEmail } = await Swal.fire({
+            let nikTersimpan = localStorage.getItem('kacida_user_nik');
+            if (!nikTersimpan) {
+                const { value: nikInput } = await Swal.fire({
                     title: 'Selamat Datang!',
-                    text: 'Silakan masukkan Nama / Email Anda untuk akses penuh:',
-                    input: 'text',
-                    inputPlaceholder: 'Ketik Nama atau Email...',
+                    text: 'Silakan masukkan NIK Anda untuk mengakses PWA Kacida Bersatu:',
+                    input: 'number',
+                    inputPlaceholder: 'Ketik NIK Anda...',
                     allowOutsideClick: false,
                     confirmButtonColor: '#0b3011',
                     confirmButtonText: 'Mulai Sekarang <i class="fas fa-arrow-right"></i>',
-                    customClass: { popup: 'rounded-popup' }
+                    customClass: { popup: 'rounded-popup' },
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'NIK wajib diisi!';
+                        }
+                    }
                 });
                 
-                if (namaEmail) {
-                    localStorage.setItem('kacida_user_email', namaEmail);
+                if (nikInput) {
+                    localStorage.setItem('kacida_user_nik', nikInput);
                 } else {
-                    localStorage.setItem('kacida_user_email', 'User (Guest)');
+                    localStorage.setItem('kacida_user_nik', 'Guest');
                 }
             }
 
             // Kirim Log Akses
-            kirimLogKeGoogle('logInstalasi', { osData: navigator.platform + " (Buka Web)" });
+            kirimLogKeGoogle('logInstalasi', { osData: navigator.platform + " (Buka Web)", aktivitas: "PWA Load", izinNotif: Notification.permission === "granted" ? "Ya" : "Belum", popUpDibaca: "Terbaca" });
+
+            // Event Tombol Profil / Ganti NIK di Header
+            document.getElementById('btnUser').addEventListener('click', () => {
+                let nikAktif = localStorage.getItem('kacida_user_nik') || 'Guest';
+                Swal.fire({
+                    title: 'Status Pengguna',
+                    html: `NIK Terdaftar saat ini: <br><b style="font-size: 18px; color: #0b3011;">${nikAktif}</b>`,
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fas fa-sync"></i> Ganti NIK',
+                    cancelButtonText: 'Tutup',
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#0b3011',
+                    customClass: { popup: 'rounded-popup' }
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        localStorage.removeItem('kacida_user_nik');
+                        location.reload();
+                    }
+                });
+            });
 
             // ==========================================
             // 4. INSTALASI PWA (NATIVE INSTALL PROMPT)
@@ -272,7 +314,7 @@
             });
 
             btnInstal.addEventListener('click', async () => {
-                kirimLogKeGoogle('logInstalasi', { osData: navigator.platform + " (Klik Tombol Instal)" });
+                kirimLogKeGoogle('logInstalasi', { osData: navigator.platform + " (Klik Tombol Instal)", aktivitas: "Klik Instal" });
                 
                 if (deferredPrompt) {
                     deferredPrompt.prompt();
@@ -436,7 +478,7 @@
                         }
                     }
 
-                    // --- CEK NOTIFIKASI IN-APP ---
+                    // --- CEK NOTIFIKASI IN-APP (DENGAN PERBAIKAN TANGAN MELAMBAI) ---
                     if(res.notifApp && res.notifApp.length > 0) {
                         const activeInApp = res.notifApp.find(row => row[1] && row[1].toString().trim().toLowerCase() === 'aktif');
                         if (activeInApp) {
@@ -444,7 +486,7 @@
                                 Swal.fire({
                                     html: `
                                         <div style="padding: 20px 10px 5px 10px; text-align: center;">
-                                            <div style="font-size: 46px; margin-bottom: 12px; line-height: 1;" class="anim-wave">??</div>
+                                            <div style="font-size: 46px; margin-bottom: 12px; line-height: 1;" class="anim-wave">👋</div>
                                             <h2 style="margin: 0 0 12px 0; font-size: 24px; font-weight: 800; color: #111111; font-family: sans-serif;">Hey there!</h2>
                                             <p style="font-size: 13.5px; color: #444444; line-height: 1.6; margin: 0 auto 20px auto; font-weight: 500; max-width: 290px;">
                                                 ${activeInApp[0]}
@@ -501,7 +543,6 @@
                                 },
                                 preConfirm: () => { 
                                     let pesanUser = document.getElementById('msg').value;
-                                    // Kirim data via fetch API baru
                                     kirimLogKeGoogle('submitSurvey', { data: {rating: currentRating, pesan: pesanUser} });
                                 }
                             }).then((result) => {
