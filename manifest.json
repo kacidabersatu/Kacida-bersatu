@@ -1,0 +1,22 @@
+{
+  "name": "Kacida Bersatu Pro",
+  "short_name": "Kacida",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b3011",
+  "theme_color": "#0b3011",
+  "description": "Layanan Terpadu Kacida Bersatu",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
