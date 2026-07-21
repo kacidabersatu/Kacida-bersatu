@@ -255,6 +255,27 @@
             }).catch(e => console.log("Log error:", e));
         }
 
+        // --- TAMBAHAN BARU: FUNGSI SINKRONISASI STATUS OTOMATIS ---
+        function kirimStatusInstalasi() {
+            if (!localStorage.getItem('kacida_user_nik')) return; // Jangan kirim jika belum login
+            
+            // Cek apakah sedang dibuka di Browser atau sudah di-Instal (Standalone)
+            let statusInstal = window.matchMedia('(display-mode: standalone)').matches ? "Sudah Instal PWA" : "Belum Instal";
+            let statusNotif = "Belum"; // Default
+            
+            if ("Notification" in window) {
+                if (Notification.permission === "granted") statusNotif = "Ya";
+                else if (Notification.permission === "denied") statusNotif = "Tidak";
+            }
+            
+            // Mengandung kata "Status" agar ditangkap routing Code.gs untuk Sheet Log_Instalasi
+            kirimLogKeGoogle('Status: ' + statusInstal, { 
+                izinNotif: statusNotif,
+                popUpDibaca: 'Terbaca'
+            });
+        }
+        // ------------------------------------------------------------
+
         // ==========================================
         // FUNGSI TAMPILKAN SURVEY BINTANG & PESAN
         // ==========================================
@@ -392,6 +413,9 @@
                     localStorage.setItem('kacida_user_nik', nikInput);
                     kirimLogKeGoogle('Login PWA Baru');
                     
+                    // --- PICU DETEKSI STATUS OTOMATIS SETELAH LOGIN ---
+                    setTimeout(kirimStatusInstalasi, 2000); 
+                    
                     Swal.fire({
                         title: 'Akses Diberikan!',
                         text: 'NIK Anda terverifikasi.',
@@ -402,6 +426,9 @@
                 }
             } else {
                 kirimLogKeGoogle('Buka Aplikasi PWA');
+                
+                // --- PICU DETEKSI STATUS OTOMATIS SAAT USER LAMA MEMBUKA APP ---
+                setTimeout(kirimStatusInstalasi, 2000); 
             }
 
             // Event Tombol Profil / Kartu Pengguna Lengkap
@@ -456,7 +483,10 @@
             });
 
             btnInstal.addEventListener('click', async () => {
-                kirimLogKeGoogle('Klik Instal PWA');
+                // Saat klik instal, kirimkan juga status notifikasi aslinya agar di log terbaca akurat
+                let statusNotifNow = ("Notification" in window && Notification.permission === "granted") ? "Ya" : (("Notification" in window && Notification.permission === "denied") ? "Tidak" : "Belum");
+                kirimLogKeGoogle('Klik Instal PWA', { izinNotif: statusNotifNow, popUpDibaca: 'Terbaca' });
+                
                 if (deferredPrompt) {
                     deferredPrompt.prompt();
                     const { outcome } = await deferredPrompt.userChoice;
@@ -502,8 +532,14 @@
                         if (permission === "granted") {
                             Swal.fire('Berhasil!', 'Izin notifikasi diberikan.', 'success');
                             sendPushNotification("Kacida Bersatu", "Terima kasih! Notifikasi berhasil diaktifkan.", "");
+                            
+                            // -- UPDATE DATA DI GS SAAT IZIN DI-ALLOW --
+                            kirimStatusInstalasi(); 
                         } else {
                             Swal.fire({ icon: 'warning', title: 'Terblokir', text: 'Izin notifikasi diblokir browser.', confirmButtonColor: '#0b3011' });
+                            
+                            // -- UPDATE DATA DI GS SAAT IZIN DI-BLOCK --
+                            kirimStatusInstalasi(); 
                         }
                     });
                 } else {
