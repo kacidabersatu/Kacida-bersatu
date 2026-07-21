@@ -368,7 +368,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.nama === "User Baru / Tidak Dikenal") {
-                                    Swal.showValidationMessage('? Akses Ditolak: NIK tidak terdaftar!');
+                                    Swal.showValidationMessage('❌ Akses Ditolak: NIK tidak terdaftar!');
                                     return false;
                                 }
                                 // Simpan Nama dan Toko beserta status survey dari server jika ada
@@ -659,7 +659,7 @@
                                     html: `
                                         <div style="padding: 20px 10px 5px 10px; text-align: center;">
                                             <div style="margin-bottom: 12px; line-height: 1;">
-                                                <span class="anim-wave" style="font-size: 46px;">??</span>
+                                                <span class="anim-wave" style="font-size: 46px;">👋</span>
                                             </div>
                                             <h2 style="margin: 0 0 12px 0; font-size: 24px; font-weight: 800; color: #111111; font-family: sans-serif;">Hey there!</h2>
                                             <p style="font-size: 13.5px; color: #444444; line-height: 1.6; margin: 0 auto 20px auto; font-weight: 500; max-width: 290px;">
