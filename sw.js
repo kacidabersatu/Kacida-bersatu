@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kacida-pwa-cache-v2';
+const CACHE_NAME = 'kacida-pwa-cache-v3';
 const urlsToCache = [
   './',
   'manifest.json'
@@ -34,7 +34,6 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// EVENT KLIK NOTIFIKASI HP -> BUKALINK TUJUAN DARI SPREADSHEET
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   
