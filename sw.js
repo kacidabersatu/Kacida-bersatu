@@ -1,83 +1,58 @@
-const CACHE_NAME = 'kacida-pro-v1';
+const CACHE_NAME = 'kacida-pwa-cache-v2';
 const urlsToCache = [
   './',
-  './index.html',
-  './manifest.json'
+  'manifest.json'
 ];
 
-// 1. INSTALASI: Menyimpan file penting ke memori HP
 self.addEventListener('install', event => {
-    self.skipWaiting();
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-        .then(cache => {
-            return cache.addAll(urlsToCache);
-        })
-    );
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(urlsToCache);
+    })
+  );
+  self.skipWaiting();
 });
 
-// 2. AKTIVASI: Membersihkan memori lama jika ada versi baru
 self.addEventListener('activate', event => {
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cache => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
+          }
         })
-    );
+      );
+    })
+  );
+  self.clients.claim();
 });
 
-// 3. FETCHING: Memuat aplikasi lebih cepat 
 self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request)
-        .then(response => {
-            // Jika ada di memori HP, pakai itu. Jika tidak, ambil dari internet.
-            return response || fetch(event.request);
-        })
-    );
+  event.respondWith(
+    fetch(event.request).catch(() => caches.match(event.request))
+  );
 });
 
-// 4. MENDENGARKAN PUSH NOTIFICATION DARI SISTEM
-self.addEventListener('push', event => {
-    const data = event.data ? event.data.json() : {};
-    const title = data.title || 'Kacida Bersatu';
-    
-    const options = {
-        body: data.body || 'Anda memiliki pemberitahuan baru.',
-        icon: 'https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ',
-        badge: 'https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ',
-        vibrate: [200, 100, 200],
-        data: {
-            url: data.url || '/'
+// EVENT KLIK NOTIFIKASI HP -> BUKALINK TUJUAN DARI SPREADSHEET
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  
+  var targetUrl = (event.notification.data && event.notification.data.url) 
+    ? event.notification.data.url 
+    : 'https://sites.google.com/view/laporansementara';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+      for (var i = 0; i < clientList.length; i++) {
+        var client = clientList[i];
+        if (client.url === targetUrl && 'focus' in client) {
+          return client.focus();
         }
-    };
-    
-    event.waitUntil(self.registration.showNotification(title, options));
-});
-
-// 5. AKSI SAAT NOTIFIKASI DIKLIK OLEH USER
-self.addEventListener('notificationclick', event => {
-    event.notification.close();
-    const urlToOpen = event.notification.data.url;
-    
-    event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
-            // Jika web sudah terbuka di background, langsung buka dan fokuskan
-            for (let i = 0; i < windowClients.length; i++) {
-                const client = windowClients[i];
-                if (client.url === urlToOpen && 'focus' in client) {
-                    return client.focus();
-                }
-            }
-            // Jika web sedang ditutup sepenuhnya, buka tab/aplikasi baru
-            if (clients.openWindow && urlToOpen) {
-                return clients.openWindow(urlToOpen);
-            }
-        })
-    );
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
 });
