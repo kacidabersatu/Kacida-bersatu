@@ -14,6 +14,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
+    <!-- LIBRARY GRAFIK TREN & GENERATOR GAMBAR KARTU HD -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
         :root {
             --bg-dark: #03170a;
@@ -111,10 +115,11 @@
         .menu-grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; position: relative; z-index: 2; }
         .menu-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; position: relative; z-index: 2; }
 
-        .menu-3d-item { display: flex; flex-direction: column; align-items: center; text-align: center; text-decoration: none; cursor: pointer; }
-        .icon-box-3d { width: 44px; height: 44px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; }
+        .menu-3d-item { display: flex; flex-direction: column; align-items: center; text-align: center; text-decoration: none; cursor: pointer; transition: transform 0.2s; }
+        .menu-3d-item:active { transform: scale(0.92); }
+        .icon-box-3d { width: 44px; height: 44px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .icon-box-3d img { width: 26px; height: 28px; object-fit: contain; }
-        .menu-label { font-size: 0.6rem; font-weight: 500; color: var(--text-white); line-height: 1.2; }
+        .menu-label { font-size: 0.6rem; font-weight: 600; color: var(--text-white); line-height: 1.2; }
         
         .rocket-deco { position: absolute; right: -10px; bottom: -10px; width: 85px; z-index: 1; pointer-events: none; opacity: 0.9; }
 
@@ -173,10 +178,10 @@
         .loading-text { font-size: 0.75rem; font-weight: 700; color: var(--accent-green); }
 
         .btn-copy-action {
-            background: var(--accent-green); color: #03170a; font-weight: 800; font-size: 0.72rem;
-            padding: 8px 12px; border-radius: 10px; border: none; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            width: 100%; margin-top: 6px; box-shadow: 0 2px 10px rgba(34, 197, 94, 0.3);
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #03170a; font-weight: 800; font-size: 0.75rem;
+            padding: 10px 14px; border-radius: 12px; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; margin-top: 8px; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
             transition: all 0.2s ease;
         }
 
@@ -213,6 +218,17 @@
         .star-rating { display: flex; gap: 8px; justify-content: center; margin: 12px 0; }
         .star-rating i { font-size: 1.6rem; color: #475569; cursor: pointer; transition: color 0.2s; }
         .star-rating i.active { color: var(--gold); }
+
+        .gauge-container { display: flex; flex-direction: column; align-items: center; margin: 8px 0; }
+        .gauge-svg { width: 130px; height: 75px; }
+
+        .sub-tab-btn {
+            flex: 1; padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 8px; border: 1px solid var(--card-border);
+            background: var(--bg-dark); color: var(--text-sub); cursor: pointer; text-align: center;
+        }
+        .sub-tab-btn.active {
+            background: var(--accent-green); color: #03170a; border-color: var(--accent-green);
+        }
     </style>
 </head>
 <body>
@@ -232,7 +248,7 @@
     </div>
 
     <div id="customModalOverlay" class="custom-modal-overlay hidden">
-        <div class="custom-modal-card">
+        <div id="customModalCard" class="custom-modal-card">
             <button onclick="closeCustomModal()" class="modal-btn-close"><i class="fa-solid fa-xmark"></i></button>
             <h3 id="customModalTitle" style="font-size: 0.95rem; font-weight: 800; color: var(--accent-green); margin-bottom: 10px;">Modal Title</h3>
             <div id="customModalBody" style="font-size: 0.78rem; line-height: 1.5; max-height: 68vh; overflow-y: auto;"></div>
@@ -361,6 +377,7 @@
                 </div>
             </section>
 
+            <!-- MENU UTAMA GABUNGAN: 5 MENU INTERAKTIF PRO + MENU SPREADSHEET -->
             <div class="section-header"><h3 class="section-title"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--gold);"></i> Menu Utama</h3><a href="#" class="btn-see-all" onclick="openAllMenuModal('Utama')">Lihat Semua <i class="fa-solid fa-chevron-right"></i></a></div>
             <section class="menu-section-card">
                 <div id="gridMenuUtama" class="menu-grid-5"></div>
@@ -381,9 +398,12 @@
 
             <div id="chatBox" class="wa-chat-container custom-scrollbar"></div>
 
-            <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
                 <input type="text" id="inputChatMsg" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') handleSendChatAction()" style="flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 14px; font-size: 0.75rem; color: white; outline: none;">
-                <button onclick="handleSendChatAction()" style="background: var(--accent-green); color: #03170a; padding: 0 16px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer;"><i class="fa-solid fa-paper-plane"></i></button>
+                
+                <button id="btnVoiceMic" onclick="startVoiceRecognition()" title="Voice Command Suara" style="background: rgba(255,255,255,0.1); border: 1px solid var(--card-border); color: var(--accent-green); width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem;"><i class="fa-solid fa-microphone"></i></button>
+                
+                <button onclick="handleSendChatAction()" style="background: var(--accent-green); color: #03170a; padding: 0 16px; height: 40px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer;"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
 
@@ -450,7 +470,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygMzpUNsA9bAvxoKMV4x9hCL7QiC3q_YmqCHCuV_I7qIucebfS2MnG8baT_D0WlAg/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzz6VFDuV6-FxJN9KCs58MwIXDLlzs9h2j0_Dt8ChtM8sYsHBRlat1sZGdKHx113hf-/exec";
 
         let currentNik = localStorage.getItem("NIK_KACIDA") || "";
         let dashboardData = null;
@@ -464,6 +484,7 @@
         let deferredPrompt = null;
         let lastPerformaText = "";
         let selectedRatingStars = 5;
+        let previousChatCount = 0;
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -471,7 +492,48 @@
             });
         }
 
-        // FUNGSI PEMBACA JAM CHAT PINTAR - FIX INVALID DATE & TIMEZONE SHIFT
+        function playChatSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.2);
+            } catch(e) {}
+        }
+
+        function startVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Browser HP Anda belum mendukung fitur Voice Command.");
+                return;
+            }
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'id-ID';
+            recognition.start();
+
+            const micBtn = document.getElementById("btnVoiceMic");
+            if (micBtn) micBtn.style.color = "#ef4444";
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById("inputChatMsg").value = transcript;
+                if (micBtn) micBtn.style.color = "var(--accent-green)";
+                handleSendChatAction();
+            };
+
+            recognition.onerror = function() {
+                if (micBtn) micBtn.style.color = "var(--accent-green)";
+            };
+        }
+
         function formatChatTime(rawTime) {
             if (!rawTime) return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
@@ -480,7 +542,6 @@
                 return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             }
 
-            // MENGAMBIL "23:28" DARI FORMAT "2026-07-26 23:28:15"
             if (str.includes(" ")) {
                 const parts = str.split(" ");
                 const timePart = parts[1] || parts[0];
@@ -490,13 +551,11 @@
                 }
             }
 
-            // BILA DALAM FORMAT "23:28:15" ATAU "23:28"
             if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(str)) {
                 const parts = str.split(":");
                 return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
             }
 
-            // PARSE DATE OBJECT STANDAR
             let d = new Date(str);
             if (!isNaN(d.getTime())) {
                 return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -571,7 +630,7 @@
                         <i class="fa-solid fa-bell-circle-check" style="font-size:2.5rem; color:var(--accent-green); margin-bottom:8px;"></i>
                         <h4 style="color:var(--accent-green); font-size:0.9rem; font-weight:800;">NOTIFIKASI SUDAH AKTIF 🟢</h4>
                         <p style="font-size:0.7rem; color:var(--text-sub); margin-top:6px; line-height:1.4;">
-                            Terima kasih, Anda bisa mendapatkan informasi yang update
+                            Terimakasih, Anda sudah bisa menerima informasi secara realtime.
                         </p>
                     </div>
                 `);
@@ -650,6 +709,10 @@
                     else if (action === "readNotif") r.readNotif(currentNik, params.idNotif);
                     else if (action === "logActivity") r.logAktivitasAPI(currentNik, params.aktivitas, params.detail);
                     else if (action === "submitSurvey") r.submitSurveyData(currentNik, params.rating, params.saran);
+                    else if (action === "submitShiftHandover") r.submitShiftHandover(currentNik, params);
+                    else if (action === "submitExpiredCheck") r.submitExpiredCheck(currentNik, params);
+                    else if (action === "submitDisplayCheck") r.submitDisplayCheck(currentNik, params);
+                    else if (action === "confirmExpired") r.confirmExpiredHandled(currentNik, params.idExpired);
                 });
             } else {
                 const url = new URL(SCRIPT_URL);
@@ -816,7 +879,7 @@
             const isSurveyDone = localStorage.getItem("SURVEY_DONE_" + currentNik);
 
             if (loginCount >= 5 && isSurveyDone !== "TRUE") {
-                showCustomModal("⭐ SURVEY KEPUASAN TENTANG APLIKASI", `
+                showCustomModal("⭐ SURVEY TENTANG APLIKASI", `
                     <div style="text-align: center; padding: 4px;">
                         <p style="font-size:0.75rem; color:var(--text-sub);">Mohon berikan penilaian dan masukan Anda!</p>
                         
@@ -910,7 +973,9 @@
             document.getElementById("valRank").innerText = "#" + data.badges.rank;
 
             renderCarousel(data.banners, data.user.namaToko);
-            renderMenuGrid("gridMenuUtama", data.menu.utama.slice(0, 10));
+
+            // RENDER MENU UTAMA GABUNGAN (SPREADSHEET + 5 MENU INTERAKTIF PRO)
+            renderCombinedMenuUtama(data.menu.utama || []);
             renderMenuGrid("gridMenuLainnya", data.menu.layanan.slice(0, 8));
 
             if (data.struktur) {
@@ -936,6 +1001,35 @@
                     `).join("");
                 }
             }
+        }
+
+        // RENDER MENU UTAMA GABUNGAN
+        function renderCombinedMenuUtama(sheetUtamaMenus) {
+            const container = document.getElementById("gridMenuUtama");
+            
+            const builtInMenus = [
+                { name: "Kalkulator Kasir", icon: "https://cdn-icons-png.flaticon.com/512/3112/3112946.png", action: "openKalkulatorKasirModal()" },
+                { name: "Ceklis Expired", icon: "https://cdn-icons-png.flaticon.com/512/7518/7518748.png", action: "openCeklisExpiredModal()" },
+                { name: "Ceklis Display", icon: "https://cdn-icons-png.flaticon.com/512/3652/3652191.png", action: "openCeklisDisplayModal()" },
+                { name: "Serah Terima", icon: "https://cdn-icons-png.flaticon.com/512/3767/3767084.png", action: "openSerahTerimaModal()" },
+                { name: "Roleplay Kasir", icon: "https://cdn-icons-png.flaticon.com/512/4384/4384248.png", action: "openRoleplayModal()" }
+            ];
+
+            let html = builtInMenus.map(m => `
+                <div class="menu-3d-item" onclick="${m.action}">
+                    <div class="icon-box-3d"><img src="${m.icon}"></div>
+                    <span class="menu-label">${m.name}</span>
+                </div>
+            `).join("");
+
+            html += sheetUtamaMenus.map(m => `
+                <div class="menu-3d-item" onclick="onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')">
+                    <div class="icon-box-3d"><img src="${getSmart3DIcon(m["Nama Menu"], m["Icon URL"])}"></div>
+                    <span class="menu-label">${m["Nama Menu"]}</span>
+                </div>
+            `).join("");
+
+            container.innerHTML = html;
         }
 
         function renderCarousel(banners, namaToko) {
@@ -1010,6 +1104,383 @@
             if (link && link !== "#") window.open(link, "_blank");
         }
 
+        // ==========================================
+        // MODAL 1: KALKULATOR KASIR (TANPA STRUK)
+        // ==========================================
+        function openKalkulatorKasirModal() {
+            showCustomModal("🧮 KALKULATOR TARGET KASIR", `
+                <div style="font-size:0.75rem;">
+                    <p style="color:var(--text-sub); margin-bottom:10px;">Masukkan jumlah pencapaian transaksi produk penawaran kamu saat ini:</p>
+
+                    <label style="font-weight:700; color:var(--accent-green);">Aktual Transaksi PSM (Pcs):</label>
+                    <input type="number" id="calcActPsm" placeholder="Contoh: 15" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+
+                    <label style="font-weight:700; color:var(--gold);">Aktual Transaksi PWP (Pcs):</label>
+                    <input type="number" id="calcActPwp" placeholder="Contoh: 8" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+
+                    <label style="font-weight:700; color:#38bdf8;">Aktual Transaksi Serba Gratis (Pcs):</label>
+                    <input type="number" id="calcActSerba" placeholder="Contoh: 12" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 12px 0; outline:none;">
+
+                    <button onclick="calculateCashierTarget()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">HITUNG REKOMENDASI KASIR</button>
+
+                    <div id="calcResultBox" class="hidden" style="margin-top:12px; background:rgba(34,197,94,0.1); border:1px solid var(--accent-green); padding:10px; border-radius:10px;">
+                        <h4 style="color:var(--accent-green); font-weight:800; margin-bottom:4px;">🎯 REKOMENDASI STRATEGI SHIFT INI:</h4>
+                        <p id="calcResultMsg" style="font-size:0.72rem; line-height:1.4; color:#e2e8f0;"></p>
+                    </div>
+                </div>
+            `);
+        }
+
+        function calculateCashierTarget() {
+            const psm = Number(document.getElementById("calcActPsm").value || 0);
+            const pwp = Number(document.getElementById("calcActPwp").value || 0);
+            const serba = Number(document.getElementById("calcActSerba").value || 0);
+
+            const targetPsm = 25;
+            const targetPwp = 15;
+            const targetSerba = 20;
+
+            const gapPsm = targetPsm - psm > 0 ? targetPsm - psm : 0;
+            const gapPwp = targetPwp - pwp > 0 ? targetPwp - pwp : 0;
+            const gapSerba = targetSerba - serba > 0 ? targetSerba - serba : 0;
+
+            const box = document.getElementById("calcResultBox");
+            const msg = document.getElementById("calcResultMsg");
+
+            msg.innerHTML = `
+                • <b>PSM:</b> Tercapai ${psm} Pcs ${gapPsm > 0 ? `<span style="color:#ef4444;">(Butuh +${gapPsm} Pcs lagi)</span>` : '<span style="color:var(--accent-green);">(TARGET TERCAPAI 🟢)</span>'}<br/>
+                • <b>PWP:</b> Tercapai ${pwp} Pcs ${gapPwp > 0 ? `<span style="color:#ef4444;">(Butuh +${gapPwp} Pcs lagi)</span>` : '<span style="color:var(--accent-green);">(TARGET TERCAPAI 🟢)</span>'}<br/>
+                • <b>Serba Gratis:</b> Tercapai ${serba} Pcs ${gapSerba > 0 ? `<span style="color:#ef4444;">(Butuh +${gapSerba} Pcs lagi)</span>` : '<span style="color:var(--accent-green);">(TARGET TERCAPAI 🟢)</span>'}<br/><br/>
+                💡 <b>Saran:</b> Fokuskan penawaran kasir pada produk PWP & PSM saat cetak struk berikutnya!
+            `;
+            box.classList.remove("hidden");
+        }
+
+        // ==========================================
+        // MODAL 2: CEKLIS EXPIRED DATE + SUB-TAB TOMBOL KONFIRMASI
+        // ==========================================
+        function openCeklisExpiredModal() {
+            showCustomModal("⚠️ MODUL CEKLIS EXPIRED DATE", `
+                <div style="font-size:0.75rem;">
+                    <div style="display:flex; gap:6px; margin-bottom:12px;">
+                        <button id="btnExpTabForm" class="sub-tab-btn active" onclick="switchExpiredSubTab('form')">➕ Input Barang</button>
+                        <button id="btnExpTabAlert" class="sub-tab-btn" onclick="switchExpiredSubTab('alert')">📋 Alert Expired Toko</button>
+                    </div>
+
+                    <!-- SUB TAB 1: FORM INPUT BARANG EXPIRED -->
+                    <div id="subTabExpForm">
+                        <label style="font-weight:700;">Kategori Rak / Barang:</label>
+                        <select id="expKategori" style="width:100%; background:var(--bg-dark); color:white; border:1px solid var(--card-border); border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+                            <option value="Makanan">Makanan / Snack</option>
+                            <option value="Minuman">Minuman / Dairy</option>
+                            <option value="Kosmetik">Kosmetik & Personal Care</option>
+                            <option value="Non Food">Non-Food / Kebutuhan Rumah</option>
+                        </select>
+
+                        <label style="font-weight:700;">Nama Barang / Produk:</label>
+                        <input type="text" id="expNamaBarang" placeholder="Contoh: Susu UHT Chocolate 250ml" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+
+                        <label style="font-weight:700;">Jumlah Stok (Qty):</label>
+                        <input type="number" id="expStokQty" placeholder="Contoh: 12" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+
+                        <label style="font-weight:700;">Tanggal Expired Date:</label>
+                        <input type="date" id="expTanggal" style="width:100%; background:var(--bg-dark); color:white; border:1px solid var(--card-border); border-radius:8px; padding:8px; margin:4px 0 14px 0; outline:none;">
+
+                        <button onclick="handleExpiredSubmit()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">SIMPAN DATA EXPIRED</button>
+                    </div>
+
+                    <!-- SUB TAB 2: DAFTAR ALERT BARANG EXPIRED & TOMBOL KONFIRMASI SELESAI -->
+                    <div id="subTabExpAlert" class="hidden">
+                        <div id="expiredAlertListContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
+                    </div>
+                </div>
+            `);
+
+            renderExpiredAlertList();
+        }
+
+        function switchExpiredSubTab(tab) {
+            const btnForm = document.getElementById("btnExpTabForm");
+            const btnAlert = document.getElementById("btnExpTabAlert");
+            const secForm = document.getElementById("subTabExpForm");
+            const secAlert = document.getElementById("subTabExpAlert");
+
+            if (tab === 'form') {
+                btnForm.classList.add("active");
+                btnAlert.classList.remove("active");
+                secForm.classList.remove("hidden");
+                secAlert.classList.add("hidden");
+            } else {
+                btnAlert.classList.add("active");
+                btnForm.classList.remove("active");
+                secAlert.classList.remove("hidden");
+                secForm.classList.add("hidden");
+            }
+        }
+
+        function renderExpiredAlertList() {
+            const container = document.getElementById("expiredAlertListContainer");
+            if (!container) return;
+
+            const list = dashboardData?.expiredAlerts || [];
+            if (list.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-sub); text-align:center; padding:15px;">Aman! Tidak ada barang mendekati expired date saat ini. 🟢</p>`;
+                return;
+            }
+
+            container.innerHTML = list.map(item => `
+                <div style="background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <p style="font-weight:bold; color:white; font-size:0.75rem;">${item.NAMA_BARANG || item.namaBarang}</p>
+                        <p style="font-size:0.62rem; color:var(--text-sub);">Rak: ${item.KATEGORI_RAK || '-'} | Stok: ${item.STOK_QTY} Pcs</p>
+                        <p style="font-size:0.62rem; color:#ef4444; font-weight:bold; margin-top:2px;">📅 Exp: ${item.TANGGAL_EXPIRED}</p>
+                    </div>
+                    <button onclick="confirmExpiredAction('${item.ID}')" style="background:rgba(34,197,94,0.2); color:var(--accent-green); border:1px solid var(--accent-green); padding:6px 10px; border-radius:8px; font-weight:bold; font-size:0.62rem; cursor:pointer;">
+                        ✅ Konfirmasi Selesai
+                    </button>
+                </div>
+            `).join("");
+        }
+
+        async function confirmExpiredAction(idExpired) {
+            showLoading("Mengonfirmasi Status...");
+            const res = await apiCall("confirmExpired", { idExpired: idExpired });
+            hideLoading();
+
+            if (res && res.status === "success") {
+                if (dashboardData && dashboardData.expiredAlerts) {
+                    dashboardData.expiredAlerts = dashboardData.expiredAlerts.filter(e => String(e.ID) !== String(idExpired));
+                }
+                renderExpiredAlertList();
+                showCustomModal("✅ KONFIRMASI BERHASIL", `<p style="color:var(--accent-green); font-weight:bold;">${res.message}</p>`);
+            }
+        }
+
+        async function handleExpiredSubmit() {
+            const kategori = document.getElementById("expKategori").value;
+            const namaBarang = document.getElementById("expNamaBarang").value.trim();
+            const stokQty = document.getElementById("expStokQty").value;
+            const tglExpired = document.getElementById("expTanggal").value;
+
+            if (!namaBarang || !stokQty || !tglExpired) {
+                alert("Mohon lengkapi semua kolom terlebih dahulu!");
+                return;
+            }
+
+            showLoading("Menyimpan Data Expired...");
+            const res = await apiCall("submitExpiredCheck", { kategori, namaBarang, stokQty, tglExpired });
+            hideLoading();
+
+            if (res && res.status === "success") {
+                closeCustomModal();
+                showCustomModal("✅ SUKSES", `<p style="color:var(--accent-green); font-weight:bold;">${res.message}</p>`);
+            }
+        }
+
+        // ==========================================
+        // MODAL 3: CEKLIS DISPLAY KERAPIHAN TOKO (+5 POIN)
+        // ==========================================
+        function openCeklisDisplayModal() {
+            showCustomModal("✨ AUDIT KERAPIHAN DISPLAY TOKO", `
+                <div style="font-size:0.75rem;">
+                    <p style="color:var(--text-sub); margin-bottom:10px;">Centang kriteria kerapihan di bawah untuk mengklaim <b>+5 Poin Reward</b>:</p>
+
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+                        <label style="background:var(--bg-dark); padding:8px 10px; border-radius:8px; border:1px solid var(--card-border); display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="chkPriceTag" checked style="accent-color:var(--accent-green); width:18px; height:18px;">
+                            <span>Etiket Harga (*Price Tag*) Sesuai & Lengkap</span>
+                        </label>
+
+                        <label style="background:var(--bg-dark); padding:8px 10px; border-radius:8px; border:1px solid var(--card-border); display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="chkFefo" checked style="accent-color:var(--accent-green); width:18px; height:18px;">
+                            <span>Penataan Barang Sesuai Metode FEFO</span>
+                        </label>
+
+                        <label style="background:var(--bg-dark); padding:8px 10px; border-radius:8px; border:1px solid var(--card-border); display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="chkKebersihan" checked style="accent-color:var(--accent-green); width:18px; height:18px;">
+                            <span>Kebersihan Rak & Area Toko Rapi</span>
+                        </label>
+
+                        <label style="background:var(--bg-dark); padding:8px 10px; border-radius:8px; border:1px solid var(--card-border); display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="chkKasirDisplay" checked style="accent-color:var(--accent-green); width:18px; height:18px;">
+                            <span>Display Meja Kasir (PSM/PWP) Terpajang Sesuai</span>
+                        </label>
+                    </div>
+
+                    <button onclick="handleDisplaySubmit()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">SIMPAN & KLAIM +5 POIN</button>
+                </div>
+            `);
+        }
+
+        async function handleDisplaySubmit() {
+            const priceTagOk = document.getElementById("chkPriceTag").checked ? "YA" : "TIDAK";
+            const fefoOk = document.getElementById("chkFefo").checked ? "YA" : "TIDAK";
+            const kebersihanOk = document.getElementById("chkKebersihan").checked ? "YA" : "TIDAK";
+            const displayKasirOk = document.getElementById("chkKasirDisplay").checked ? "YA" : "TIDAK";
+
+            showLoading("Menyimpan Ceklis Display...");
+            const res = await apiCall("submitDisplayCheck", { priceTagOk, fefoOk, kebersihanOk, displayKasirOk });
+            hideLoading();
+
+            if (res && res.status === "success") {
+                const ptEl = document.getElementById("valPoints");
+                if (ptEl) {
+                    let curr = Number(String(ptEl.innerText).replace(/\./g, '')) || 0;
+                    ptEl.innerText = Number(curr + 5).toLocaleString('id-ID');
+                }
+                closeCustomModal();
+                showCustomModal("🎉 POIN DITAMBAHKAN", `<p style="color:var(--accent-green); font-weight:bold;">${res.message}</p>`);
+            }
+        }
+
+        // ==========================================
+        // MODAL 4: SERAH TERIMA SHIFT (07:00-18:00 vs 15:00-23:59)
+        // ==========================================
+        function openSerahTerimaModal() {
+            const currentHour = new Date().getHours();
+            let autoShift = "Shift 1";
+            if (currentHour >= 15 && currentHour <= 23) {
+                autoShift = "Shift 2";
+            }
+
+            showCustomModal("🔄 FORM SERAH TERIMA SHIFT", `
+                <div style="font-size:0.75rem;">
+                    <label style="font-weight:700;">Shift Kerja Saat Ini:</label>
+                    <select id="stShiftVal" style="width:100%; background:var(--bg-dark); color:var(--accent-green); font-weight:bold; border:1px solid var(--card-border); border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+                        <option value="Shift 1" ${autoShift === "Shift 1" ? 'selected' : ''}>Shift 1 (07:00 - 18:00 WIB)</option>
+                        <option value="Shift 2" ${autoShift === "Shift 2" ? 'selected' : ''}>Shift 2 (15:00 - 23:59 WIB)</option>
+                    </select>
+
+                    <label style="font-weight:700;">Pendapatan Sales Shift (Rp):</label>
+                    <input type="number" id="stSalesShift" placeholder="Contoh: 4500000" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <div>
+                            <label style="font-weight:700;">Actual PSM (Pcs):</label>
+                            <input type="number" id="stActPsm" placeholder="0" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 8px 0; outline:none;">
+                        </div>
+                        <div>
+                            <label style="font-weight:700;">Actual Serba Gratis:</label>
+                            <input type="number" id="stActSerba" placeholder="0" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 8px 0; outline:none;">
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <div>
+                            <label style="font-weight:700;">Actual PWP (Pcs):</label>
+                            <input type="number" id="stActPwp" placeholder="0" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+                        </div>
+                        <div>
+                            <label style="font-weight:700;">Actual New Member:</label>
+                            <input type="number" id="stActMember" placeholder="0" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+                        </div>
+                    </div>
+
+                    <label style="font-weight:700;">Catatan / Kendala Shift:</label>
+                    <textarea id="stCatatan" placeholder="Contoh: Kertas EDC BCA habis 1 rol, Kasir bersih." style="width:100%; height:60px; background:var(--bg-dark); color:white; border:1px solid var(--card-border); border-radius:8px; padding:8px; font-size:0.7rem; outline:none; resize:none; margin-bottom:12px;"></textarea>
+
+                    <button onclick="handleShiftSubmit()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">SIMPAN & SERAH TERIMA</button>
+                </div>
+            `);
+        }
+
+        async function handleShiftSubmit() {
+            const shift = document.getElementById("stShiftVal").value;
+            const salesShift = document.getElementById("stSalesShift").value;
+            const actPsm = document.getElementById("stActPsm").value;
+            const actSerbaGratis = document.getElementById("stActSerba").value;
+            const actPwp = document.getElementById("stActPwp").value;
+            const actNewMember = document.getElementById("stActMember").value;
+            const catatan = document.getElementById("stCatatan").value.trim();
+
+            if (!salesShift) {
+                alert("Mohon isi Pendapatan Sales Shift terlebih dahulu!");
+                return;
+            }
+
+            showLoading("Menyimpan Serah Terima Shift...");
+            const res = await apiCall("submitShiftHandover", { shift, salesShift, actPsm, actSerbaGratis, actPwp, actNewMember, catatan });
+            hideLoading();
+
+            if (res && res.status === "success") {
+                closeCustomModal();
+                showCustomModal("✅ SERAH TERIMA SUKSES", `<p style="color:var(--accent-green); font-weight:bold;">${res.message}</p>`);
+            }
+        }
+
+        // ==========================================
+        // MODAL 5: ROLEPLAY SIMULATOR KASIR (GAME AI GEMINI)
+        // ==========================================
+        function openRoleplayModal() {
+            showCustomModal("🎮 GAME ROLEPLAY SIMULATOR KASIR AI", `
+                <div style="font-size:0.75rem;">
+                    <p style="color:var(--text-sub); margin-bottom:10px;">Latihan simulasi melayani pembeli di kasir bersama Kacida AI. AI akan menilai keberanian dan ketangkasan penawaran kamu!</p>
+
+                    <div style="background:var(--bg-dark); border:1px solid var(--card-border); border-radius:12px; padding:12px; margin-bottom:12px;">
+                        <p style="color:var(--gold); font-weight:bold;">🤖 Pembeli (Kacida AI):</p>
+                        <p style="margin-top:4px; font-style:italic;">"Mas/Mbak, saya mau bayar belanjaan ini ya (1 Sabun & 1 Roti). Ada promo apa yang menarik hari ini?"</p>
+                    </div>
+
+                    <label style="font-weight:700;">Jawaban Penawaran Kamu (Kasir):</label>
+                    <textarea id="txtRoleplayInput" placeholder="Ketik penawaran PSM/PWP/Serba Gratis kamu di sini..." style="width:100%; height:70px; background:var(--bg-dark); color:white; border:1px solid var(--card-border); border-radius:8px; padding:8px; font-size:0.72rem; outline:none; resize:none; margin:4px 0 12px 0;"></textarea>
+
+                    <button onclick="handleRoleplaySubmit()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">MINTA PENILAIAN AI 🤖</button>
+
+                    <div id="roleplayScoreBox" class="hidden" style="margin-top:12px; background:rgba(34,197,94,0.1); border:1px solid var(--accent-green); padding:10px; border-radius:10px;">
+                        <p id="roleplayScoreMsg" style="font-size:0.72rem; line-height:1.4; color:#e2e8f0; white-space:pre-line;"></p>
+                    </div>
+                </div>
+            `);
+        }
+
+        async function handleRoleplaySubmit() {
+            const input = document.getElementById("txtRoleplayInput").value.trim();
+            if (!input) {
+                alert("Ketik jawaban penawaran kasir kamu terlebih dahulu!");
+                return;
+            }
+
+            const promptText = `Kamu adalah Penguji Roleplay Kasir Retail. Evaluasi penawaran kasir berikut kepada pembeli: "${input}". Berikan SKOR PENAWARAN (1-100) dan 2 kalimat evaluasi taktis singkat!`;
+
+            showLoading("Gemini AI Sedang Menilai Penawaran Kamu...");
+            const res = await apiCall("askAI", { pertanyaan: promptText });
+            hideLoading();
+
+            if (res && res.status === "success" && res.jawaban) {
+                const box = document.getElementById("roleplayScoreBox");
+                const msg = document.getElementById("roleplayScoreMsg");
+                msg.innerHTML = res.jawaban;
+                box.classList.remove("hidden");
+            }
+        }
+
+        function downloadPerformaCardHD() {
+            showLoading("Mencetak Gambar Kartu Performa HD...");
+            const cardElement = document.getElementById("customModalCard");
+
+            if (!cardElement || typeof html2canvas === "undefined") {
+                hideLoading();
+                alert("Gagal membuat gambar. Pustaka pencetak sedang memuat.");
+                return;
+            }
+
+            html2canvas(cardElement, {
+                scale: 2.5,
+                backgroundColor: "#0C2B14",
+                useCORS: true
+            }).then(canvas => {
+                hideLoading();
+                const image = canvas.toDataURL("image/png");
+                const link = document.createElement('a');
+                link.download = `Kartu_Performa_Kacida_${Date.now()}.png`;
+                link.href = image;
+                link.click();
+            }).catch(err => {
+                hideLoading();
+                alert("Gagal mengunduh gambar: " + err);
+            });
+        }
+
         function showBriefProfile() {
             if (!dashboardData) return;
             const u = dashboardData.user;
@@ -1041,7 +1512,7 @@
         }
 
         async function openSalesMTDModal() {
-            showLoading("Memuat Rincian Sales Bulan Berjalan...");
+            showLoading("Memuat Rincian Sales & Grafik MTD...");
             const d = await apiCall("getDetailSalesMTD");
             hideLoading();
 
@@ -1051,15 +1522,27 @@
             }
 
             let rowsHtml = "";
+            let labels = [];
+            let data2026 = [];
+            let pointColors = [];
+
             if (d.listHarian && d.listHarian.length > 0) {
-                rowsHtml = d.listHarian.map(item => `
-                    <tr>
-                        <td style="font-weight:700;">${item.tanggalFormatted}</td>
-                        <td style="color:var(--accent-green); font-weight:800;">${item.sales2026}</td>
-                        <td style="color:var(--gold); font-weight:700;">${item.std2026}</td>
-                        <td style="color:#38bdf8;">${item.apc2026}</td>
-                    </tr>
-                `).join("");
+                rowsHtml = d.listHarian.map(item => {
+                    labels.push(item.tanggalFormatted);
+                    data2026.push(item.sales2026Num);
+                    pointColors.push(item.isGrowth ? '#22c55e' : '#ef4444');
+
+                    return `
+                        <tr>
+                            <td style="font-weight:700;">${item.tanggalFormatted}</td>
+                            <td style="color:${item.isGrowth ? 'var(--accent-green)' : '#ef4444'}; font-weight:800;">
+                                ${item.sales2026} ${item.isGrowth ? '🟢' : '🔴'}
+                            </td>
+                            <td style="color:var(--gold); font-weight:700;">${item.std2026}</td>
+                            <td style="color:#38bdf8;">${item.apc2026}</td>
+                        </tr>
+                    `;
+                }).join("");
             } else {
                 rowsHtml = `<tr><td colspan="4" style="color:var(--text-sub);">Belum ada data harian di bulan ini.</td></tr>`;
             }
@@ -1074,7 +1557,11 @@
                         Total MTD Sales (s/d Tgl ${d.targetDay}): <strong style="color:#fff;">Rp ${Number(d.totalMtdSales).toLocaleString('id-ID')}</strong>
                     </div>
 
-                    <div style="max-height: 50vh; overflow-y: auto; border: 1px solid var(--card-border); border-radius: 10px;">
+                    <div style="background:var(--bg-dark); border:1px solid var(--card-border); border-radius:12px; padding:8px; margin-bottom:12px;">
+                        <canvas id="chartSalesTrend" style="width:100%; height:160px;"></canvas>
+                    </div>
+
+                    <div style="max-height: 40vh; overflow-y: auto; border: 1px solid var(--card-border); border-radius: 10px;">
                         <table class="tbl-sales-mtd">
                             <thead>
                                 <tr>
@@ -1092,7 +1579,37 @@
                 </div>
             `;
 
-            showCustomModal("📊 RINCIAN SALES BULAN BERJALAN", htmlBox);
+            showCustomModal("📊 RINCIAN SALES & GRAFIK MTD", htmlBox);
+
+            setTimeout(() => {
+                const ctx = document.getElementById('chartSalesTrend');
+                if (ctx && typeof Chart !== "undefined") {
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Sales 2026 (Rp)',
+                                data: data2026,
+                                borderColor: '#22c55e',
+                                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                pointBackgroundColor: pointColors,
+                                pointRadius: 4,
+                                fill: true,
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: { ticks: { color: '#94a3b8', font: { size: 9 } } },
+                                y: { ticks: { color: '#94a3b8', font: { size: 9 } } }
+                            }
+                        }
+                    });
+                }
+            }, 200);
         }
 
         async function openPerformaPopup() {
@@ -1105,13 +1622,30 @@
                 return;
             }
 
-            lastPerformaText = `📊 *PERFORMA TOKO ${d.namaToko}*\nTgl: ${d.tanggalTxt}\n\n💰 *Sales 2026*: Rp ${Number(d.sales2026).toLocaleString('id-ID')}\n📈 *Growth Harian*: ${d.growthHarian >= 0 ? '+' : ''}${d.growthHarian.toFixed(1)}%\n📊 *MTD Sales 2026*: Rp ${Number(d.mtd2026).toLocaleString('id-ID')} (${d.mtdGrowth.toFixed(1)}%)\n⚡ *SPD 2026*: Rp ${Math.round(d.spd).toLocaleString('id-ID')}\n🚀 *Rank Penawaran Area*: #${d.rankPenawaran} dari ${d.totalTokoArea} Toko\n🎯 *Point Penawaran*: ${d.pointDash} (${d.ketPoint})\n\n#KacidaBersatu`;
+            const ptNum = parseFloat(String(d.pointDash).replace('%','').replace(',','.')) || 0;
+            const gaugeRotation = Math.min(Math.max((ptNum / 150) * 180, 0), 180);
 
             const htmlBox = `
                 <div style="font-family: monospace, sans-serif; font-size: 0.7rem; line-height: 1.5; color: #fff; background: #03170a; padding: 12px; border-radius: 12px; border: 1px solid var(--card-border);">
                     <div style="display:flex; justify-content:space-between; font-weight:800; color:var(--accent-green); margin-bottom:2px; font-size:0.75rem;">
                         <span>📍 ${d.namaToko}</span>
                         <span style="color:var(--text-sub); font-size:0.62rem;">📅 Update: ${d.tanggalTxt}</span>
+                    </div>
+
+                    <div class="gauge-container">
+                        <svg class="gauge-svg" viewBox="0 0 100 50">
+                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1A3A2A" stroke-width="10"/>
+                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="url(#gaugeGrad)" stroke-width="10" stroke-dasharray="126" stroke-dashoffset="${126 - (ptNum/150)*126}"/>
+                            <line x1="50" y1="50" x2="20" y2="50" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" transform="rotate(${gaugeRotation}, 50, 50)" style="transition: transform 1.2s ease;"/>
+                            <defs>
+                                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#ef4444" />
+                                    <stop offset="60%" stop-color="#f59e0b" />
+                                    <stop offset="100%" stop-color="#22c55e" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <span style="font-size:0.75rem; font-weight:900; color:var(--gold); margin-top:-10px;">${d.pointDash} (${d.ketPoint})</span>
                     </div>
 
                     <div style="border-top:1px dashed var(--card-border); padding-top:6px; margin-top:6px;">
@@ -1122,11 +1656,13 @@
                     </div>
 
                     <div style="border-top:1px dashed var(--card-border); padding-top:6px; margin-top:6px;">
-                        <div style="color:#38bdf8; font-weight:700;">📊 MTD SALES & AVERAGE (s/d Tanggal ${d.tanggalTxt})</div>
+                        <div style="color:#38bdf8; font-weight:700;">📊 MTD SALES & PROYEKSI RUN-RATE</div>
                         <div style="padding-left:6px;">MTD Sales 2026 : Rp ${Number(d.mtd2026).toLocaleString('id-ID')}</div>
                         <div style="padding-left:6px;">MTD Sales 2025 : Rp ${Number(d.mtd2025 || 0).toLocaleString('id-ID')}</div>
-                        <div style="padding-left:6px; color:var(--accent-green); font-weight:700;">📊 MTD Growth    : ${d.mtdGrowth >= 0 ? '+' : ''}${d.mtdGrowth.toFixed(1)}% ${d.mtdGrowth >= 0 ? '🟢' : '🔴'}</div>
                         <div style="padding-left:6px; color:var(--gold); font-weight:700;">⚡ SPD 2026 (Rata-rata/Hari) : Rp ${Math.round(d.spd).toLocaleString('id-ID')}</div>
+                        <div style="padding-left:6px; color:#c7d2fe; font-size:0.62rem; margin-top:2px;">
+                            🔮 <b>Proyeksi Akhir Bulan:</b> Rp ${Number(d.estimasiOmsetAkhirBulan || 0).toLocaleString('id-ID')} (Sisa ${d.sisaHari} Hari)
+                        </div>
                     </div>
 
                     <div style="border-top:1px dashed var(--card-border); padding-top:6px; margin-top:6px;">
@@ -1154,47 +1690,17 @@
                         <div style="padding-left:6px; font-size:0.62rem; color:#cbd5e1; margin-top:2px;">
                             PSM: ${d.psm} | PWP: ${d.pwp} | SERBA GRATIS: ${d.serbaGratis} | APC: ${d.apc}
                         </div>
-                        ${d.pesanApresiasi ? `<div style="margin-top:6px; padding:6px; background:rgba(34,197,94,0.1); border:1px solid var(--accent-green); border-radius:6px; color:var(--accent-green); font-size:0.62rem;">${d.pesanApresiasi}</div>` : ''}
                     </div>
 
                     <div style="margin-top:12px; border-top:1px dashed var(--card-border); padding-top:8px;">
-                        <button id="btnCopyPerforma" onclick="copyPerformaText()" class="btn-copy-action">
-                            <i class="fa-regular fa-copy" style="font-size:0.9rem;"></i> Salin Teks Ringkasan Performa
+                        <button onclick="downloadPerformaCardHD()" class="btn-copy-action">
+                            <i class="fa-solid fa-image" style="font-size:0.9rem;"></i> DOWNLOAD GAMBAR KARTU PERFORMA HD 🖼️
                         </button>
                     </div>
                 </div>
             `;
 
             showCustomModal("📊 DATA PERFORMANCE", htmlBox);
-        }
-
-        function copyPerformaText() {
-            const btn = document.getElementById("btnCopyPerforma");
-            if (!lastPerformaText) return;
-
-            try {
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(lastPerformaText);
-                } else {
-                    const temp = document.createElement("textarea");
-                    temp.value = lastPerformaText;
-                    document.body.appendChild(temp);
-                    temp.select();
-                    document.execCommand("copy");
-                    document.body.removeChild(temp);
-                }
-                
-                if (btn) {
-                    btn.innerHTML = `<i class="fa-solid fa-check" style="font-size:0.9rem;"></i> Berhasil Disalin!`;
-                    btn.style.background = "#38bdf8";
-                    setTimeout(() => {
-                        btn.innerHTML = `<i class="fa-regular fa-copy" style="font-size:0.9rem;"></i> Salin Teks Ringkasan Performa`;
-                        btn.style.background = "var(--accent-green)";
-                    }, 2500);
-                }
-            } catch(e) {
-                alert("Gagal menyalin otomatis, silakan coba lagi.");
-            }
         }
 
         function openPengumumanModal() {
@@ -1274,7 +1780,6 @@
                 title.innerHTML = `<i class="fa-solid fa-comments" style="color: var(--accent-green);"></i> Room Chat Tim Kacida`;
                 loadChat();
 
-                // DIVERCEPAT SINKRONISASI REAL-TIME CHAT MENJADI 3 DETIK
                 if (!chatAutoRefreshTimer) {
                     chatAutoRefreshTimer = setInterval(() => {
                         if (chatRoomMode === 'team') loadChat(true);
@@ -1302,7 +1807,11 @@
                     return;
                 }
 
-                // SINKRONISASI OTOMATIS MERESET BADGE SAAT MENU CHAT DIBUKA
+                if (isBackgroundRefresh && chats.length > previousChatCount && previousChatCount > 0) {
+                    playChatSound();
+                }
+                previousChatCount = chats.length;
+
                 const navBadge = document.getElementById("navChatBadge");
                 if (navBadge) {
                     navBadge.classList.add("hidden");
