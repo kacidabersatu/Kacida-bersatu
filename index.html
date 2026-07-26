@@ -291,6 +291,7 @@
                     <i class="fa-solid fa-gauge-high"></i>
                 </div>
                 
+                <!-- LONCENG HEADER TANPA BADGE MERAH -->
                 <div id="notifPermBtn" class="notif-badge" onclick="manageNotificationPermission()" title="Pengaturan Notifikasi HP">
                     <i id="notifIconHeader" class="fa-regular fa-bell"></i>
                 </div>
@@ -470,7 +471,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzz6VFDuV6-FxJN9KCs58MwIXDLlzs9h2j0_Dt8ChtM8sYsHBRlat1sZGdKHx113hf-/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzsd38ksBcrWTUbxJxzoF_se5VxMbl5NJL2i9lxN0SO5O-9sL6hasrJSAGH_lI5Pstv/exec";
 
         let currentNik = localStorage.getItem("NIK_KACIDA") || "";
         let dashboardData = null;
@@ -630,7 +631,7 @@
                         <i class="fa-solid fa-bell-circle-check" style="font-size:2.5rem; color:var(--accent-green); margin-bottom:8px;"></i>
                         <h4 style="color:var(--accent-green); font-size:0.9rem; font-weight:800;">NOTIFIKASI SUDAH AKTIF 🟢</h4>
                         <p style="font-size:0.7rem; color:var(--text-sub); margin-top:6px; line-height:1.4;">
-                            Terimakasih, Anda sudah bisa menerima informasi secara realtime.
+                            Terima kasih, Sekarang sudah bisa menerima informasi terupdate.
                         </p>
                     </div>
                 `);
@@ -713,6 +714,7 @@
                     else if (action === "submitExpiredCheck") r.submitExpiredCheck(currentNik, params);
                     else if (action === "submitDisplayCheck") r.submitDisplayCheck(currentNik, params);
                     else if (action === "confirmExpired") r.confirmExpiredHandled(currentNik, params.idExpired);
+                    else if (action === "confirmHandover") r.confirmHandoverAction(currentNik, params.idHandover);
                 });
             } else {
                 const url = new URL(SCRIPT_URL);
@@ -781,7 +783,66 @@
                 checkAndShowRankToast();
                 checkAndShowSurveyModal();
                 checkAndTriggerHourlyPushNotif(data.notifications);
+
+                // CEK & TAMPILKAN POPUP SERAH TERIMA SHIFT UNTUK SHIFT 2 (14:00 - 23:59 WIB)
+                if (data.latestHandover) {
+                    checkAndShowHandoverPopUp(data.latestHandover);
+                }
             }
+        }
+
+        // POP-UP OTOMATIS SERAH TERIMA UNTUK ALL PERSONIL SHIFT 2 (JAM 14:00 - 23:59 WIB)
+        function checkAndShowHandoverPopUp(latestHandover) {
+            if (!latestHandover || !latestHandover.ID) return;
+
+            const currentHour = new Date().getHours();
+
+            // AKTIF PADA RENTANG SHIFT 2: 14:00 - 23:59 WIB (LEWAT DARI ITU POPUP DITUTUP)
+            if (currentHour >= 14 && currentHour <= 23) {
+                const handoverId = latestHandover.ID || latestHandover.TANGGAL;
+                const confirmKey = "HANDOVER_CONFIRMED_" + currentNik + "_" + handoverId;
+
+                if (!localStorage.getItem(confirmKey)) {
+                    showCustomModal("📋 LAPORAN SERAH TERIMA SHIFT 1", `
+                        <div style="font-size:0.75rem; line-height:1.5;">
+                            <p style="color:var(--text-sub); margin-bottom:8px;">Berikut adalah laporan serah terima dari Shift 1 untuk seluruh personil toko:</p>
+                            
+                            <div style="background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:10px; margin-bottom:12px;">
+                                <p style="color:var(--accent-green); font-weight:bold;">👤 Kasir Shift 1: ${latestHandover.NAMA_KASIR || '-'}</p>
+                                <p style="color:var(--gold); font-weight:bold; margin-top:2px;">💰 Sales Shift 1: Rp ${Number(latestHandover.SALES_SHIFT || 0).toLocaleString('id-ID')}</p>
+                                
+                                <div style="font-size:0.65rem; color:#cbd5e1; margin-top:6px; border-top:1px dashed var(--card-border); padding-top:4px;">
+                                    • Actual PSM: <b>${latestHandover.ACT_PSM || 0} Pcs</b><br/>
+                                    • Actual Serba Gratis: <b>${latestHandover.ACT_SERBA_GRATIS || 0} Pcs</b><br/>
+                                    • Actual PWP: <b>${latestHandover.ACT_PWP || 0} Pcs</b><br/>
+                                    • Actual New Member: <b>${latestHandover.ACT_NEW_MEMBER || 0} Member</b>
+                                </div>
+
+                                <div style="margin-top:6px; background:rgba(255,255,255,0.05); padding:6px; border-radius:6px; font-size:0.65rem; color:#e2e8f0;">
+                                    💬 <b>Catatan / Kendala:</b><br/>${latestHandover.CATATAN || '-'}
+                                </div>
+                            </div>
+
+                            <div style="display:flex; flex-direction:column; gap:8px;">
+                                <button onclick="confirmHandoverByStaff('${handoverId}')" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">
+                                    Oke Saya Terima Informasinya
+                                </button>
+                                <button onclick="closeCustomModal()" style="width:100%; background:rgba(255,255,255,0.08); color:var(--text-sub); font-weight:700; padding:8px; border-radius:10px; border:none; cursor:pointer;">
+                                    ✖️ Tutup / Saya Sedang Libur
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                }
+            }
+        }
+
+        async function confirmHandoverByStaff(handoverId) {
+            const confirmKey = "HANDOVER_CONFIRMED_" + currentNik + "_" + handoverId;
+            localStorage.setItem(confirmKey, "TRUE");
+            apiCall("confirmHandover", { idHandover: handoverId });
+            closeCustomModal();
+            showCustomModal("✅ KONFIRMASI TERIMA", "<p style='color:var(--accent-green); font-weight:bold;'>Terima kasih! Konfirmasi laporan shift telah dicatat.</p>");
         }
 
         function checkAndTriggerHourlyPushNotif(notifications) {
@@ -974,7 +1035,6 @@
 
             renderCarousel(data.banners, data.user.namaToko);
 
-            // RENDER MENU UTAMA GABUNGAN (SPREADSHEET + 5 MENU INTERAKTIF PRO)
             renderCombinedMenuUtama(data.menu.utama || []);
             renderMenuGrid("gridMenuLainnya", data.menu.layanan.slice(0, 8));
 
@@ -1003,7 +1063,6 @@
             }
         }
 
-        // RENDER MENU UTAMA GABUNGAN
         function renderCombinedMenuUtama(sheetUtamaMenus) {
             const container = document.getElementById("gridMenuUtama");
             
@@ -1104,9 +1163,6 @@
             if (link && link !== "#") window.open(link, "_blank");
         }
 
-        // ==========================================
-        // MODAL 1: KALKULATOR KASIR (TANPA STRUK)
-        // ==========================================
         function openKalkulatorKasirModal() {
             showCustomModal("🧮 KALKULATOR TARGET KASIR", `
                 <div style="font-size:0.75rem;">
@@ -1156,9 +1212,6 @@
             box.classList.remove("hidden");
         }
 
-        // ==========================================
-        // MODAL 2: CEKLIS EXPIRED DATE + SUB-TAB TOMBOL KONFIRMASI
-        // ==========================================
         function openCeklisExpiredModal() {
             showCustomModal("⚠️ MODUL CEKLIS EXPIRED DATE", `
                 <div style="font-size:0.75rem;">
@@ -1167,7 +1220,6 @@
                         <button id="btnExpTabAlert" class="sub-tab-btn" onclick="switchExpiredSubTab('alert')">📋 Alert Expired Toko</button>
                     </div>
 
-                    <!-- SUB TAB 1: FORM INPUT BARANG EXPIRED -->
                     <div id="subTabExpForm">
                         <label style="font-weight:700;">Kategori Rak / Barang:</label>
                         <select id="expKategori" style="width:100%; background:var(--bg-dark); color:white; border:1px solid var(--card-border); border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
@@ -1189,7 +1241,6 @@
                         <button onclick="handleExpiredSubmit()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">SIMPAN DATA EXPIRED</button>
                     </div>
 
-                    <!-- SUB TAB 2: DAFTAR ALERT BARANG EXPIRED & TOMBOL KONFIRMASI SELESAI -->
                     <div id="subTabExpAlert" class="hidden">
                         <div id="expiredAlertListContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
                     </div>
@@ -1277,9 +1328,6 @@
             }
         }
 
-        // ==========================================
-        // MODAL 3: CEKLIS DISPLAY KERAPIHAN TOKO (+5 POIN)
-        // ==========================================
         function openCeklisDisplayModal() {
             showCustomModal("✨ AUDIT KERAPIHAN DISPLAY TOKO", `
                 <div style="font-size:0.75rem;">
@@ -1333,9 +1381,6 @@
             }
         }
 
-        // ==========================================
-        // MODAL 4: SERAH TERIMA SHIFT (07:00-18:00 vs 15:00-23:59)
-        // ==========================================
         function openSerahTerimaModal() {
             const currentHour = new Date().getHours();
             let autoShift = "Shift 1";
@@ -1347,8 +1392,8 @@
                 <div style="font-size:0.75rem;">
                     <label style="font-weight:700;">Shift Kerja Saat Ini:</label>
                     <select id="stShiftVal" style="width:100%; background:var(--bg-dark); color:var(--accent-green); font-weight:bold; border:1px solid var(--card-border); border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
-                        <option value="Shift 1" ${autoShift === "Shift 1" ? 'selected' : ''}>Shift 1 (07:00 - 18:00 WIB)</option>
-                        <option value="Shift 2" ${autoShift === "Shift 2" ? 'selected' : ''}>Shift 2 (15:00 - 23:59 WIB)</option>
+                        <option value="Shift 1" ${autoShift === "Shift 1" ? 'selected' : ''}>Shift 1 (07:00 - 15:00 WIB)</option>
+                        <option value="Shift 2" ${autoShift === "Shift 2" ? 'selected' : ''}>Shift 2 (15:00 - 23:00 WIB)</option>
                     </select>
 
                     <label style="font-weight:700;">Pendapatan Sales Shift (Rp):</label>
@@ -1408,9 +1453,6 @@
             }
         }
 
-        // ==========================================
-        // MODAL 5: ROLEPLAY SIMULATOR KASIR (GAME AI GEMINI)
-        // ==========================================
         function openRoleplayModal() {
             showCustomModal("🎮 GAME ROLEPLAY SIMULATOR KASIR AI", `
                 <div style="font-size:0.75rem;">
