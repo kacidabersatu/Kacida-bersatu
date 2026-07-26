@@ -794,9 +794,9 @@
             const isSurveyDone = localStorage.getItem("SURVEY_DONE_" + currentNik);
 
             if (loginCount >= 5 && isSurveyDone !== "TRUE") {
-                showCustomModal("⭐ SURVEY KEPUASAN PWA", `
+                showCustomModal("⭐ SURVEY TENTANG APLIKASI", `
                     <div style="text-align: center; padding: 4px;">
-                        <p style="font-size:0.75rem; color:var(--text-sub);">Anda telah menggunakan aplikasi ini lebih dari 5 kali. Mohon berikan penilaian dan masukan Anda!</p>
+                        <p style="font-size:0.75rem; color:var(--text-sub);">Mohon berikan penilaian dan masukan Anda!</p>
                         
                         <div class="star-rating" id="starRatingBox">
                             <i class="fa-solid fa-star active" onclick="setSurveyRating(1)"></i>
