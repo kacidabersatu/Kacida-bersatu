@@ -1,734 +1,1477 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <!-- SweetAlert & FontAwesome -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <!-- WAJIB UNTUK PWA: Hubungkan ke file Manifest -->
+    <meta name="theme-color" content="#03170a">
+    <title>Kacida Bersatu - Dashboard PWA</title>
+
     <link rel="manifest" href="manifest.json">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
     <style>
-        /* TEMA PREMIUM & GRADIENT BACKGROUND */
-        body { 
-            margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #0b3011 0%, #175222 100%); 
-            display: flex; flex-direction: column; min-height: 100vh; color: white;
-            -webkit-tap-highlight-color: transparent;
+        :root {
+            --bg-dark: #03170a;
+            --card-bg: #0A2414;
+            --card-border: #1A3A2A;
+            --accent-green: #22c55e;
+            --wa-bubble-me: #056162;
+            --wa-bubble-other: #26382b;
+            --gold: #f59e0b;
+            --text-white: #ffffff;
+            --text-sub: #94a3b8;
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-dark); color: var(--text-white); min-height: 100vh; padding-bottom: 90px; display: flex; flex-direction: column; align-items: center; }
+
+        #loginSection, #appSection { width: 100%; max-width: 480px; margin: 0 auto; padding: 0 12px; }
+
+        .app-header {
+            display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;
+            position: sticky; top: 0; z-index: 100; background: rgba(3, 23, 10, 0.95);
+            backdrop-filter: blur(12px); border-bottom: 1px solid var(--card-border); width: 100%; max-width: 480px;
+        }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .btn-hamburger { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--card-border); color: #fff; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
-        /* SPLASH SCREEN FULL LAYAR */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #0b3011; z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.6s ease-out;
+        .brand-title { display: flex; align-items: center; gap: 8px; }
+        .brand-title-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.05rem; color: #ffffff; letter-spacing: 0.3px; }
+        .brand-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #22c55e 0%, #052e16 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3); }
+
+        .header-right { display: flex; align-items: center; gap: 8px; }
+
+        .disket-badge { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--gold); color: var(--gold); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        /* LONCENG HEADER TANPA BADGE MERAH */
+        .notif-badge { position: relative; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--card-border); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .install-badge { background: rgba(34, 197, 94, 0.2); border: 1px solid var(--accent-green); color: var(--accent-green); padding: 6px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+        .user-avatar-3d { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--accent-green); object-fit: cover; cursor: pointer; }
+
+        .container { margin-top: 12px; width: 100%; }
+
+        .disket-info-bar {
+            background: #0A2414; border: 1px solid var(--gold); border-radius: 16px; padding: 12px 14px; margin-bottom: 14px;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
         }
-        .splash-logo { 
-            width: 95vw; max-width: 80vh; 
-            height: auto; max-height: 60vh; 
-            object-fit: contain; margin-bottom: 30px; 
-            animation: pulse 2s infinite; 
-            border-radius: 24px; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3); 
+        .disket-bar-item { display: flex; flex-direction: column; align-items: flex-start; cursor: pointer; padding: 2px 4px; border-radius: 8px; transition: background 0.2s; }
+        .disket-bar-item:active { background: rgba(255,255,255,0.05); }
+        .disket-bar-label { font-size: 0.65rem; color: var(--text-sub); display: flex; align-items: center; gap: 4px; }
+        .disket-bar-val { font-size: 0.82rem; font-weight: 800; margin-top: 2px; }
+        .disket-divider { width: 1px; height: 28px; background: rgba(255, 255, 255, 0.12); }
+
+        .hero-card {
+            background: linear-gradient(135deg, #0a3a18 0%, #06240f 100%); border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 20px; padding: 18px; position: relative; overflow: hidden; margin-bottom: 16px; cursor: default;
+        }
+        .hero-content { position: relative; z-index: 2; max-width: 65%; }
+        .hero-title { font-size: 1.15rem; font-weight: 800; margin-top: 4px; line-height: 1.2; text-transform: uppercase; }
+        .hero-sub { font-size: 0.7rem; color: var(--text-sub); margin-top: 6px; line-height: 1.3; }
+        .performance-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.4); padding: 8px 12px; border-radius: 12px; margin-top: 12px; font-size: 0.7rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.05); }
+        .hero-3d-illustration { position: absolute; right: -10px; bottom: -5px; width: 135px; z-index: 1; }
+
+        .banner-card { background: #ffe4cc; border-radius: 18px; padding: 16px; color: #1e293b; margin-bottom: 6px; }
+        .banner-tag { background: #fed7aa; color: #c2410c; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; display: inline-block; margin-bottom: 4px; }
+        .banner-heading { font-size: 1.3rem; font-weight: 900; color: #dc2626; line-height: 1.1; }
+        .banner-subtext { font-size: 0.7rem; font-weight: 700; color: #1e293b; margin-top: 2px; }
+        .banner-btn { background: #dc2626; color: white; border: none; padding: 6px 14px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; margin-top: 10px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; cursor: pointer; }
+
+        .metrics-scroll { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 16px; }
+        .metric-card { position: relative; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 8px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .metric-card:active { transform: scale(0.96); }
+        .metric-icon-3d { width: 24px; height: 24px; margin: 0 auto 4px auto; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .metric-title { font-size: 0.58rem; color: var(--text-sub); display: block; }
+        .metric-value { font-size: 0.8rem; font-weight: 800; }
+        .red-dot-badge { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 6px #ef4444; }
+
+        /* KOTAK METRICS 3D & BERWARNA KHUSUS PENGUMUMAN DAN NOTIFIKASI */
+        .metric-card.card-3d-announce {
+            background: linear-gradient(135deg, #2e1065 0%, #4338ca 100%);
+            border: 1.5px solid #818cf8;
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+        }
+        .metric-card.card-3d-announce .metric-title { color: #c7d2fe; }
+        .metric-card.card-3d-announce .metric-value { color: #ffffff; }
+
+        .metric-card.card-3d-notif {
+            background: linear-gradient(135deg, #022c22 0%, #059669 100%);
+            border: 1.5px solid #34d399;
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+        }
+        .metric-card.card-3d-notif .metric-title { color: #a7f3d0; }
+        .metric-card.card-3d-notif .metric-value { color: #ffffff; }
+
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .section-title { font-size: 0.88rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .btn-see-all { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--card-border); color: var(--accent-green); padding: 4px 10px; border-radius: 12px; font-size: 0.65rem; text-decoration: none; font-weight: 700; }
+
+        .menu-section-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 16px; margin-bottom: 16px; position: relative; overflow: hidden; }
+        .menu-grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; position: relative; z-index: 2; }
+        .menu-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; position: relative; z-index: 2; }
+
+        .menu-3d-item { display: flex; flex-direction: column; align-items: center; text-align: center; text-decoration: none; cursor: pointer; }
+        .icon-box-3d { width: 44px; height: 44px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; }
+        .icon-box-3d img { width: 26px; height: 28px; object-fit: contain; }
+        .menu-label { font-size: 0.6rem; font-weight: 500; color: var(--text-white); line-height: 1.2; }
+        
+        .rocket-deco { position: absolute; right: -10px; bottom: -10px; width: 85px; z-index: 1; pointer-events: none; opacity: 0.9; }
+
+        .chat-tab-wrapper { display: flex; gap: 8px; background: var(--bg-dark); padding: 6px; border-radius: 14px; border: 1px solid var(--card-border); margin-bottom: 12px; }
+        .chat-tab-pill { flex: 1; padding: 8px 12px; font-size: 0.72rem; font-weight: 800; border-radius: 10px; border: none; background: transparent; color: var(--text-sub); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease; }
+        .chat-tab-pill.active { background: var(--accent-green); color: #03170a; box-shadow: 0 2px 10px rgba(34, 197, 94, 0.3); }
+
+        .wa-chat-container { background: #071a0e; border: 1px solid var(--card-border); border-radius: 16px; height: 52vh; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .wa-bubble { max-width: 85%; padding: 8px 12px; border-radius: 12px; font-size: 0.75rem; position: relative; line-height: 1.4; word-wrap: break-word; }
+        .wa-bubble.me { align-self: flex-end; background: var(--wa-bubble-me); color: white; border-bottom-right-radius: 2px; }
+        .wa-bubble.other { align-self: flex-start; background: var(--wa-bubble-other); color: white; border-bottom-left-radius: 2px; }
+        .wa-bubble.ai { align-self: flex-start; background: #133a20; border: 1px solid var(--accent-green); color: white; width: 90%; }
+        .wa-sender { font-size: 0.62rem; font-weight: 800; color: var(--accent-green); margin-bottom: 2px; display: flex; justify-content: space-between; gap: 8px; }
+        .wa-time { font-size: 0.55rem; color: rgba(255,255,255,0.6); text-align: right; margin-top: 4px; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+
+        .bottom-nav {
+            position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; height: 60px; background: rgba(10, 35, 18, 0.95);
+            backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 35px;
+            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+        }
+        .nav-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--text-sub); font-size: 0.65rem; text-decoration: none; }
+        .nav-item.active { background: var(--accent-green); color: #03170a; padding: 6px 14px; border-radius: 20px; font-weight: 700; }
+        .nav-item.active i { color: #03170a; }
+
+        .nav-badge-count { position: absolute; top: -3px; right: 2px; background: #ef4444; color: white; font-size: 0.55rem; font-weight: 800; padding: 1px 5px; border-radius: 10px; border: 1px solid var(--bg-dark); }
+
+        .fab-rocket { width: 50px; height: 50px; background: linear-gradient(135deg, #22c55e, #10b981); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; margin-top: -28px; border: 4px solid var(--bg-dark); cursor: pointer; box-shadow: 0 0 15px rgba(34, 197, 94, 0.5); }
+        .hidden { display: none !important; }
+
+        .custom-modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(8px);
+            z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 16px;
+        }
+        .custom-modal-card {
+            background: #0C2B14; border: 1px solid var(--card-border);
+            border-radius: 20px; width: 100%; max-width: 400px; padding: 16px; color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative;
+        }
+        .modal-btn-close {
+            position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.1);
+            border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+        }
+
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(3, 23, 10, 0.85); backdrop-filter: blur(8px);
+            z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .spinner {
-            border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid #fff;
-            border-radius: 50%; width: 45px; height: 45px; animation: spin 1s linear infinite;
+            width: 38px; height: 38px; border: 3px solid rgba(34, 197, 94, 0.2);
+            border-top: 3px solid var(--accent-green); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin-bottom: 10px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .loading-text { font-size: 0.75rem; font-weight: 700; color: var(--accent-green); }
 
-        /* HEADER PREMIUM DENGAN TOMBOL INSTAL & NOTIF KANAN */
-        header { 
-            background: rgba(11, 48, 17, 0.95); backdrop-filter: blur(10px);
-            padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); 
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 100;
+        .btn-copy-action {
+            background: var(--accent-green); color: #03170a; font-weight: 800; font-size: 0.72rem;
+            padding: 8px 12px; border-radius: 10px; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            width: 100%; margin-top: 6px; box-shadow: 0 2px 10px rgba(34, 197, 94, 0.3);
+            transition: all 0.2s ease;
         }
-        .header-left { display: flex; align-items: center; gap: 12px; }
-        .header-left img { height: 42px; object-fit: contain; }
-        .header-left h1 { font-size: 18px; margin: 0; font-weight: 700; letter-spacing: 0.5px; }
-        
-        .header-right { display: flex; gap: 8px; align-items: center; }
-        
-        .install-btn {
-            background: linear-gradient(45deg, #FFD700, #FFA500); color: #000;
-            border: none; border-radius: 20px; padding: 8px 14px; font-size: 12px; font-weight: bold;
-            display: flex; align-items: center; gap: 6px; cursor: pointer;
-            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4); transition: transform 0.2s;
-        }
-        .install-btn:active { transform: scale(0.9); }
-        
-        .notif-btn {
-            background: rgba(255,255,255,0.2); color: #fff;
-            border: none; border-radius: 50%; width: 34px; height: 34px;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
-        }
-        .notif-btn:active { transform: scale(0.9); }
-        .notif-btn:hover { background: rgba(255,255,255,0.3); }
 
-        /* CAROUSEL UTUH & EFEK SLIDE/GESER */
-        .carousel-container {
-            width: 100%; display: flex; justify-content: center; background: #051608;
-            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-            position: relative; overflow: hidden;
+        .tbl-sales-mtd {
+            width: 100%; border-collapse: collapse; text-align: center; font-size: 0.65rem; margin-top: 8px;
         }
-        .carousel { 
-            width: 100%; max-width: 800px; aspect-ratio: 16 / 9; 
-            display: flex; overflow-x: auto; 
-            scroll-snap-type: x mandatory; 
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none; 
+        .tbl-sales-mtd th {
+            background: rgba(34, 197, 94, 0.2); color: var(--accent-green); padding: 6px 3px; border: 1px solid var(--card-border); font-weight: 800;
         }
-        .carousel::-webkit-scrollbar { display: none; } 
-        .carousel img { 
-            flex: 0 0 100%; width: 100%; height: 100%; object-fit: contain; 
-            scroll-snap-align: center; border-radius: 8px;
-        } 
+        .tbl-sales-mtd td {
+            padding: 5px 3px; border: 1px solid var(--card-border); color: #fff;
+        }
+        .tbl-sales-mtd tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
 
-        /* DASHBOARD MENU */
-        .dashboard-container { padding: 25px 15px; flex: 1; max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        .shopee-menu-container { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); 
-            gap: 20px 10px; justify-items: center;
+        .toast-rank-popup {
+            position: fixed; top: 70px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 420px;
+            z-index: 9998; padding: 12px 16px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            display: flex; align-items: center; gap: 12px; backdrop-filter: blur(10px);
+            animation: fadeInDown 0.4s ease forwards;
         }
-        .menu-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; cursor: pointer; width: 100%; }
-        .icon-wrapper {
-            width: 58px; height: 58px; border-radius: 16px; background: #ffffff; 
-            display: flex; align-items: center; justify-content: center; margin-bottom: 8px;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2); transition: all 0.2s ease;
+        .toast-rank-popup.top-rank {
+            background: rgba(5, 46, 22, 0.95); border: 2px solid var(--accent-green); color: #fff;
         }
-        .menu-item:hover .icon-wrapper { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
-        .menu-item:active .icon-wrapper { transform: scale(0.92); }
-        .menu-item span {
-            font-size: 11px; color: #ffffff; font-weight: 600; line-height: 1.3;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-            overflow: hidden; text-overflow: ellipsis; text-align: center; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        .toast-rank-popup.flop-rank {
+            background: rgba(69, 10, 10, 0.95); border: 2px solid #ef4444; color: #fff;
         }
-        
-        .section-divider { border: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); margin: 30px 0 20px 0; }
-        .section-title { font-size: 12px; font-weight: 800; letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase; color: #FFD700; text-align: center; }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translate(-50%, -20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
 
-        footer { background: rgba(5, 22, 8, 0.9); padding: 15px; text-align: center; font-size: 11px; margin-top: auto; letter-spacing: 1px; }
-
-        /* KELAS CUSTOM UNTUK IN-APP NOTIFICATION & SURVEY */
-        .rounded-popup { border-radius: 16px !important; font-family: 'Segoe UI', Arial, sans-serif !important; }
-        .swal2-close { font-size: 22px !important; color: #aaa !important; padding-top: 10px !important; padding-right: 10px !important; }
-        .swal2-close:hover { color: #666 !important; }
-        .swal2-html-container { margin: 0 !important; overflow: hidden !important; }
-
-        /* CUSTOM CSS SURVEY BINTANG & TEXTAREA */
-        .star-rating {
-            display: flex;
-            flex-direction: row-reverse;
-            justify-content: center;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        .star-rating input { display: none; }
-        .star-rating label {
-            font-size: 40px; color: #ddd; cursor: pointer; transition: color 0.2s;
-        }
-        .star-rating input:checked ~ label,
-        .star-rating label:hover,
-        .star-rating label:hover ~ label {
-            color: #FFD700;
-        }
-        .survey-textarea {
-            width: 100%; border: 1px solid #ccc; border-radius: 8px; padding: 12px;
-            box-sizing: border-box; font-family: inherit; font-size: 14px;
-            margin-top: 5px; resize: vertical; min-height: 80px; background: #f9f9f9;
-        }
-        .survey-textarea:focus { outline: none; border-color: #0b3011; background: #fff; }
-
-        /* ANIMASI SVG & IKON */
-        .svg-icon { width: 30px; height: 30px; }
-        @keyframes nulis { 0%, 100% { transform: rotate(0deg) translateY(0); } 50% { transform: rotate(-10deg) translateY(-2px); } }
-        .anim-nulis { animation: nulis 2s infinite ease-in-out; }
-        @keyframes denyut { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-        .anim-denyut { animation: denyut 1.5s infinite ease-in-out; }
-        @keyframes naikTurun { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-        .anim-naik { animation: naikTurun 1.8s infinite ease-in-out; }
-        @keyframes ayun { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
-        .anim-ayun { animation: ayun 2s infinite ease-in-out; }
-        @keyframes ring { 0% { transform: rotate(0); } 10% { transform: rotate(15deg); } 20% { transform: rotate(-10deg); } 30% { transform: rotate(5deg); } 40% { transform: rotate(-5deg); } 50% { transform: rotate(0); } 100% { transform: rotate(0); } }
-        .anim-ring { animation: ring 2s infinite ease-in-out; transform-origin: top center; }
-        
-        /* KEYFRAME TANGAN MELAMBAI */
-        @keyframes waveAnim { 
-            0% { transform: rotate(0deg); } 
-            15% { transform: rotate(16deg); } 
-            30% { transform: rotate(-10deg); }
-            45% { transform: rotate(16deg); } 
-            60% { transform: rotate(-4deg); } 
-            75% { transform: rotate(12deg); } 
-            100% { transform: rotate(0deg); }
-        }
-        .anim-wave { 
-            display: inline-block; 
-            transform-origin: 70% 70%; 
-            animation: waveAnim 2.2s infinite ease-in-out; 
-        }
+        .star-rating { display: flex; gap: 8px; justify-content: center; margin: 12px 0; }
+        .star-rating i { font-size: 1.6rem; color: #475569; cursor: pointer; transition: color 0.2s; }
+        .star-rating i.active { color: var(--gold); }
     </style>
 </head>
 <body>
 
-    <!-- SPLASH SCREEN -->
-    <div id="splash-screen">
-        <img src="https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ" alt="Logo Kacida" class="splash-logo">
+    <div id="loadingOverlay" class="loading-overlay hidden">
         <div class="spinner"></div>
-        <h3 id="splash-text" style="margin-top: 20px; font-weight: 400; font-size: 16px; letter-spacing: 1px;">Menyiapkan Aplikasi Pro</h3>
+        <p id="loadingText" class="loading-text">Memuat Data...</p>
     </div>
 
-    <!-- HEADER PRO -->
-    <header>
-        <div class="header-left">
-            <img src="https://lh3.googleusercontent.com/d/1RA3xI2wxlB30iaRlJb8Crx1Za8iJrNN-" alt="Header Kacida">
-            <h1>Kacida Bersatu</h1>
-        </div>
-        <div class="header-right">
-            <button id="btnUser" class="notif-btn" title="Lihat Kartu Pengguna / Ganti Akun">
-                <i class="fas fa-id-card"></i>
-            </button>
-            <button id="btnNotif" class="notif-btn" title="Aktifkan Notifikasi OS">
-                <i class="fas fa-bell anim-ring"></i>
-            </button>
-            <button id="btnInstal" class="install-btn anim-denyut" title="Instal Aplikasi" style="display: none;">
-                <i class="fas fa-download"></i> Instal
-            </button>
-        </div>
-    </header>
-    
-    <!-- CAROUSEL -->
-    <div class="carousel-container">
-        <div class="carousel" id="carousel-track">
-            <!-- Gambar dimuat otomatis -->
+    <!-- TOAST MELAYANG POPUP RANK LOGIN -->
+    <div id="toastRankPopup" class="toast-rank-popup hidden">
+        <div id="toastRankIcon" style="font-size: 1.5rem;">🏆</div>
+        <div>
+            <h4 id="toastRankTitle" style="font-size: 0.85rem; font-weight: 800;">STATUS TOKO</h4>
+            <p id="toastRankMsg" style="font-size: 0.68rem; opacity: 0.9;">Message...</p>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
-    <div class="dashboard-container">
-        <div id="menuUtama" class="shopee-menu-container"></div>
-        <hr class="section-divider" id="divider" style="display:none;">
-        <div class="section-title" id="titleLainnya" style="display:none;">Layanan Lainnya</div>
-        <div id="menuLainnya" class="shopee-menu-container"></div>
+    <div id="customModalOverlay" class="custom-modal-overlay hidden">
+        <div class="custom-modal-card">
+            <button onclick="closeCustomModal()" class="modal-btn-close"><i class="fa-solid fa-xmark"></i></button>
+            <h3 id="customModalTitle" style="font-size: 0.95rem; font-weight: 800; color: var(--accent-green); margin-bottom: 10px;">Modal Title</h3>
+            <div id="customModalBody" style="font-size: 0.78rem; line-height: 1.5; max-height: 68vh; overflow-y: auto;"></div>
+        </div>
     </div>
 
-    <footer>@POWERED BY SERVER AREA &bull; PRO VERSION</footer>
+    <!-- LOGIN SCREEN -->
+    <div id="loginSection">
+        <div style="text-align: center; margin-top: 18vh; margin-bottom: 24px;">
+            <img src="https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ" style="width: 90px; height: 90px; border-radius: 20px; border: 2px solid var(--accent-green); margin-bottom: 12px; object-fit: cover;">
+            <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--accent-green); font-family: 'Poppins', sans-serif;">KACIDA BERSATU</h1>
+            <p style="font-size: 0.75rem; color: var(--text-sub);">Portal Performa & Operasional Retail</p>
+        </div>
+        <div class="menu-section-card" style="padding: 24px;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 8px;">NIK PENGGUNA</label>
+            <input type="text" id="nikInput" placeholder="Masukkan NIK Anda" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px 16px; color: white; font-size: 0.85rem; margin-bottom: 16px; outline: none;">
+            <button onclick="handleLogin()" style="width: 100%; background: var(--accent-green); color: #03170a; font-weight: 800; padding: 12px; border-radius: 12px; border: none; cursor: pointer;">MASUK APLIKASI</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="appSection" class="hidden">
+        
+        <header class="app-header">
+            <div class="header-left">
+                <button class="btn-hamburger" onclick="openMenuSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <div class="brand-title">
+                    <div class="brand-icon">
+                        <img src="https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ" style="width: 24px; height: 24px; border-radius: 6px; object-fit: cover;">
+                    </div>
+                    <span class="brand-title-text">Kacida Bersatu</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div id="btnInstallPWA" class="install-badge hidden" onclick="triggerPWAInstall()">
+                    <i class="fa-solid fa-download"></i> Instal
+                </div>
+
+                <div class="disket-badge" onclick="openPerformaPopup()" title="Rincian Data Performance">
+                    <i class="fa-solid fa-gauge-high"></i>
+                </div>
+                
+                <!-- LONCENG HEADER TANPA BADGE MERAH -->
+                <div id="notifPermBtn" class="notif-badge" onclick="manageNotificationPermission()" title="Pengaturan Notifikasi HP">
+                    <i id="notifIconHeader" class="fa-regular fa-bell"></i>
+                </div>
+                
+                <img id="userAvatarHeader" src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="user-avatar-3d" onclick="showBriefProfile()">
+            </div>
+        </header>
+
+        <div id="acDropdownContainer" class="hidden container">
+            <div class="menu-section-card" style="padding: 10px 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                <i class="fa-solid fa-store" style="color: var(--accent-green);"></i>
+                <select id="selectTokoAC" onchange="onACTokoChange(this.value)" style="background: transparent; border: none; color: var(--accent-green); font-weight: 700; font-size: 0.75rem; width: 100%; outline: none;"></select>
+            </div>
+        </div>
+
+        <main id="tabBeranda" class="container">
+            <section class="disket-info-bar">
+                <div class="disket-bar-item" onclick="openSalesMTDModal()" title="Klik Rincian Sales Bulan Berjalan">
+                    <span class="disket-bar-label"><i class="fa-solid fa-chart-line" style="color: var(--accent-green);"></i> Sales SPD</span>
+                    <span class="disket-bar-val" id="valSales" style="color: var(--accent-green); font-size: 0.72rem;">Memuat...</span>
+                </div>
+                <div class="disket-divider"></div>
+                <div class="disket-bar-item" onclick="openPerformaPopup()">
+                    <span class="disket-bar-label"><i class="fa-solid fa-bullseye" style="color: var(--gold);"></i> IKT Toko</span>
+                    <span class="disket-bar-val" id="valIKT" style="color: var(--gold);">-</span>
+                </div>
+                <div class="disket-divider"></div>
+                <div class="disket-bar-item" onclick="openPerformaPopup()">
+                    <span class="disket-bar-label"><i class="fa-solid fa-fire" style="color: #ef4444;"></i> Penawaran</span>
+                    <span class="disket-bar-val" id="valPenawaran" style="color: #ef4444;">-</span>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: var(--text-sub);" onclick="openPerformaPopup()"></i>
+            </section>
+            
+            <section class="hero-card">
+                <div class="hero-content">
+                    <span style="font-size: 0.7rem; color: var(--text-sub);">Selamat datang kembali,</span>
+                    <h1 class="hero-title" id="lblUserName">USER! 👋</h1>
+                    <p class="hero-sub">Tetap semangat, layani dengan hati dan capai target performa!</p>
+                    <div class="performance-badge">
+                        <i class="fa-solid fa-star" style="color: var(--gold);"></i>
+                        <span>Performa hari ini <strong style="color: var(--accent-green);">Sangat Baik! 🔥</strong></span>
+                    </div>
+                </div>
+                <img src="https://illustrations.popsy.co/emerald/work-from-home.svg" class="hero-3d-illustration" alt="Team">
+            </section>
+
+            <div class="swiper mainCarousel rounded-2xl overflow-hidden mb-3 border border-[#1A3A2A]">
+                <div class="swiper-wrapper" id="carouselWrapper"></div>
+                <div class="swiper-pagination"></div>
+            </div>
+
+            <!-- KOTAK METRICS DI BAWAH CAROUSEL (DENGAN TAMPILAN 3D NEON PADA PENGUMUMAN & NOTIFIKASI) -->
+            <section class="metrics-scroll">
+                <div class="metric-card" onclick="switchTab('aksiCepat')">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2620/2620522.png" class="metric-icon-3d">
+                    <span class="metric-title">Tugas</span>
+                    <span class="metric-value" id="valTasks">0</span>
+                </div>
+                
+                <!-- KOTAK PENGUMUMAN 3D BERWARNA -->
+                <div class="metric-card card-3d-announce" onclick="openPengumumanModal()">
+                    <span id="dotAnnounce" class="red-dot-badge hidden"></span>
+                    <img src="https://cdn-icons-png.flaticon.com/512/3602/3602145.png" class="metric-icon-3d">
+                    <span class="metric-title">Pengumuman</span>
+                    <span class="metric-value" id="valAnnounce">0</span>
+                </div>
+
+                <!-- KOTAK NOTIFIKASI 3D BERWARNA -->
+                <div class="metric-card card-3d-notif" onclick="openNotifModal()">
+                    <span id="dotNotif" class="red-dot-badge hidden"></span>
+                    <img src="https://cdn-icons-png.flaticon.com/512/3602/3602123.png" class="metric-icon-3d">
+                    <span class="metric-title">Notifikasi</span>
+                    <span class="metric-value" id="valNotifCount">0</span>
+                </div>
+
+                <div class="metric-card">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3112/3112946.png" class="metric-icon-3d">
+                    <span class="metric-title">Point</span>
+                    <span class="metric-value" id="valPoints" style="color: var(--gold);">0</span>
+                </div>
+                
+                <div class="metric-card" onclick="switchTab('leaderboard')">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2583/2583319.png" class="metric-icon-3d">
+                    <span class="metric-title">Rank</span>
+                    <span class="metric-value" id="valRank" style="color: var(--accent-green);">#-</span>
+                </div>
+            </section>
+
+            <div class="section-header"><h3 class="section-title"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--gold);"></i> Menu Utama</h3><a href="#" class="btn-see-all" onclick="openAllMenuModal('Utama')">Lihat Semua <i class="fa-solid fa-chevron-right"></i></a></div>
+            <section class="menu-section-card">
+                <div id="gridMenuUtama" class="menu-grid-5"></div>
+                <img src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png" class="rocket-deco" alt="Rocket">
+            </section>
+
+            <div class="section-header"><h3 class="section-title"><i class="fa-solid fa-star" style="color: var(--gold);"></i> Layanan Lainnya</h3><a href="#" class="btn-see-all" onclick="openAllMenuModal('Lainnya')">Lihat Semua <i class="fa-solid fa-chevron-right"></i></a></div>
+            <section class="menu-section-card"><div id="gridMenuLainnya" class="menu-grid-4"></div></section>
+        </main>
+
+        <div id="tabChat" class="hidden container space-y-3">
+            <h2 class="section-title" id="chatTitleHeader"><i class="fa-solid fa-comments" style="color: var(--accent-green);"></i> Room Chat Tim Kacida</h2>
+            
+            <div class="chat-tab-wrapper">
+                <button id="btnTabTeam" class="chat-tab-pill active" onclick="switchChatRoomMode('team')"><i class="fa-solid fa-users"></i> Chat Tim</button>
+                <button id="btnTabAI" class="chat-tab-pill" onclick="switchChatRoomMode('ai')"><i class="fa-solid fa-robot"></i> Kacida AI (Privat)</button>
+            </div>
+
+            <div id="chatBox" class="wa-chat-container custom-scrollbar"></div>
+
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <input type="text" id="inputChatMsg" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') handleSendChatAction()" style="flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 14px; font-size: 0.75rem; color: white; outline: none;">
+                <button onclick="handleSendChatAction()" style="background: var(--accent-green); color: #03170a; padding: 0 16px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer;"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+
+        <div id="tabAksiCepat" class="hidden container">
+            <div class="menu-section-card">
+                <h2 class="section-title" style="color: var(--accent-green);"><i class="fa-solid fa-rocket"></i> Misi Hari Ini</h2>
+                <p style="font-size: 0.7rem; color: var(--text-sub); margin: 4px 0 12px 0;">Klik menu misi di bawah untuk mengumpulkan poin reward!</p>
+                <div id="misiList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+        </div>
+
+        <div id="tabLeaderboard" class="hidden container">
+            <h2 class="section-title" style="color: var(--gold); margin-bottom: 12px;"><i class="fa-solid fa-crown"></i> Leaderboard Poin & Rank Area</h2>
+            <div id="leaderboardList" class="menu-section-card" style="padding: 12px; display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+
+        <div id="tabProfil" class="hidden container" style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="menu-section-card" style="text-align: center; padding: 20px;">
+                <img id="profilFoto" src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--accent-green); object-fit: cover; margin: 0 auto 8px auto;">
+                <h2 id="profilNama" style="font-size: 1.1rem; font-weight: 800;">Nama</h2>
+                <p id="profilJabatan" style="font-size: 0.72rem; color: var(--accent-green); font-weight: 700;">Jabatan</p>
+                <p id="profilToko" style="font-size: 0.7rem; color: var(--text-sub);">Toko</p>
+                <p id="profilNik" style="font-size: 0.62rem; color: #64748b; margin-top: 2px;">NIK: -</p>
+                <button onclick="handleLogout()" style="margin-top: 12px; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 6px 16px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; cursor: pointer;">LOGOUT</button>
+            </div>
+
+            <div class="menu-section-card">
+                <h3 class="section-title" style="margin-bottom: 10px;"><i class="fa-solid fa-users" style="color: var(--accent-green);"></i> Tim Personil Toko (Master User)</h3>
+                <div id="timTokoContainer" style="display: flex; flex-direction: column; gap: 6px;"></div>
+            </div>
+
+            <div class="menu-section-card">
+                <h3 class="section-title" style="margin-bottom: 12px;"><i class="fa-solid fa-sitemap" style="color: var(--accent-green);"></i> Bagan Struktur Organisasi</h3>
+                <div style="display: flex; flex-direction: column; gap: 6px; text-align: center; font-size: 0.72rem;">
+                    <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 8px; border-radius: 10px;"><p style="font-size:0.6rem; color: var(--text-sub);">OGM (Operations General Manager)</p><p id="stOGM" style="font-weight:700;">HAIKAL (HKL)</p></div>
+                    <div style="color: var(--text-sub); font-size: 0.6rem;">↓</div>
+                    <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 8px; border-radius: 10px;"><p style="font-size:0.6rem; color: var(--text-sub);">BM (Branch Manager)</p><p id="stBM" style="font-weight:700;">PUTUT DESY SUSILO (PDS)</p></div>
+                    <div style="color: var(--text-sub); font-size: 0.6rem;">↓</div>
+                    <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 8px; border-radius: 10px;"><p style="font-size:0.6rem; color: var(--text-sub);">DBM (Deputy Branch Manager)</p><p id="stDBM" style="font-weight:700;">ROSI ERDIANSA (REA)</p></div>
+                    <div style="color: var(--text-sub); font-size: 0.6rem;">↓</div>
+                    <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 8px; border-radius: 10px;"><p style="font-size:0.6rem; color: var(--text-sub);">AM (Area Manager)</p><p id="stAM" style="font-weight:700;">MUHAMAD TAUFIK (MTK)</p></div>
+                    <div style="color: var(--text-sub); font-size: 0.6rem;">↓</div>
+                    <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 8px; border-radius: 10px;"><p style="font-size:0.6rem; color: var(--text-sub);">AC (Area Coordinator)</p><p id="stAC" style="font-weight:700;">AMED SUPRIADI</p></div>
+                    <div style="color: var(--text-sub); font-size: 0.6rem;">↓</div>
+                    <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid var(--accent-green); padding: 8px; border-radius: 10px; color: var(--accent-green);"><p style="font-size:0.6rem; font-weight:700;">SAYA (TOKO)</p><p id="stSaya" style="font-weight:800;">-</p></div>
+                </div>
+            </div>
+        </div>
+
+        <button id="floatingAIMascot" class="hidden" onclick="switchChatRoomMode('ai')" style="position: fixed; bottom: 80px; right: 16px; z-index: 999; background: #0A2414; border: 2px solid var(--accent-green); padding: 10px; border-radius: 50%; box-shadow: 0 0 20px rgba(34, 197, 94, 0.6); cursor: pointer;">
+            <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" style="width: 32px; height: 32px; display: block;">
+        </button>
+
+        <nav class="bottom-nav">
+            <a href="#" onclick="switchTab('beranda')" id="navBeranda" class="nav-item active"><i class="fa-solid fa-house"></i><span>Beranda</span></a>
+            <a href="#" onclick="switchTab('chat')" id="navChat" class="nav-item">
+                <span id="navChatBadge" class="nav-badge-count hidden">0</span>
+                <i class="fa-solid fa-comment-dots"></i><span>Chat</span>
+            </a>
+            <div class="fab-rocket" onclick="switchTab('aksiCepat')"><i class="fa-solid fa-rocket"></i></div>
+            <a href="#" onclick="switchTab('leaderboard')" id="navLeaderboard" class="nav-item"><i class="fa-solid fa-crown"></i><span>Leaderboard</span></a>
+            <a href="#" onclick="switchTab('profil')" id="navProfil" class="nav-item"><i class="fa-solid fa-user"></i><span>Profil</span></a>
+        </nav>
+    </div>
 
     <script>
-        // URL API Google Apps Script (JANGAN DIUBAH)
-        const API_URL = "https://script.google.com/macros/s/AKfycbwoZlEDPiV54XZ388hjkRZxbCA94xtevXpcj4GOdnDxRfz-Do18Es-q6Q4KiC7xl2ET/exec";
-        
-        // ==========================================
-        // 1. REGISTRASI SERVICE WORKER (UNTUK PWA)
-        // ==========================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5dMwVVd-KLC_lz-koc99M5kFbhG7D9PMCu1dq9eF13a7rZkN-Quf-znmtZCeN7etL/exec";
+
+        let currentNik = localStorage.getItem("NIK_KACIDA") || "";
+        let dashboardData = null;
+        let selectedKodeTokoAC = null;
+        let chatRoomMode = "team";
+        let aiChatHistory = [];
+        let readPengumuman = false;
+        let readNotifList = JSON.parse(localStorage.getItem("READ_NOTIFS_" + currentNik) || "[]");
+        let chatAutoRefreshTimer = null;
+        let lastReadChatCount = Number(localStorage.getItem("LAST_READ_CHAT_COUNT_" + currentNik) || 0);
+        let deferredPrompt = null;
+        let lastPerformaText = "";
+        let selectedRatingStars = 5;
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker Terdaftar!'))
-                    .catch(err => console.error('Gagal daftar SW', err));
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
             });
         }
 
-        // ==========================================
-        // 2. FUNGSI KIRIM LOG
-        // ==========================================
-        function kirimLogKeGoogle(action, dataTambahan = {}) {
-            let nikUser = localStorage.getItem('kacida_user_nik') || "-";
+        // GENERATOR AVATAR 3D BERVARIASI & KEREN
+        function get3DAvatar(nama, fotoUrl) {
+            if (fotoUrl && String(fotoUrl).trim().length > 10) return fotoUrl;
+            if (!nama) return "https://cdn-icons-png.flaticon.com/512/4140/4140048.png";
             
-            let payload = { 
-                action: action, 
-                nik: nikUser, 
-                osData: navigator.platform + " (" + (navigator.userAgent.includes("Android") ? "Android" : "iOS/Web") + ")",
-                ...dataTambahan 
-            };
+            const n = String(nama).toUpperCase();
+            const femaleKeywords = [
+                "SITI", "YULIANTI", "ARINI", "REVA", "DESI", "RINA", "INDRI", "DEWI", 
+                "FITRI", "NUR", "ELSA", "SRI", "TANZILLA", "FANNY", "FAUZIA", "NURUL", 
+                "NADIRA", "YULIA", "SUCI", "SALSA", "HERLIN", "NOPI", "MAULIDA", "NISRINA", 
+                "NASYWA", "SINTA", "PUTRI", "MARIAM", "MIRSYA", "GADIS", "ASTRI", "TASYA",
+                "YAYU", "HESTI", "RISMANI", "EVA", "ANI", "ANISA", "MAULIDYA"
+            ];
             
-            fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
-            }).catch(e => console.log("Log error:", e));
+            const isFemale = femaleKeywords.some(kw => n.includes(kw));
+
+            const femaleAvatars = [
+                "https://cdn-icons-png.flaticon.com/512/4140/4140047.png",
+                "https://cdn-icons-png.flaticon.com/512/6997/6997662.png",
+                "https://cdn-icons-png.flaticon.com/512/4140/4140037.png",
+                "https://cdn-icons-png.flaticon.com/512/1154/1154448.png"
+            ];
+
+            const maleAvatars = [
+                "https://cdn-icons-png.flaticon.com/512/4140/4140048.png",
+                "https://cdn-icons-png.flaticon.com/512/6997/6997674.png",
+                "https://cdn-icons-png.flaticon.com/512/4140/4140061.png",
+                "https://cdn-icons-png.flaticon.com/512/2202/2202112.png"
+            ];
+
+            const index = (n.charCodeAt(0) + (n.charCodeAt(1) || 0)) % 4;
+            return isFemale ? femaleAvatars[index] : maleAvatars[index];
         }
 
-        // --- TAMBAHAN BARU: FUNGSI SINKRONISASI STATUS OTOMATIS ---
-        function kirimStatusInstalasi() {
-            if (!localStorage.getItem('kacida_user_nik')) return; // Jangan kirim jika belum login
-            
-            // Cek apakah sedang dibuka di Browser atau sudah di-Instal (Standalone)
-            let statusInstal = window.matchMedia('(display-mode: standalone)').matches ? "Sudah Instal PWA" : "Belum Instal";
-            let statusNotif = "Belum"; // Default
-            
-            if ("Notification" in window) {
-                if (Notification.permission === "granted") statusNotif = "Ya";
-                else if (Notification.permission === "denied") statusNotif = "Tidak";
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btn = document.getElementById('btnInstallPWA');
+            if (btn) btn.classList.remove('hidden');
+        });
+
+        async function triggerPWAInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    apiCall("logActivity", { aktivitas: "Instal Aplikasi", detail: "User menginstal PWA" });
+                }
+                deferredPrompt = null;
+                document.getElementById('btnInstallPWA').classList.add('hidden');
             }
-            
-            // Mengandung kata "Status" agar ditangkap routing Code.gs untuk Sheet Log_Instalasi
-            kirimLogKeGoogle('Status: ' + statusInstal, { 
-                izinNotif: statusNotif,
-                popUpDibaca: 'Terbaca'
-            });
         }
-        // ------------------------------------------------------------
 
-        // ==========================================
-        // FUNGSI TAMPILKAN SURVEY BINTANG & PESAN
-        // ==========================================
-        function tampilkanSurvey() {
-            Swal.fire({
-                title: 'Survei Kepuasan',
-                html: `
-                    <div style="font-size: 14px; color: #555; padding: 0 10px;">Bagaimana pengalaman Anda menggunakan aplikasi kami sejauh ini?</div>
-                    
-                    <!-- RATING BINTANG -->
-                    <div class="star-rating">
-                        <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 Bintang">&#9733;</label>
-                        <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 Bintang">&#9733;</label>
-                        <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 Bintang">&#9733;</label>
-                        <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 Bintang">&#9733;</label>
-                        <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 Bintang">&#9733;</label>
+        // IZIN NOTIFIKASI TANPA BADGE LONCENG HEADER
+        function manageNotificationPermission() {
+            if (!('Notification' in window)) {
+                showCustomModal("🔔 FITUR NOTIFIKASI", "<p style='color:#ef4444;'>Browser Anda tidak mendukung push notifikasi.</p>");
+                return;
+            }
+
+            const currentPerm = Notification.permission;
+
+            if (currentPerm === 'granted') {
+                showCustomModal("🔔 STATUS NOTIFIKASI", `
+                    <div style="text-align:center; padding:8px;">
+                        <i class="fa-solid fa-bell-circle-check" style="font-size:2.5rem; color:var(--accent-green); margin-bottom:8px;"></i>
+                        <h4 style="color:var(--accent-green); font-size:0.9rem; font-weight:800;">NOTIFIKASI SUDAH AKTIF 🟢</h4>
+                        <p style="font-size:0.7rem; color:var(--text-sub); margin-top:6px; line-height:1.4;">
+                            Aplikasi Kacida Bersatu sudah diizinkan mengirimkan pemberitahuan langsung di HP Anda sesuai dengan jadwal jam yang telah diatur di Spreadsheet.
+                        </p>
                     </div>
-                    
-                    <!-- INPUT PESAN & SARAN -->
-                    <textarea id="pesanSaran" class="survey-textarea" placeholder="Tulis pesan & saran Anda di sini... (Opsional)"></textarea>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Kirim Penilaian',
-                cancelButtonText: 'Nanti',
-                confirmButtonColor: '#0b3011',
-                cancelButtonColor: '#777',
-                allowOutsideClick: false,
-                customClass: { popup: 'rounded-popup' },
-                preConfirm: () => {
-                    const rating = document.querySelector('input[name="rating"]:checked');
-                    const pesan = document.getElementById('pesanSaran').value;
-                    
-                    if (!rating) {
-                        Swal.showValidationMessage('Silakan berikan rating bintang terlebih dahulu!');
-                        return false;
+                `);
+                apiCall("logActivity", { aktivitas: "Cek Notifikasi", detail: "Status: Granted (Aktif)" });
+            } else if (currentPerm === 'denied') {
+                showCustomModal("⚠️ IZIN DIBLOKIR", `
+                    <div style="padding:6px;">
+                        <p style="color:#ef4444; font-weight:bold; margin-bottom:6px;">Notifikasi Sebelumnya Dinonaktifkan / Diblokir!</p>
+                        <p style="font-size:0.7rem; color:var(--text-sub); line-height:1.4;">
+                            Untuk mengaktifkannya kembali:<br/>
+                            1. Klik ikon gembok 🔒 di sebelah kiri URL browser HP Anda.<br/>
+                            2. Pilih <b>Izin Situs (Permissions)</b>.<br/>
+                            3. Ubah Notifikasi menjadi <b>Izinkan (Allow)</b>.
+                        </p>
+                    </div>
+                `);
+                apiCall("logActivity", { aktivitas: "Izin Notifikasi Diblokir", detail: "Status: Denied" });
+            } else {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        updateNotifBellIcon(true);
+                        apiCall("logActivity", { aktivitas: "Izin Notifikasi Diberikan", detail: "Status: Granted" });
+                        showCustomModal("🔔 NOTIFIKASI AKTIF", "<p style='color:var(--accent-green); font-weight:bold;'>Izin Notifikasi HP Berhasil Diaktifkan! 🟢</p>");
+                    } else {
+                        updateNotifBellIcon(false);
+                        apiCall("logActivity", { aktivitas: "Izin Notifikasi Ditolak", detail: "Status: Prompt Dismissed" });
                     }
-                    return {
-                        rating: rating.value,
-                        pesan: pesan
-                    };
-                }
-            }).then((res) => {
-                if (res.isConfirmed && res.value) {
-                    // Ambil Nama dan Toko dari Local Storage
-                    let namaUser = localStorage.getItem('kacida_user_nama') || "-";
-                    let tokoUser = localStorage.getItem('kacida_user_toko') || "-";
-
-                    // Kirim semua data sesuai header spreadsheet
-                    kirimLogKeGoogle('Submit Survey', { 
-                        rating: res.value.rating, 
-                        pesan_saran: res.value.pesan,
-                        nama: namaUser,
-                        toko: tokoUser
-                    });
-
-                    localStorage.setItem('kacida_survey_done', 'true');
-                    localStorage.removeItem('kacida_survey_nanti');
-                    
-                    Swal.fire({
-                        title: 'Terima Kasih!', 
-                        text: 'Penilaian & Saran Anda sangat berarti bagi kami.', 
-                        icon: 'success',
-                        confirmButtonColor: '#0b3011',
-                        customClass: { popup: 'rounded-popup' }
-                    });
-                } else if (res.dismiss === Swal.DismissReason.cancel) {
-                    // Jika pilih "Nanti", ubah status agar muncul terus di login berikutnya
-                    localStorage.setItem('kacida_survey_nanti', 'true');
-                }
-            });
+                });
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            
-            // Failsafe Splash Screen (Tutup paksa setelah 10 detik jika internet macet)
-            setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                if(splash && splash.style.display !== 'none') {
-                    splash.style.opacity = '0';
-                    setTimeout(() => { splash.style.display = 'none'; }, 600);
-                }
-            }, 10000);
-
-            // Hitung Counter Login untuk trigger Form Survey
-            let currentLoginCount = parseInt(localStorage.getItem('kacida_login_count') || '0');
-            localStorage.setItem('kacida_login_count', (currentLoginCount + 1).toString());
-            let finalLoginCount = currentLoginCount + 1;
-
-            // ==========================================
-            // 3. SISTEM LOGIN NIK & SIMPAN NAMA/TOKO
-            // ==========================================
-            let nikTersimpan = localStorage.getItem('kacida_user_nik');
-            
-            if (!nikTersimpan) {
-                const { value: nikInput } = await Swal.fire({
-                    title: 'Selamat Datang!',
-                    text: 'Silakan masukkan NIK Anda untuk mengakses Aplikasi:',
-                    input: 'number',
-                    inputPlaceholder: 'Ketik NIK Anda...',
-                    allowOutsideClick: false, 
-                    confirmButtonColor: '#0b3011',
-                    confirmButtonText: 'Validasi NIK <i class="fas fa-search"></i>',
-                    customClass: { popup: 'rounded-popup' },
-                    showLoaderOnConfirm: true,
-                    preConfirm: (nik) => {
-                        if (!nik) {
-                            Swal.showValidationMessage('NIK wajib diisi!');
-                            return false;
-                        }
-                        return fetch(API_URL + "?action=getUserInfo&nik=" + nik)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.nama === "User Baru / Tidak Dikenal") {
-                                    Swal.showValidationMessage('❌ Akses Ditolak: NIK tidak terdaftar!');
-                                    return false;
-                                }
-                                // Simpan Nama dan Toko beserta status survey dari server jika ada
-                                localStorage.setItem('kacida_user_nama', data.nama || '-');
-                                localStorage.setItem('kacida_user_toko', data.toko || data.namaToko || '-');
-                                
-                                // Jika API mengembalikan status survey = false (misal dihapus dari sheet)
-                                if (data.survey_done !== undefined) {
-                                    localStorage.setItem('kacida_survey_done', data.survey_done ? 'true' : 'false');
-                                }
-                                return nik; 
-                            })
-                            .catch(error => {
-                                Swal.showValidationMessage('Gagal mengecek server. Pastikan internet stabil.');
-                                return false;
-                            });
-                    }
-                });
-                
-                if (nikInput) {
-                    localStorage.setItem('kacida_user_nik', nikInput);
-                    kirimLogKeGoogle('Login PWA Baru');
-                    
-                    // --- PICU DETEKSI STATUS OTOMATIS SETELAH LOGIN ---
-                    setTimeout(kirimStatusInstalasi, 2000); 
-                    
-                    Swal.fire({
-                        title: 'Akses Diberikan!',
-                        text: 'NIK Anda terverifikasi.',
-                        icon: 'success',
-                        timer: 1800,
-                        showConfirmButton: false
-                    });
-                }
+        function updateNotifBellIcon(isGranted) {
+            const icon = document.getElementById("notifIconHeader");
+            if (!icon) return;
+            if (isGranted) {
+                icon.className = "fa-solid fa-bell";
+                icon.style.color = "var(--accent-green)";
             } else {
-                kirimLogKeGoogle('Buka Aplikasi PWA');
-                
-                // --- PICU DETEKSI STATUS OTOMATIS SAAT USER LAMA MEMBUKA APP ---
-                setTimeout(kirimStatusInstalasi, 2000); 
+                icon.className = "fa-regular fa-bell";
+                icon.style.color = "#ffffff";
+            }
+        }
+
+        function showLoading(msg = "Memuat Data...") {
+            document.getElementById("loadingText").innerText = msg;
+            document.getElementById("loadingOverlay").classList.remove("hidden");
+        }
+        function hideLoading() {
+            document.getElementById("loadingOverlay").classList.add("hidden");
+        }
+
+        function showCustomModal(title, htmlBody) {
+            document.getElementById("customModalTitle").innerText = title;
+            document.getElementById("customModalBody").innerHTML = htmlBody;
+            document.getElementById("customModalOverlay").classList.remove("hidden");
+        }
+        function closeCustomModal() {
+            document.getElementById("customModalOverlay").classList.add("hidden");
+        }
+
+        async function apiCall(action, params = {}) {
+            if (typeof google !== "undefined" && google.script && google.script.run) {
+                return new Promise((resolve, reject) => {
+                    let r = google.script.run.withSuccessHandler(res => resolve(res)).withFailureHandler(err => reject(err));
+                    if (action === "login") r.loginUser(params.nik);
+                    else if (action === "getDashboard") r.getDashboardData(currentNik, selectedKodeTokoAC);
+                    else if (action === "getPerforma") r.getPerformaPopup(currentNik, selectedKodeTokoAC);
+                    else if (action === "getDetailSalesMTD") r.getDetailSalesMTD(currentNik, selectedKodeTokoAC);
+                    else if (action === "askAI") r.askKacidaAI(currentNik, params.pertanyaan);
+                    else if (action === "getLeaderboard") r.getLeaderboard();
+                    else if (action === "getChat") r.getChatFiltered(currentNik);
+                    else if (action === "sendChat") r.sendChatMessage(currentNik, params.pesan, params.penerimaTipe, params.penerimaKode, params.replyToId);
+                    else if (action === "getDaftarToko") r.getDaftarToko(currentNik);
+                    else if (action === "getDaftarTokoAll") r.getDaftarTokoAll();
+                    else if (action === "claimMissionPoin") r.claimMissionPoin(currentNik, params.namaMenu);
+                    else if (action === "readNotif") r.readNotif(currentNik, params.idNotif);
+                    else if (action === "logActivity") r.logAktivitasAPI(currentNik, params.aktivitas, params.detail);
+                    else if (action === "submitSurvey") r.submitSurveyData(currentNik, params.rating, params.saran);
+                });
+            } else {
+                const url = new URL(SCRIPT_URL);
+                url.searchParams.append("action", action);
+                url.searchParams.append("nik", currentNik);
+                if (selectedKodeTokoAC) url.searchParams.append("kodeToko", selectedKodeTokoAC);
+                Object.keys(params).forEach(k => url.searchParams.append(k, params[k]));
+
+                const res = await fetch(url);
+                return await res.json();
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                updateNotifBellIcon(true);
+            }
+            if (currentNik) initDashboard();
+        });
+
+        async function handleLogin() {
+            const nik = document.getElementById("nikInput").value.trim();
+            if (!nik) return;
+            
+            showLoading("Proses Login...");
+            currentNik = nik;
+
+            let loginCount = Number(localStorage.getItem("LOGIN_COUNT_" + nik) || 0) + 1;
+            localStorage.setItem("LOGIN_COUNT_" + nik, loginCount);
+
+            const res = await apiCall("login", { nik: nik });
+            hideLoading();
+
+            if (res.status === "success") {
+                localStorage.setItem("NIK_KACIDA", nik);
+                initDashboard();
+            } else {
+                showCustomModal("LOGIN GAGAL", `<p style="color:#ef4444;">${res.message || "NIK Tidak Terdaftar!"}</p>`);
+            }
+        }
+
+        async function initDashboard(kodeTokoPilihan = null) {
+            document.getElementById("loginSection").classList.add("hidden");
+            document.getElementById("appSection").classList.remove("hidden");
+
+            const localCache = localStorage.getItem("CACHE_DASHBOARD_" + currentNik);
+            if (localCache) {
+                try {
+                    dashboardData = JSON.parse(localCache);
+                    renderDashboard(dashboardData);
+                } catch(e) {}
+            } else {
+                showLoading("Memuat Dashboard...");
             }
 
-            // Event Tombol Profil / Kartu Pengguna Lengkap
-            document.getElementById('btnUser').addEventListener('click', () => {
-                let nikAktif = localStorage.getItem('kacida_user_nik') || '-';
-                let namaAktif = localStorage.getItem('kacida_user_nama') || 'Data belum tersinkron';
-                let tokoAktif = localStorage.getItem('kacida_user_toko') || 'Data belum tersinkron';
-                
-                Swal.fire({
-                    title: 'Kartu Pengguna',
-                    html: `
-                        <div style="text-align: left; background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px solid #ddd;">
-                            <div style="font-size:13px; color:#555; margin-bottom:2px;">NIK:</div>
-                            <div style="font-size: 18px; font-weight: bold; color: #0b3011; margin-bottom: 12px;">${nikAktif}</div>
-                            
-                            <div style="font-size:13px; color:#555; margin-bottom:2px;">Nama Lengkap:</div>
-                            <div style="font-size: 18px; font-weight: bold; color: #0b3011; margin-bottom: 12px;">${namaAktif}</div>
-                            
-                            <div style="font-size:13px; color:#555; margin-bottom:2px;">Nama Toko:</div>
-                            <div style="font-size: 18px; font-weight: bold; color: #0b3011;">${tokoAktif}</div>
-                        </div>
-                        <div style="font-size:11px; color:#888; margin-top:15px; text-align: center;">
-                            Klik "Ganti Akun" jika ingin masuk dengan NIK lain.
-                        </div>
-                    `,
-                    showCancelButton: true,
-                    confirmButtonText: '<i class="fas fa-sign-out-alt"></i> Ganti Akun',
-                    cancelButtonText: 'Tutup',
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#555',
-                    customClass: { popup: 'rounded-popup' }
-                }).then((res) => {
-                    if (res.isConfirmed) {
-                        localStorage.removeItem('kacida_user_nik');
-                        localStorage.removeItem('kacida_user_nama');
-                        localStorage.removeItem('kacida_user_toko');
-                        location.reload(); 
-                    }
-                });
-            });
+            if (kodeTokoPilihan) selectedKodeTokoAC = kodeTokoPilihan;
+            const data = await apiCall("getDashboard");
+            hideLoading();
 
-            // ==========================================
-            // 4. INSTALASI PWA
-            // ==========================================
-            let deferredPrompt;
-            const btnInstal = document.getElementById('btnInstal');
-            
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                btnInstal.style.display = 'flex';
-            });
+            if (data.status === "success") {
+                dashboardData = data;
+                localStorage.setItem("CACHE_DASHBOARD_" + currentNik, JSON.stringify(data));
+                renderDashboard(data);
+                if (data.user.isAC) loadDaftarTokoAC();
 
-            btnInstal.addEventListener('click', async () => {
-                // Saat klik instal, kirimkan juga status notifikasi aslinya agar di log terbaca akurat
-                let statusNotifNow = ("Notification" in window && Notification.permission === "granted") ? "Ya" : (("Notification" in window && Notification.permission === "denied") ? "Tidak" : "Belum");
-                kirimLogKeGoogle('Klik Instal PWA', { izinNotif: statusNotifNow, popUpDibaca: 'Terbaca' });
-                
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    deferredPrompt = null;
-                } else {
-                    Swal.fire({
-                        title: 'Pasang Pintasan',
-                        html: 'Ketuk ikon menu browser / Bagikan (<b>&#8942;</b>), lalu pilih <b>"Tambahkan ke Layar Utama"</b>.',
-                        icon: 'info',
-                        confirmButtonText: 'Mengerti',
-                        confirmButtonColor: '#0b3011',
-                        customClass: { popup: 'rounded-popup' }
-                    });
+                checkAndShowRankToast();
+                checkAndShowSurveyModal();
+
+                // TRIGGERS PUSH NOTIFIKASI NATIVE SPREADSHEET SESUAI JAM ACTIVE
+                checkAndTriggerHourlyPushNotif(data.notifications);
+            }
+        }
+
+        // MESIN PUSH NOTIFIKASI BAWAAN HP SESUAI JAM DI SPREADSHEET (AKTIF SELAMA JAM TERTENTU)
+        function checkAndTriggerHourlyPushNotif(notifications) {
+            if (!notifications || !Array.isArray(notifications)) return;
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+            const now = new Date();
+            const currentHour = now.getHours();
+            const todayStr = now.toISOString().split('T')[0];
+
+            notifications.forEach(n => {
+                const statusStr = String(n.STATUS || n.Status || "Aktif").toLowerCase().trim();
+                if (statusStr !== "aktif" && statusStr !== "ya" && statusStr !== "tampil" && statusStr !== "") return;
+
+                const rawJam = String(n.JAM || n.Jam || "").trim();
+                if (!rawJam) return;
+
+                let notifHour = -1;
+                if (rawJam.includes(":")) {
+                    notifHour = parseInt(rawJam.split(":")[0], 10);
                 }
-            });
 
-            // ==========================================
-            // 5. FUNGSI PUSH NOTIFICATION
-            // ==========================================
-            function sendPushNotification(title, message, linkTujuan) {
-                if (!("Notification" in window)) return;
-                if (Notification.permission === "granted") {
-                    navigator.serviceWorker.ready.then(reg => {
-                        reg.showNotification(title, {
-                            body: message,
+                // Cek apakah jam saat ini persis sama dengan jam yang diset di spreadsheet (misal jam 18)
+                if (notifHour === currentHour) {
+                    const notifId = n.ID || n.Id || (rawJam + "_" + (n.PESAN || ""));
+                    const pushedKey = `PUSHED_${todayStr}_${currentHour}_${notifId}`;
+
+                    if (!localStorage.getItem(pushedKey)) {
+                        localStorage.setItem(pushedKey, "TRUE");
+
+                        const notifTitle = "KACIDA BERSATU 🔔";
+                        const notifMessage = n.PESAN || n.Pesan || "Ada laporan/pemberitahuan baru yang perlu Anda cek!";
+                        const targetUrl = n["LINK TUJUAN"] || n.Link || n.LINK || "https://sites.google.com/view/laporansementara";
+
+                        const notifOptions = {
+                            body: notifMessage,
                             icon: "https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ",
                             badge: "https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ",
-                            data: { url: linkTujuan }
-                        });
-                    });
+                            data: { url: targetUrl }
+                        };
+
+                        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                            navigator.serviceWorker.ready.then(reg => {
+                                reg.showNotification(notifTitle, notifOptions);
+                            });
+                        } else {
+                            const notifObj = new Notification(notifTitle, notifOptions);
+                            notifObj.onclick = function(e) {
+                                e.preventDefault();
+                                window.open(targetUrl, '_blank');
+                            };
+                        }
+                    }
+                }
+            });
+        }
+
+        async function checkAndShowRankToast() {
+            const perf = await apiCall("getPerforma");
+            if (!perf || perf.status === "error") return;
+
+            const rankNum = Number(perf.rankPenawaran || 10);
+            const totalToko = Number(perf.totalTokoArea || 18);
+            const toast = document.getElementById("toastRankPopup");
+            const icon = document.getElementById("toastRankIcon");
+            const title = document.getElementById("toastRankTitle");
+            const msg = document.getElementById("toastRankMsg");
+
+            if (!toast) return;
+
+            if (rankNum <= 5) {
+                toast.className = "toast-rank-popup top-rank";
+                icon.innerText = "🎉";
+                title.innerText = `TOP TOKO AREA (RANK #${rankNum}/${totalToko})`;
+                msg.innerText = `Luar biasa! Performa penawaran toko ${perf.kodeToko} sangat bagus. Pertahankan! 🔥`;
+            } else if (rankNum >= 14) {
+                toast.className = "toast-rank-popup flop-rank";
+                icon.innerText = "⚠️";
+                title.innerText = `FLOP TOKO AREA (RANK #${rankNum}/${totalToko})`;
+                msg.innerText = `PERINGATAN KERAS: Performa penawaran toko ${perf.kodeToko} perlu evaluasi dan peningkatan kasir harian!`;
+            } else {
+                toast.className = "toast-rank-popup top-rank";
+                icon.innerText = "📊";
+                title.innerText = `PERFORMA TOKO (RANK #${rankNum}/${totalToko})`;
+                msg.innerText = `Tingkatkan terus penawaran produk PSM & PWP untuk masuk TOP 5!`;
+            }
+
+            toast.classList.remove("hidden");
+            setTimeout(() => {
+                toast.classList.add("hidden");
+            }, 4500);
+        }
+
+        function checkAndShowSurveyModal() {
+            const loginCount = Number(localStorage.getItem("LOGIN_COUNT_" + currentNik) || 0);
+            const isSurveyDone = localStorage.getItem("SURVEY_DONE_" + currentNik);
+
+            if (loginCount >= 5 && isSurveyDone !== "TRUE") {
+                showCustomModal("⭐ SURVEY KEPUASAN PWA", `
+                    <div style="text-align: center; padding: 4px;">
+                        <p style="font-size:0.75rem; color:var(--text-sub);">Anda telah menggunakan aplikasi ini lebih dari 5 kali. Mohon berikan penilaian dan masukan Anda!</p>
+                        
+                        <div class="star-rating" id="starRatingBox">
+                            <i class="fa-solid fa-star active" onclick="setSurveyRating(1)"></i>
+                            <i class="fa-solid fa-star active" onclick="setSurveyRating(2)"></i>
+                            <i class="fa-solid fa-star active" onclick="setSurveyRating(3)"></i>
+                            <i class="fa-solid fa-star active" onclick="setSurveyRating(4)"></i>
+                            <i class="fa-solid fa-star active" onclick="setSurveyRating(5)"></i>
+                        </div>
+
+                        <label style="font-size:0.68rem; font-weight:700; color:#cbd5e1; display:block; text-align:left; margin-bottom:4px;">PESAN DAN SARAN (WAJIB):</label>
+                        <textarea id="txtSurveySaran" placeholder="Tuliskan masukan atau kendala Anda di sini..." style="width:100%; height:75px; background:var(--bg-dark); color:white; border:1px solid var(--card-border); border-radius:10px; padding:8px; font-size:0.72rem; outline:none; resize:none; margin-bottom:12px;"></textarea>
+
+                        <div style="display:flex; gap:8px;">
+                            <button onclick="closeCustomModal()" style="flex:1; background:rgba(255,255,255,0.1); color:var(--text-sub); font-weight:700; padding:10px; border-radius:10px; border:none; cursor:pointer;">Nanti</button>
+                            <button onclick="handleSurveySubmit()" style="flex:2; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">KIRIM SURVEY</button>
+                        </div>
+                    </div>
+                `);
+            }
+        }
+
+        function setSurveyRating(starCount) {
+            selectedRatingStars = starCount;
+            const stars = document.querySelectorAll("#starRatingBox i");
+            stars.forEach((s, idx) => {
+                if (idx < starCount) s.classList.add("active");
+                else s.classList.remove("active");
+            });
+        }
+
+        async function handleSurveySubmit() {
+            const saran = document.getElementById("txtSurveySaran").value.trim();
+            if (!saran) {
+                alert("Mohon isi kolom Pesan dan Saran terlebih dahulu!");
+                return;
+            }
+
+            showLoading("Mengirim Survey...");
+            const res = await apiCall("submitSurvey", { rating: selectedRatingStars, saran: saran });
+            hideLoading();
+
+            if (res && res.status === "success") {
+                localStorage.setItem("SURVEY_DONE_" + currentNik, "TRUE");
+                closeCustomModal();
+                showCustomModal("TERIMA KASIH", `<p style="color:var(--accent-green); font-weight:bold;">${res.message}</p>`);
+            }
+        }
+
+        function renderDashboard(data) {
+            document.getElementById("lblUserName").innerText = (data.user.NAMA || "USER") + "! 👋";
+            
+            const userAvatar = get3DAvatar(data.user.NAMA, data.user["FOTO PROFIL"]);
+            document.getElementById("userAvatarHeader").src = userAvatar;
+            document.getElementById("profilFoto").src = userAvatar;
+
+            document.getElementById("profilNama").innerText = data.user.NAMA || "-";
+            document.getElementById("profilJabatan").innerText = data.user.JABATAN || "-";
+            document.getElementById("profilToko").innerText = data.user.namaToko || "-";
+            document.getElementById("profilNik").innerText = "NIK: " + data.user.NIK;
+
+            document.getElementById("valSales").innerText = data.dataH1.spdLabel || `Tgl 25 : Rp ${Number(data.dataH1.sales).toLocaleString('id-ID')}`;
+            document.getElementById("valIKT").innerText = data.dataH1.iktNetSales || "-";
+            document.getElementById("valPenawaran").innerText = data.dataH1.point || "-";
+
+            document.getElementById("valTasks").innerText = data.badges.tugas;
+            
+            const unreadAnnounces = readPengumuman ? 0 : data.badges.pengumuman;
+            document.getElementById("valAnnounce").innerText = unreadAnnounces;
+            if (unreadAnnounces > 0) document.getElementById("dotAnnounce").classList.remove("hidden");
+            else document.getElementById("dotAnnounce").classList.add("hidden");
+
+            // KOTAK NOTIFIKASI DI BAWAH CROUSEL SELALU MENAMPILKAN BADGE BELUM DIBACA
+            const allActiveNotifs = data.notifications || [];
+            const unreadNotifsCount = allActiveNotifs.length - readNotifList.length;
+            const validUnreadNotifs = unreadNotifsCount > 0 ? unreadNotifsCount : 0;
+
+            document.getElementById("valNotifCount").innerText = validUnreadNotifs;
+            if (validUnreadNotifs > 0) document.getElementById("dotNotif").classList.remove("hidden");
+            else document.getElementById("dotNotif").classList.add("hidden");
+
+            if (data.badges.chatUnread && data.badges.chatUnread !== "0") {
+                const navBadge = document.getElementById("navChatBadge");
+                if (navBadge) {
+                    navBadge.innerText = data.badges.chatUnread;
+                    navBadge.classList.remove("hidden");
                 }
             }
 
-            document.getElementById('btnNotif').addEventListener('click', () => {
-                if (!("Notification" in window)) {
-                    Swal.fire('Maaf', 'Browser/HP Anda tidak mendukung push notifikasi.', 'error');
+            document.getElementById("valPoints").innerText = Number(data.badges.point).toLocaleString("id-ID");
+            document.getElementById("valRank").innerText = "#" + data.badges.rank;
+
+            renderCarousel(data.banners, data.user.namaToko);
+            renderMenuGrid("gridMenuUtama", data.menu.utama.slice(0, 10));
+            renderMenuGrid("gridMenuLainnya", data.menu.layanan.slice(0, 8));
+
+            if (data.struktur) {
+                document.getElementById("stOGM").innerText = data.struktur.ogm.nama;
+                document.getElementById("stBM").innerText = data.struktur.bm.nama;
+                document.getElementById("stDBM").innerText = data.struktur.dbm.nama;
+                document.getElementById("stAM").innerText = data.struktur.am.nama;
+                document.getElementById("stAC").innerText = data.struktur.ac.nama;
+                document.getElementById("stSaya").innerText = data.struktur.saya.toko;
+
+                if (data.struktur.personilToko && Array.isArray(data.struktur.personilToko)) {
+                    document.getElementById("timTokoContainer").innerHTML = data.struktur.personilToko.map(p => `
+                        <div style="background:var(--bg-dark); padding:8px 12px; border-radius:8px; border:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <img src="${get3DAvatar(p.nama, p.foto)}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                                <div>
+                                    <p style="font-size:0.75rem; font-weight:800; color:white;">${p.nama}</p>
+                                    <p style="font-size:0.6rem; color:var(--text-sub);">NIK: ${p.nik}</p>
+                                </div>
+                            </div>
+                            <span style="font-size:0.65rem; background:rgba(34, 197, 94, 0.15); color:var(--accent-green); padding:2px 8px; border-radius:6px; font-weight:bold;">${p.jabatan}</span>
+                        </div>
+                    `).join("");
+                }
+            }
+        }
+
+        function renderCarousel(banners, namaToko) {
+            const wrapper = document.getElementById("carouselWrapper");
+            if (!banners || banners.length === 0) {
+                wrapper.innerHTML = `
+                    <div class="swiper-slide banner-card">
+                        <span class="banner-tag">${namaToko || "PROMO DUKUNGAN"}</span>
+                        <h2 class="banner-heading">PIC SAPA</h2>
+                        <p class="banner-subtext">(SIAP ANTAR PESANAN ANDA)</p>
+                        <a href="#" class="banner-btn">Lihat Selengkapnya <i class="fa-solid fa-chevron-right"></i></a>
+                    </div>
+                `;
+            } else {
+                wrapper.innerHTML = banners.map(b => `
+                    <div class="swiper-slide banner-card">
+                        <span class="banner-tag">${b["NAMA TOKO"] || "PROMO DUKUNGAN"}</span>
+                        <h2 class="banner-heading">${b.PIC || "PIC SAPA"}</h2>
+                        <p class="banner-subtext">${b.SUBTITLE || "(SIAP ANTAR PESANAN ANDA)"}</p>
+                        <a href="${b["LINK DRIVE"] || '#'}" target="_blank" rel="noopener noreferrer" class="banner-btn">Lihat Selengkapnya <i class="fa-solid fa-chevron-right"></i></a>
+                    </div>
+                `).join("");
+            }
+
+            new Swiper(".mainCarousel", { autoplay: { delay: 5000 }, loop: true, pagination: { el: ".swiper-pagination", clickable: true } });
+        }
+
+        function getSmart3DIcon(menuName, defaultIcon) {
+            if (defaultIcon && defaultIcon.trim().length > 10) return defaultIcon;
+            if (!menuName) return 'https://cdn-icons-png.flaticon.com/512/1828/1828884.png';
+            
+            const n = String(menuName).toLowerCase();
+            if (n.includes("sementara") || n.includes("laporan")) return 'https://cdn-icons-png.flaticon.com/512/2965/2965300.png';
+            if (n.includes("shift")) return 'https://cdn-icons-png.flaticon.com/512/3767/3767084.png';
+            if (n.includes("jobdesk") || n.includes("harian")) return 'https://cdn-icons-png.flaticon.com/512/3652/3652191.png';
+            if (n.includes("exp") || n.includes("eksp") || n.includes("cek")) return 'https://cdn-icons-png.flaticon.com/512/7518/7518748.png';
+            if (n.includes("tdp") || n.includes("area")) return 'https://cdn-icons-png.flaticon.com/512/684/684908.png';
+            if (n.includes("ikt")) return 'https://cdn-icons-png.flaticon.com/512/3594/3594363.png';
+            if (n.includes("sales") || n.includes("highlight")) return 'https://cdn-icons-png.flaticon.com/512/2454/2454271.png';
+            if (n.includes("psm") || n.includes("penawaran")) return 'https://cdn-icons-png.flaticon.com/512/3112/3112946.png';
+            if (n.includes("qr") || n.includes("cdm")) return 'https://cdn-icons-png.flaticon.com/512/3409/3409597.png';
+            if (n.includes("roleplay") || n.includes("mtk")) return 'https://cdn-icons-png.flaticon.com/512/4384/4384248.png';
+            if (n.includes("duka") || n.includes("nikah") || n.includes("claim")) return 'https://cdn-icons-png.flaticon.com/512/2904/2904832.png';
+            if (n.includes("btl") || n.includes("auto")) return 'https://cdn-icons-png.flaticon.com/512/1067/1067357.png';
+            if (n.includes("koperasi")) return 'https://cdn-icons-png.flaticon.com/512/1256/1256650.png';
+            if (n.includes("asset") || n.includes("aset")) return 'https://cdn-icons-png.flaticon.com/512/2821/2821820.png';
+
+            return 'https://cdn-icons-png.flaticon.com/512/1828/1828884.png';
+        }
+
+        function renderMenuGrid(elementId, items) {
+            document.getElementById(elementId).innerHTML = items.map(m => `
+                <div class="menu-3d-item" onclick="onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')">
+                    <div class="icon-box-3d"><img src="${getSmart3DIcon(m["Nama Menu"], m["Icon URL"])}"></div>
+                    <span class="menu-label">${m["Nama Menu"]}</span>
+                </div>
+            `).join("");
+        }
+
+        async function onMenuClick(namaMenu, link) {
+            if (dashboardData && dashboardData.menu.misi.some(m => String(m["Nama Menu"]).toLowerCase() === String(namaMenu).toLowerCase())) {
+                apiCall("claimMissionPoin", { namaMenu: namaMenu }).then(res => {
+                    if (res && res.status === "success") {
+                        const ptEl = document.getElementById("valPoints");
+                        if (ptEl) {
+                            let curr = Number(String(ptEl.innerText).replace(/\./g, '')) || 0;
+                            ptEl.innerText = Number(curr + res.addedPoin).toLocaleString('id-ID');
+                        }
+                    }
+                });
+            }
+            if (link && link !== "#") window.open(link, "_blank");
+        }
+
+        function showBriefProfile() {
+            if (!dashboardData) return;
+            const u = dashboardData.user;
+            showCustomModal("👤 KARTU PENGGUNA", `
+                <div style="text-align: center; padding: 10px;">
+                    <img src="${get3DAvatar(u.NAMA, u["FOTO PROFIL"])}" style="width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--accent-green); object-fit: cover; margin-bottom: 8px;">
+                    <h4 style="font-size: 1rem; font-weight: 800; color: white;">${u.NAMA || '-'}</h4>
+                    <p style="font-size: 0.72rem; color: var(--accent-green); font-weight: 700;">${u.JABATAN || '-'}</p>
+                    <p style="font-size: 0.68rem; color: var(--text-sub);">${u.namaToko || '-'}</p>
+                    <p style="font-size: 0.62rem; color: #64748b; margin-top: 2px;">NIK: ${u.NIK || '-'}</p>
+                    <hr style="border-color: var(--card-border); margin: 12px 0;">
+                    <button onclick="handleLogout()" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 8px 18px; border-radius: 10px; font-size: 0.72rem; font-weight: 700; cursor: pointer; width: 100%;">LOGOUT</button>
+                </div>
+            `);
+        }
+
+        async function loadDaftarTokoAC() {
+            const list = await apiCall("getDaftarToko");
+            if (list && list.length > 0) {
+                document.getElementById("acDropdownContainer").classList.remove("hidden");
+                document.getElementById("selectTokoAC").innerHTML = `<option value="ALL">🌐 REKAP RATA-RATA ALL TOKO AREA</option>` + list.map(t => `<option value="${t.substring(0,4)}">${t}</option>`).join("");
+            }
+        }
+
+        function onACTokoChange(kodeToko) {
+            selectedKodeTokoAC = kodeToko;
+            showLoading("Mengganti Data Toko...");
+            initDashboard(kodeToko);
+        }
+
+        async function openSalesMTDModal() {
+            showLoading("Memuat Rincian Sales Bulan Berjalan...");
+            const d = await apiCall("getDetailSalesMTD");
+            hideLoading();
+
+            if (!d || d.status === "error") {
+                showCustomModal("📊 RINCIAN SALES BULAN BERJALAN", `<p style='color:#ef4444;'>Gagal memuat rincian: ${d?.message || 'Koneksi terganggu'}</p>`);
+                return;
+            }
+
+            let rowsHtml = "";
+            if (d.listHarian && d.listHarian.length > 0) {
+                rowsHtml = d.listHarian.map(item => `
+                    <tr>
+                        <td style="font-weight:700;">${item.tanggalFormatted}</td>
+                        <td style="color:var(--accent-green); font-weight:800;">${item.sales2026}</td>
+                        <td style="color:var(--gold); font-weight:700;">${item.std2026}</td>
+                        <td style="color:#38bdf8;">${item.apc2026}</td>
+                    </tr>
+                `).join("");
+            } else {
+                rowsHtml = `<tr><td colspan="4" style="color:var(--text-sub);">Belum ada data harian di bulan ini.</td></tr>`;
+            }
+
+            const htmlBox = `
+                <div style="font-size: 0.75rem;">
+                    <div style="display:flex; justify-content:space-between; font-weight:800; color:var(--accent-green); margin-bottom:4px;">
+                        <span>📍 ${d.namaToko}</span>
+                        <span style="color:var(--gold);">🗓️ ${d.bulanName}</span>
+                    </div>
+                    <div style="color:var(--text-sub); font-size:0.65rem; margin-bottom:10px;">
+                        Total MTD Sales (s/d Tgl ${d.targetDay}): <strong style="color:#fff;">Rp ${Number(d.totalMtdSales).toLocaleString('id-ID')}</strong>
+                    </div>
+
+                    <div style="max-height: 50vh; overflow-y: auto; border: 1px solid var(--card-border); border-radius: 10px;">
+                        <table class="tbl-sales-mtd">
+                            <thead>
+                                <tr>
+                                    <th>TANGGAL</th>
+                                    <th>SALES 2026</th>
+                                    <th>STD 2026</th>
+                                    <th>APC 2026</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            showCustomModal("📊 RINCIAN SALES BULAN BERJALAN", htmlBox);
+        }
+
+        async function openPerformaPopup() {
+            showLoading("Memuat Data Performance...");
+            const d = await apiCall("getPerforma");
+            hideLoading();
+
+            if (!d || d.status === "error") {
+                showCustomModal("📊 DATA PERFORMANCE", `<p style='color:#ef4444;'>Gagal memuat data: ${d?.message || 'Koneksi terganggu'}</p>`);
+                return;
+            }
+
+            lastPerformaText = `📊 *PERFORMA TOKO ${d.namaToko}*\nTgl: ${d.tanggalTxt}\n\n💰 *Sales 2026*: Rp ${Number(d.sales2026).toLocaleString('id-ID')}\n📈 *Growth Harian*: ${d.growthHarian >= 0 ? '+' : ''}${d.growthHarian.toFixed(1)}%\n📊 *MTD Sales 2026*: Rp ${Number(d.mtd2026).toLocaleString('id-ID')} (${d.mtdGrowth.toFixed(1)}%)\n⚡ *SPD 2026*: Rp ${Math.round(d.spd).toLocaleString('id-ID')}\n🚀 *Rank Penawaran Area*: #${d.rankPenawaran} dari ${d.totalTokoArea} Toko\n🎯 *Point Penawaran*: ${d.pointDash} (${d.ketPoint})\n\n#KacidaBersatu`;
+
+            const htmlBox = `
+                <div style="font-family: monospace, sans-serif; font-size: 0.7rem; line-height: 1.5; color: #fff; background: #03170a; padding: 12px; border-radius: 12px; border: 1px solid var(--card-border);">
+                    <div style="display:flex; justify-content:space-between; font-weight:800; color:var(--accent-green); margin-bottom:2px; font-size:0.75rem;">
+                        <span>📍 ${d.namaToko}</span>
+                        <span style="color:var(--text-sub); font-size:0.62rem;">📅 Update: ${d.tanggalTxt}</span>
+                    </div>
+
+                    <div style="border-top:1px dashed var(--card-border); padding-top:6px; margin-top:6px;">
+                        <div style="color:var(--gold); font-weight:700;">💰 SALES HARIAN (${d.tglOnly})</div>
+                        <div style="padding-left:6px;">2026 : Rp ${Number(d.sales2026).toLocaleString('id-ID')}</div>
+                        <div style="padding-left:6px;">2025 : Rp ${Number(d.sales2025).toLocaleString('id-ID')}</div>
+                        <div style="padding-left:6px; color:var(--accent-green); font-weight:700;">📈 Growth 2026 vs 2025 : ${d.growthHarian >= 0 ? '+' : ''}${d.growthHarian.toFixed(1)}% ${d.growthHarian >= 0 ? '🟢' : '🔴'}</div>
+                    </div>
+
+                    <div style="border-top:1px dashed var(--card-border); padding-top:6px; margin-top:6px;">
+                        <div style="color:#38bdf8; font-weight:700;">📊 MTD SALES & AVERAGE (s/d Tanggal ${d.tanggalTxt})</div>
+                        <div style="padding-left:6px;">MTD Sales 2026 : Rp ${Number(d.mtd2026).toLocaleString('id-ID')}</div>
+                        <div style="padding-left:6px;">MTD Sales 2025 : Rp ${Number(d.mtd2025 || 0).toLocaleString('id-ID')}</div>
+                        <div style="padding-left:6px; color:var(--accent-green); font-weight:700;">📊 MTD Growth    : ${d.mtdGrowth >= 0 ? '+' : ''}${d.mtdGrowth.toFixed(1)}% ${d.mtdGrowth >= 0 ? '🟢' : '🔴'}</div>
+                        <div style="padding-left:6px; color:var(--gold); font-weight:700;">⚡ SPD 2026 (Rata-rata/Hari) : Rp ${Math.round(d.spd).toLocaleString('id-ID')}</div>
+                    </div>
+
+                    <div style="border-top:1px dashed var(--card-border); padding-top:6px; margin-top:6px;">
+                        <div style="color:var(--accent-green); font-weight:700; margin-bottom:4px;">🎯 IKT TOKO (Tab: IKT)</div>
+                        <table style="width:100%; border-collapse:collapse; text-align:center; border:1px solid var(--card-border); font-size:0.65rem;">
+                            <tr style="background:rgba(255,255,255,0.05); color:var(--text-sub);">
+                                <th style="border:1px solid var(--card-border); padding:3px;">ACV NET SALES</th>
+                                <th style="border:1px solid var(--card-border); padding:3px;">ACV PROFIT</th>
+                                <th style="border:1px solid var(--card-border); padding:3px;">ACV GM%</th>
+                            </tr>
+                            <tr style="font-weight:800; color:#fff;">
+                                <td style="border:1px solid var(--card-border); padding:4px; color:var(--accent-green);">${d.acvNetSales}</td>
+                                <td style="border:1px solid var(--card-border); padding:4px; color:${parseFloat(d.acvProfit)>=0?'var(--accent-green)':'#ef4444'};">${d.acvProfit}</td>
+                                <td style="border:1px solid var(--card-border); padding:4px; color:var(--gold);">${d.acvGM}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div style="border-top:1px dashed var(--card-border); padding-top:6px; margin-top:6px;">
+                        <div style="color:#ef4444; font-weight:700; display:flex; justify-content:space-between; align-items:center;">
+                            <span>🚀 PENAWARAN LANGSUNG</span>
+                            <span style="color:var(--gold); font-size:0.65rem; background:rgba(245,158,11,0.15); padding:2px 6px; border-radius:4px; border:1px solid var(--gold);">🏆 RANK #${d.rankPenawaran || 1} DARI ${d.totalTokoArea || 18} TOKO</span>
+                        </div>
+                        <div style="padding-left:6px; margin-top:4px;">Point Dashboard : <strong>${d.pointDash}</strong> (${d.ketPoint})</div>
+                        <div style="padding-left:6px; font-size:0.62rem; color:#cbd5e1; margin-top:2px;">
+                            PSM: ${d.psm} | PWP: ${d.pwp} | SERBA GRATIS: ${d.serbaGratis} | APC: ${d.apc}
+                        </div>
+                        ${d.pesanApresiasi ? `<div style="margin-top:6px; padding:6px; background:rgba(34,197,94,0.1); border:1px solid var(--accent-green); border-radius:6px; color:var(--accent-green); font-size:0.62rem;">${d.pesanApresiasi}</div>` : ''}
+                    </div>
+
+                    <div style="margin-top:12px; border-top:1px dashed var(--card-border); padding-top:8px;">
+                        <button id="btnCopyPerforma" onclick="copyPerformaText()" class="btn-copy-action">
+                            <i class="fa-regular fa-copy" style="font-size:0.9rem;"></i> Salin Teks Ringkasan Performa
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            showCustomModal("📊 DATA PERFORMANCE", htmlBox);
+        }
+
+        function copyPerformaText() {
+            const btn = document.getElementById("btnCopyPerforma");
+            if (!lastPerformaText) return;
+
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(lastPerformaText);
+                } else {
+                    const temp = document.createElement("textarea");
+                    temp.value = lastPerformaText;
+                    document.body.appendChild(temp);
+                    temp.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(temp);
+                }
+                
+                if (btn) {
+                    btn.innerHTML = `<i class="fa-solid fa-check" style="font-size:0.9rem;"></i> Berhasil Disalin!`;
+                    btn.style.background = "#38bdf8";
+                    setTimeout(() => {
+                        btn.innerHTML = `<i class="fa-regular fa-copy" style="font-size:0.9rem;"></i> Salin Teks Ringkasan Performa`;
+                        btn.style.background = "var(--accent-green)";
+                    }, 2500);
+                }
+            } catch(e) {
+                alert("Gagal menyalin otomatis, silakan coba lagi.");
+            }
+        }
+
+        function openPengumumanModal() {
+            readPengumuman = true;
+            document.getElementById("valAnnounce").innerText = "0";
+            document.getElementById("dotAnnounce").classList.add("hidden");
+
+            if (!dashboardData || !dashboardData.announcements || dashboardData.announcements.length === 0) {
+                showCustomModal("📢 Pengumuman", "<p style='color:var(--text-sub);'>Belum ada pengumuman aktif dari Spreadsheet.</p>");
+                return;
+            }
+
+            const html = dashboardData.announcements.map(p => `
+                <div style="background:var(--bg-dark); padding:10px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:8px; display:flex; gap:10px; align-items:center;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3602/3602145.png" style="width:32px; height:32px;">
+                    <div>
+                        <p style="font-weight:bold; color:var(--gold); font-size:0.75rem;">${p.Pengumuman || p.PENGUMUMAN || p.pengumuman || 'Pengumuman'}</p>
+                    </div>
+                </div>
+            `).join("");
+
+            showCustomModal("📢 Pengumuman Resmi", html);
+        }
+
+        function openNotifModal() {
+            if (dashboardData && dashboardData.notifications) {
+                const notifIds = dashboardData.notifications.map(n => n.ID || n.Id || n.PESAN);
+                readNotifList = [...new Set([...readNotifList, ...notifIds])];
+                localStorage.setItem("READ_NOTIFS_" + currentNik, JSON.stringify(readNotifList));
+
+                document.getElementById("valNotifCount").innerText = "0";
+                document.getElementById("dotNotif").classList.add("hidden");
+            }
+
+            if (!dashboardData || !dashboardData.notifications || dashboardData.notifications.length === 0) {
+                showCustomModal("🔔 Notifikasi", "<p style='color:var(--text-sub);'>Tidak ada notifikasi baru saat ini.</p>");
+                return;
+            }
+
+            const html = dashboardData.notifications.map((n, idx) => {
+                const targetUrl = n["LINK TUJUAN"] || n.Link || n.LINK || "#";
+                const hasLink = targetUrl && targetUrl !== "#";
+                const notifId = n.ID || n.Id || (idx + 1);
+
+                return `
+                    <div onclick="onNotifItemClick('${notifId}', '${targetUrl}')" style="background:var(--bg-dark); padding:10px 12px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:8px; display:flex; gap:10px; align-items:center; cursor:${hasLink ? 'pointer' : 'default'};">
+                        <img src="https://cdn-icons-png.flaticon.com/512/3602/3602123.png" style="width:32px; height:32px;">
+                        <div style="flex:1;">
+                            <p style="font-weight:bold; color:var(--accent-green); font-size:0.75rem;">${n.PESAN || n.Pesan || 'Notifikasi'}</p>
+                            <p style="font-size:0.62rem; color:var(--text-sub); margin-top:2px;">
+                                Jam: <b>${n.JAM || '-'}</b> ${hasLink ? '| <span style="color:#38bdf8;">Klik untuk buka link 🔗</span>' : ''}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            showCustomModal("🔔 Notifikasi Aplikasi", html);
+        }
+
+        function onNotifItemClick(idNotif, linkUrl) {
+            apiCall("readNotif", { idNotif: idNotif });
+            if (linkUrl && linkUrl !== "#") {
+                window.open(linkUrl, "_blank");
+            }
+        }
+
+        function switchChatRoomMode(mode) {
+            chatRoomMode = mode;
+            const btnTeam = document.getElementById("btnTabTeam");
+            const btnAI = document.getElementById("btnTabAI");
+            const title = document.getElementById("chatTitleHeader");
+
+            if (mode === 'team') {
+                btnTeam.classList.add("active");
+                btnAI.classList.remove("active");
+                title.innerHTML = `<i class="fa-solid fa-comments" style="color: var(--accent-green);"></i> Room Chat Tim Kacida`;
+                loadChat();
+
+                if (!chatAutoRefreshTimer) {
+                    chatAutoRefreshTimer = setInterval(() => {
+                        if (chatRoomMode === 'team') loadChat(true);
+                    }, 8000);
+                }
+            } else {
+                btnAI.classList.add("active");
+                btnTeam.classList.remove("active");
+                title.innerHTML = `<i class="fa-solid fa-robot" style="color: var(--accent-green);"></i> Chat Privat Kacida AI`;
+                if (chatAutoRefreshTimer) {
+                    clearInterval(chatAutoRefreshTimer);
+                    chatAutoRefreshTimer = null;
+                }
+                renderAIChatRoom();
+            }
+        }
+
+        async function loadChat(isBackgroundRefresh = false) {
+            if (chatRoomMode !== 'team') return;
+            const chats = await apiCall("getChat");
+            const box = document.getElementById("chatBox");
+            if (chats && Array.isArray(chats)) {
+                if (chats.length === 0) {
+                    box.innerHTML = `<p style="font-size:0.7rem; color:var(--text-sub); text-align:center; margin-top:20px;">Belum ada percakapan tim. Ketik pesan untuk mulai!</p>`;
                     return;
                 }
-                if (Notification.permission === "granted") {
-                    Swal.fire('Info', 'Notifikasi sistem sudah aktif.', 'info');
-                } else if (Notification.permission !== "denied") {
-                    Notification.requestPermission().then(permission => {
-                        if (permission === "granted") {
-                            Swal.fire('Berhasil!', 'Izin notifikasi diberikan.', 'success');
-                            sendPushNotification("Kacida Bersatu", "Terima kasih! Notifikasi berhasil diaktifkan.", "");
-                            
-                            // -- UPDATE DATA DI GS SAAT IZIN DI-ALLOW --
-                            kirimStatusInstalasi(); 
-                        } else {
-                            Swal.fire({ icon: 'warning', title: 'Terblokir', text: 'Izin notifikasi diblokir browser.', confirmButtonColor: '#0b3011' });
-                            
-                            // -- UPDATE DATA DI GS SAAT IZIN DI-BLOCK --
-                            kirimStatusInstalasi(); 
-                        }
-                    });
-                } else {
-                    Swal.fire({ icon: 'warning', title: 'Terblokir', text: 'Izin notifikasi telah Anda blokir di pengaturan.', confirmButtonColor: '#0b3011' });
+                box.innerHTML = chats.map(c => {
+                    const isMe = c.NIK_PENGIRIM == currentNik;
+                    const timeFormatted = c.TIMESTAMP ? new Date(c.TIMESTAMP).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                    return `
+                        <div class="wa-bubble ${isMe ? 'me' : 'other'}">
+                            <div class="wa-sender">
+                                <span>${(c.NAMA_PENGIRIM || 'User')} (${c.JABATAN || 'Staff'})</span>
+                                <span>${c.KODE_TOKO_PENGIRIM || ''}</span>
+                            </div>
+                            <div>${c.ISI_PESAN || ''}</div>
+                            <div class="wa-time">${timeFormatted} ${isMe ? '<span style="color:#22c55e;">✓✓</span>' : ''}</div>
+                        </div>
+                    `;
+                }).join("");
+
+                if (!isBackgroundRefresh) {
+                    box.scrollTop = box.scrollHeight;
                 }
+            }
+        }
+
+        function renderAIChatRoom() {
+            const box = document.getElementById("chatBox");
+            if (aiChatHistory.length === 0) {
+                const uName = dashboardData?.user?.NAMA || "Kak";
+                aiChatHistory.push({
+                    sender: "AI",
+                    msg: `Halo ${uName}! 👋\nSaya **Asisten Kacida AI** (Gemini 2.0 Flash). Bebas tanyakan data Sales, IKT, strategi penawaran, hingga obrolan santai/luwes apa saja!`
+                });
+            }
+
+            box.innerHTML = aiChatHistory.map(c => {
+                const isMe = c.sender === "ME";
+                const isErr = c.isError === true;
+                const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                return `
+                    <div class="wa-bubble ${isMe ? 'me' : 'ai'}" style="${isErr ? 'border-color:#ef4444;' : ''}">
+                        <div class="wa-sender">
+                            <span>${isMe ? 'SAYA' : '🤖 Asisten Kacida AI'}</span>
+                        </div>
+                        <div style="white-space: pre-line;">${c.msg}</div>
+                        <div class="wa-time">${timeStr} ${isMe ? '<span style="color:#22c55e;">✓✓</span>' : ''}</div>
+                    </div>
+                `;
+            }).join("");
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function handleSendChatAction() {
+            const input = document.getElementById("inputChatMsg");
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            input.value = "";
+
+            if (chatRoomMode === 'ai') {
+                aiChatHistory.push({ sender: "ME", msg: msg });
+                
+                const tempAiIdx = aiChatHistory.length;
+                aiChatHistory.push({ sender: "AI", msg: "🤖 *Asisten Kacida AI sedang berpikir...*" });
+                renderAIChatRoom();
+
+                const res = await apiCall("askAI", { pertanyaan: msg });
+                
+                if (res && res.status === "success" && res.jawaban) {
+                    aiChatHistory[tempAiIdx] = { sender: "AI", msg: res.jawaban };
+                } else {
+                    aiChatHistory[tempAiIdx] = { sender: "AI", msg: "⚠️ " + (res?.message || "Gagal mendapatkan respon dari AI. Silakan coba lagi!"), isError: true };
+                }
+                renderAIChatRoom();
+            } else {
+                const box = document.getElementById("chatBox");
+                const tempId = "msg_" + Date.now();
+                const nowTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                box.innerHTML += `
+                    <div class="wa-bubble me" id="${tempId}">
+                        <div class="wa-sender"><span>SAYA</span></div>
+                        <div>${msg}</div>
+                        <div class="wa-time">${nowTime} <span class="check-icon" style="color:#94a3b8;">✓</span></div>
+                    </div>
+                `;
+                box.scrollTop = box.scrollHeight;
+
+                apiCall("sendChat", { pesan: msg, penerimaTipe: "All", penerimaKode: "ALL" }).then(() => {
+                    const el = document.getElementById(tempId);
+                    if (el) {
+                        const chk = el.querySelector(".check-icon");
+                        if (chk) {
+                            chk.innerHTML = "✓✓";
+                            chk.style.color = "#22c55e";
+                        }
+                    }
+                });
+            }
+        }
+
+        function openAllMenuModal(kategori) {
+            if (!dashboardData) return;
+            const list = kategori === 'Utama' ? dashboardData.menu.utama : dashboardData.menu.layanan;
+            showCustomModal(`Semua ${kategori}`, `
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                    ${list.map(m => `
+                        <div onclick="onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')" style="text-decoration:none; display:flex; flex-direction:column; align-items:center; cursor:pointer;">
+                            <div class="icon-box-3d"><img src="${getSmart3DIcon(m["Nama Menu"], m["Icon URL"])}"></div>
+                            <span class="menu-label">${m["Nama Menu"]}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `);
+        }
+
+        function openMenuSidebar() {
+            showCustomModal("Menu Navigasi", `
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button onclick="switchTab('beranda'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">🏠 Beranda Dashboard</button>
+                    <button onclick="switchTab('chat'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">💬 Room Chat Tim Kacida</button>
+                    <button onclick="switchTab('aksiCepat'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">🚀 Misi Hari Ini</button>
+                    <button onclick="switchTab('leaderboard'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">🏆 Leaderboard Area</button>
+                    <button onclick="switchTab('profil'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">👤 Profil & Bagan Struktur</button>
+                </div>
+            `);
+        }
+
+        function switchTab(tabName) {
+            if (chatAutoRefreshTimer && tabName !== "chat") {
+                clearInterval(chatAutoRefreshTimer);
+                chatAutoRefreshTimer = null;
+            }
+
+            ["beranda", "chat", "aksiCepat", "leaderboard", "profil"].forEach(t => {
+                const el = document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1));
+                const nav = document.getElementById("nav" + t.charAt(0).toUpperCase() + t.slice(1));
+                if (el) el.classList.add("hidden");
+                if (nav) nav.classList.remove("active");
             });
 
-            // ==========================================
-            // 6. AMBIL POSTER CAROUSEL
-            // ==========================================
-            fetch(API_URL + "?action=getPosterFiles")
-                .then(res => res.json())
-                .then(urls => {
-                    const track = document.getElementById('carousel-track');
-                    if(urls && urls.length > 0) { 
-                        track.innerHTML = urls.map(url => `<img src="${url}" alt="Poster Promo">`).join('');
-                        setInterval(() => { 
-                            let itemWidth = track.clientWidth;
-                            let currentScroll = track.scrollLeft;
-                            let currentIndex = Math.round(currentScroll / itemWidth);
-                            let nextIndex = currentIndex + 1;
-                            if (nextIndex >= urls.length) { nextIndex = 0; }
-                            track.scrollTo({ left: itemWidth * nextIndex, behavior: 'smooth' }); 
-                        }, 4500); 
+            const activeTab = document.getElementById("tab" + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+            const activeNav = document.getElementById("nav" + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+            if (activeTab) activeTab.classList.remove("hidden");
+            if (activeNav) activeNav.classList.add("active");
+
+            const floatingAi = document.getElementById("floatingAIMascot");
+            if (tabName === "chat") {
+                if (floatingAi) floatingAi.classList.remove("hidden");
+                document.getElementById("navChatBadge").classList.add("hidden");
+                
+                apiCall("getChat").then(chats => {
+                    if (chats && Array.isArray(chats)) {
+                        lastReadChatCount = chats.filter(c => String(c.NIK_PENGIRIM) !== String(currentNik)).length;
+                        localStorage.setItem("LAST_READ_CHAT_COUNT_" + currentNik, lastReadChatCount);
                     }
-                }).catch(e => console.log("Poster gagal dimuat"));
-
-            // ==========================================
-            // 7. AMBIL DATA UTAMA (MENU & NOTIFIKASI)
-            // ==========================================
-            fetch(API_URL + "?action=getAppData")
-                .then(res => res.json())
-                .then(res => {
-                    
-                    // --- GENERATE MENU NAVIGASI ---
-                    let utamaHtml = ''; let lainnyaHtml = '';
-                    const svgs = [
-                        `<svg class="svg-icon anim-nulis" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`,
-                        `<svg class="svg-icon anim-ayun" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
-                        `<svg class="svg-icon anim-denyut" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
-                        `<svg class="svg-icon anim-denyut" viewBox="0 0 24 24" fill="none" stroke="#00bcd4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
-                        `<svg class="svg-icon anim-denyut" viewBox="0 0 24 24" fill="none" stroke="#f44336" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
-                        `<svg class="svg-icon anim-naik" viewBox="0 0 24 24" fill="none" stroke="#9c27b0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
-                        `<svg class="svg-icon anim-naik" viewBox="0 0 24 24" fill="none" stroke="#e91e63" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`,
-                        `<svg class="svg-icon anim-ayun" viewBox="0 0 24 24" fill="none" stroke="#ffc107" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a4 4 0 0 1 4 4v7a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"></path></svg>`,
-                        `<svg class="svg-icon anim-denyut" viewBox="0 0 24 24" fill="none" stroke="#3f51b5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`,
-                        `<svg class="svg-icon anim-nulis" viewBox="0 0 24 24" fill="none" stroke="#607d8b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>`,
-                        `<svg class="svg-icon anim-ayun" viewBox="0 0 24 24" fill="none" stroke="#ff5722" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.5 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>`,
-                        `<svg class="svg-icon anim-naik" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>`
-                    ];
-
-                    if(res.menu && res.menu.length > 0) {
-                        res.menu.forEach((row, index) => { 
-                            if(row[2] && row[2].toString().trim().toLowerCase() === 'aktif') {
-                                let defaultSvg = `<svg class="svg-icon anim-denyut" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle></svg>`;
-                                let iconHtml = (index < svgs.length) ? svgs[index] : defaultSvg;
-                                let itemHtml = `
-                                    <a href="${row[1]}" class="menu-item" target="_blank" onclick="kirimLogKeGoogle('Klik Menu', {menu: '${row[0]}'})">
-                                        <div class="icon-wrapper">${iconHtml}</div>
-                                        <span>${row[0]}</span>
-                                    </a>`;
-                                if(index < 8) { utamaHtml += itemHtml; } else { lainnyaHtml += itemHtml; }
-                            }
-                        });
-                        document.getElementById('menuUtama').innerHTML = utamaHtml;
-                        if(lainnyaHtml !== '') {
-                            document.getElementById('menuLainnya').innerHTML = lainnyaHtml;
-                            document.getElementById('divider').style.display = 'block';
-                            document.getElementById('titleLainnya').style.display = 'block';
-                        }
-                    }
-
-                    // Tutup Splash Screen
-                    const splash = document.getElementById('splash-screen');
-                    if(splash && splash.style.display !== 'none') {
-                        splash.style.opacity = '0';
-                        setTimeout(() => { splash.style.display = 'none'; }, 600);
-                    }
-
-                    // --- CEK PUSH NOTIFIKASI (TOLERANSI 1 JAM) ---
-                    if(res.notifJadwal && res.notifJadwal.length > 0) {
-                        const now = new Date();
-
-                        res.notifJadwal.forEach((row) => {
-                            let isAktif = row[5] && row[5].toString().trim().toLowerCase() === 'aktif';
-                            if (!isAktif) return;
-
-                            let waktuKirim = row[2] ? row[2].toString().trim() : "";
-                            let targetHours = 0, targetMinutes = 0;
-
-                            if (waktuKirim !== "") {
-                                if (waktuKirim.includes("T")) { 
-                                    let d = new Date(waktuKirim);
-                                    targetHours = d.getHours();
-                                    targetMinutes = d.getMinutes();
-                                } else {
-                                    let timeParts = waktuKirim.split(":");
-                                    targetHours = parseInt(timeParts[0], 10) || 0;
-                                    targetMinutes = parseInt(timeParts[1], 10) || 0;
-                                }
-                            }
-
-                            // Set waktu target ke hari ini
-                            let targetTime = new Date();
-                            targetTime.setHours(targetHours, targetMinutes, 0, 0);
-                            
-                            let delay = targetTime.getTime() - now.getTime();
-
-                            // Jika aplikasi dibuka SEBELUM jam jadwal
-                            if (delay > 0) {
-                                setTimeout(() => { 
-                                    sendPushNotification("Kacida Bersatu", row[0], row[1]); 
-                                    kirimLogKeGoogle('Push Notif Terkirim', {pesan: row[0]});
-                                }, delay);
-                            } 
-                            // Jika aplikasi dibuka SETELAH jam jadwal, beri toleransi 1 JAM (3.600.000 ms).
-                            // Misal jadwal 08:00, lalu user buka jam 08:45 -> Notif langsung dimunculkan.
-                            // Tapi jika user buka jam 09:01 -> Notif hangus (tidak muncul).
-                            else if (delay > -3600000 && delay <= 0) {
-                                sendPushNotification("Kacida Bersatu", row[0], row[1]); 
-                                kirimLogKeGoogle('Push Notif Terkirim', {pesan: row[0]});
-                            }
-                        });
-                    }
-
-                    // --- FUNGSI CEK SURVEY ---
-                    const periksaTampilSurvey = () => {
-                        let surveyDone = localStorage.getItem('kacida_survey_done') === 'true';
-                        let surveyNanti = localStorage.getItem('kacida_survey_nanti') === 'true';
-                        
-                        // Sync status dari server jika data.survey_done terbawa dari AppData (opsional)
-                        if (res.isSurveyDone !== undefined) {
-                            surveyDone = res.isSurveyDone;
-                            localStorage.setItem('kacida_survey_done', surveyDone ? 'true' : 'false');
-                        }
-
-                        if (!surveyDone) {
-                            // Tampil jika pilih "Nanti" ATAU login sudah 5x
-                            if (surveyNanti || finalLoginCount >= 5) {
-                                setTimeout(() => { tampilkanSurvey(); }, 800);
-                            }
-                        }
-                    };
-
-                    // --- POP UP IN-APP TANGAN MELAMBAI (MUNCUL TIAP BUKA APLIKASI) ---
-                    let inAppMuncul = false;
-                    if(res.notifApp && res.notifApp.length > 0) {
-                        const activeInApp = res.notifApp.find(row => row[1] && row[1].toString().trim().toLowerCase() === 'aktif');
-                        if (activeInApp) {
-                            inAppMuncul = true;
-                            setTimeout(() => {
-                                Swal.fire({
-                                    html: `
-                                        <div style="padding: 20px 10px 5px 10px; text-align: center;">
-                                            <div style="margin-bottom: 12px; line-height: 1;">
-                                                <span class="anim-wave" style="font-size: 46px;">👋</span>
-                                            </div>
-                                            <h2 style="margin: 0 0 12px 0; font-size: 24px; font-weight: 800; color: #111111; font-family: sans-serif;">Hey there!</h2>
-                                            <p style="font-size: 13.5px; color: #444444; line-height: 1.6; margin: 0 auto 20px auto; font-weight: 500; max-width: 290px;">
-                                                ${activeInApp[0]}
-                                            </p>
-                                        </div>
-                                    `,
-                                    showCloseButton: true,
-                                    showConfirmButton: true,
-                                    confirmButtonText: "Tutup",
-                                    confirmButtonColor: '#10b981',
-                                    background: '#ffffff',
-                                    width: '360px',
-                                    padding: '0px 0px 20px 0px',
-                                    backdrop: `rgba(0,0,0,0.55)`,
-                                    customClass: { popup: 'rounded-popup' }
-                                }).then(() => {
-                                    // Setelah PopUp InApp ditutup, cek apakah perlu tampilkan Survey
-                                    periksaTampilSurvey();
-                                });
-                            }, 1500);
-                        }
-                    }
-
-                    // Jika tidak ada In-App Pop Up aktif, langsung cek Survey
-                    if(!inAppMuncul) {
-                        periksaTampilSurvey();
-                    }
-                })
-                .catch(err => {
-                    document.getElementById('splash-text').innerText = 'Koneksi Terputus. Cek Internet Anda.';
                 });
-        });
+
+                switchChatRoomMode(chatRoomMode);
+            } else {
+                if (floatingAi) floatingAi.classList.add("hidden");
+            }
+
+            if (tabName === "aksiCepat") loadMisi();
+            if (tabName === "leaderboard") loadLeaderboard();
+        }
+
+        function loadMisi() {
+            if (!dashboardData) return;
+            document.getElementById("misiList").innerHTML = dashboardData.menu.misi.map(m => `
+                <div onclick="onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')" style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:12px; cursor:pointer;">
+                    <div><p style="font-size:0.75rem; font-weight:700;">${m["Nama Menu"]}</p><p style="font-size:0.6rem; color:var(--text-sub);">Reward: +${m.Reward_Poin || 5} Pts</p></div>
+                    <span style="font-size:0.75rem; color:var(--accent-green); font-weight:800;">KLIK MISI ➔</span>
+                </div>
+            `).join("");
+        }
+
+        async function loadLeaderboard() {
+            const users = await apiCall("getLeaderboard");
+            if (users && Array.isArray(users)) {
+                document.getElementById("leaderboardList").innerHTML = users.map((u, i) => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-dark); border:1px solid var(--card-border); padding:8px 12px; border-radius:10px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <img src="${get3DAvatar(u.NAMA, u["FOTO PROFIL"])}" style="width:28px; height:28px; border-radius:50%; object-fit:cover;">
+                            <div><p style="font-size:0.75rem; font-weight:700;">#${i+1} ${u.NAMA}</p><p style="font-size:0.6rem; color:var(--text-sub);">${u["NAMA TOKO"]}</p></div>
+                        </div>
+                        <span style="font-size:0.75rem; font-weight:800; color:var(--accent-green);">${u["POIN TOTAL"] || 0} Pts</span>
+                    </div>
+                `).join("");
+            }
+        }
+
+        function handleLogout() {
+            localStorage.clear();
+            location.reload();
+        }
     </script>
 </body>
 </html>
