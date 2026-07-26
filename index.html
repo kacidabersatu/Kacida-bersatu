@@ -450,7 +450,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5dMwVVd-KLC_lz-koc99M5kFbhG7D9PMCu1dq9eF13a7rZkN-Quf-znmtZCeN7etL/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygMzpUNsA9bAvxoKMV4x9hCL7QiC3q_YmqCHCuV_I7qIucebfS2MnG8baT_D0WlAg/exec";
 
         let currentNik = localStorage.getItem("NIK_KACIDA") || "";
         let dashboardData = null;
@@ -471,7 +471,7 @@
             });
         }
 
-        // FUNGSI PEMBACA JAM CHAT PINTAR - FIX INVALID DATE
+        // FUNGSI PEMBACA JAM CHAT PINTAR - FIX INVALID DATE & TIMEZONE SHIFT
         function formatChatTime(rawTime) {
             if (!rawTime) return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
@@ -480,28 +480,26 @@
                 return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             }
 
-            // Jika jam sudah berformat HH:MM atau HH:MM:SS (misal: "23:09" atau "23:09:00")
+            // MENGAMBIL "23:28" DARI FORMAT "2026-07-26 23:28:15"
+            if (str.includes(" ")) {
+                const parts = str.split(" ");
+                const timePart = parts[1] || parts[0];
+                if (timePart.includes(":")) {
+                    const t = timePart.split(":");
+                    return `${t[0].padStart(2, '0')}:${t[1].padStart(2, '0')}`;
+                }
+            }
+
+            // BILA DALAM FORMAT "23:28:15" ATAU "23:28"
             if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(str)) {
                 const parts = str.split(":");
                 return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
             }
 
-            // Parse jika format Date standar
+            // PARSE DATE OBJECT STANDAR
             let d = new Date(str);
             if (!isNaN(d.getTime())) {
                 return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            }
-
-            // Parse jika format DD/MM/YYYY HH:MM:SS
-            if (str.includes("/")) {
-                const spaceParts = str.split(" ");
-                if (spaceParts.length >= 2) {
-                    const timePart = spaceParts[1];
-                    if (timePart.includes(":")) {
-                        const t = timePart.split(":");
-                        return `${t[0].padStart(2, '0')}:${t[1].padStart(2, '0')}`;
-                    }
-                }
             }
 
             return str.length <= 8 && str.includes(":") ? str : new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -573,7 +571,7 @@
                         <i class="fa-solid fa-bell-circle-check" style="font-size:2.5rem; color:var(--accent-green); margin-bottom:8px;"></i>
                         <h4 style="color:var(--accent-green); font-size:0.9rem; font-weight:800;">NOTIFIKASI SUDAH AKTIF 🟢</h4>
                         <p style="font-size:0.7rem; color:var(--text-sub); margin-top:6px; line-height:1.4;">
-                            Aplikasi Kacida Bersatu sudah diizinkan mengirimkan pemberitahuan langsung di HP Anda sesuai dengan jadwal jam yang telah diatur di Spreadsheet.
+                            Terima kasih, Anda bisa mendapatkan informasi yang update
                         </p>
                     </div>
                 `);
@@ -818,9 +816,9 @@
             const isSurveyDone = localStorage.getItem("SURVEY_DONE_" + currentNik);
 
             if (loginCount >= 5 && isSurveyDone !== "TRUE") {
-                showCustomModal("⭐ SURVEY KEPUASAN PWA", `
+                showCustomModal("⭐ SURVEY KEPUASAN TENTANG APLIKASI", `
                     <div style="text-align: center; padding: 4px;">
-                        <p style="font-size:0.75rem; color:var(--text-sub);">Anda telah menggunakan aplikasi ini lebih dari 5 kali. Mohon berikan penilaian dan masukan Anda!</p>
+                        <p style="font-size:0.75rem; color:var(--text-sub);">Mohon berikan penilaian dan masukan Anda!</p>
                         
                         <div class="star-rating" id="starRatingBox">
                             <i class="fa-solid fa-star active" onclick="setSurveyRating(1)"></i>
@@ -1205,7 +1203,7 @@
             document.getElementById("dotAnnounce").classList.add("hidden");
 
             if (!dashboardData || !dashboardData.announcements || dashboardData.announcements.length === 0) {
-                showCustomModal("📢 Pengumuman", "<p style='color:var(--text-sub);'>Belum ada pengumuman aktif dari Spreadsheet.</p>");
+                showCustomModal("📢 Pengumuman", "<p style='color:var(--text-sub);'>Belum ada pengumuman aktif.</p>");
                 return;
             }
 
@@ -1276,10 +1274,11 @@
                 title.innerHTML = `<i class="fa-solid fa-comments" style="color: var(--accent-green);"></i> Room Chat Tim Kacida`;
                 loadChat();
 
+                // DIVERCEPAT SINKRONISASI REAL-TIME CHAT MENJADI 3 DETIK
                 if (!chatAutoRefreshTimer) {
                     chatAutoRefreshTimer = setInterval(() => {
                         if (chatRoomMode === 'team') loadChat(true);
-                    }, 8000);
+                    }, 3000);
                 }
             } else {
                 btnAI.classList.add("active");
@@ -1302,6 +1301,14 @@
                     box.innerHTML = `<p style="font-size:0.7rem; color:var(--text-sub); text-align:center; margin-top:20px;">Belum ada percakapan tim. Ketik pesan untuk mulai!</p>`;
                     return;
                 }
+
+                // SINKRONISASI OTOMATIS MERESET BADGE SAAT MENU CHAT DIBUKA
+                const navBadge = document.getElementById("navChatBadge");
+                if (navBadge) {
+                    navBadge.classList.add("hidden");
+                    navBadge.innerText = "0";
+                }
+
                 box.innerHTML = chats.map(c => {
                     const isMe = c.NIK_PENGIRIM == currentNik;
                     const timeFormatted = formatChatTime(c.TIMESTAMP);
@@ -1396,6 +1403,7 @@
                             chk.style.color = "#22c55e";
                         }
                     }
+                    loadChat(true);
                 });
             }
         }
