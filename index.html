@@ -14,9 +14,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
-    <!-- LIBRARY GRAFIK TREN & GENERATOR GAMBAR KARTU HD -->
+    <!-- LIBRARY EXTERNAL: GRAFIK TREN, GENERATOR GAMBAR HD, SWEETALERT2 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -31,203 +32,945 @@
             --text-sub: #94a3b8;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-dark); color: var(--text-white); min-height: 100vh; padding-bottom: 90px; display: flex; flex-direction: column; align-items: center; }
-
-        #loginSection, #appSection { width: 100%; max-width: 480px; margin: 0 auto; padding: 0 12px; }
-
-        .app-header {
-            display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;
-            position: sticky; top: 0; z-index: 100; background: rgba(3, 23, 10, 0.95);
-            backdrop-filter: blur(12px); border-bottom: 1px solid var(--card-border); width: 100%; max-width: 480px;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
-        .header-left { display: flex; align-items: center; gap: 10px; }
-        .btn-hamburger { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--card-border); color: #fff; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            min-height: 100vh;
+            padding-bottom: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #loginSection, #appSection {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 12px;
+        }
+
+        /* FLOATING CAPSULE HEADER 3D MODERN */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            position: sticky;
+            top: 8px;
+            z-index: 100;
+            background: rgba(10, 36, 20, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid var(--accent-green);
+            border-radius: 25px;
+            width: 96%;
+            max-width: 470px;
+            margin: 0 auto;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6), 0 0 15px rgba(34, 197, 94, 0.25);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-hamburger {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--card-border);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
         
-        .brand-title { display: flex; align-items: center; gap: 8px; }
-        .brand-title-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.05rem; color: #ffffff; letter-spacing: 0.3px; }
-        .brand-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #22c55e 0%, #052e16 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3); }
+        .brand-title {
+            display: flex;
+            flex-direction: column;
+        }
 
-        .header-right { display: flex; align-items: center; gap: 8px; }
+        .brand-title-text {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #ffffff;
+            letter-spacing: 0.3px;
+            line-height: 1.1;
+        }
 
-        .disket-badge { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--gold); color: var(--gold); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .notif-badge { position: relative; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--card-border); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .install-badge { background: rgba(34, 197, 94, 0.2); border: 1px solid var(--accent-green); color: var(--accent-green); padding: 6px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; gap: 4px; cursor: pointer; }
-        .user-avatar-3d { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--accent-green); object-fit: cover; cursor: pointer; }
+        .store-pill {
+            font-size: 0.58rem;
+            color: var(--accent-green);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
-        .container { margin-top: 12px; width: 100%; }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0,0,0,0.3);
+            padding: 4px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .action-icon-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--card-border);
+            color: var(--gold);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .action-icon-btn:active {
+            transform: scale(0.9);
+        }
+
+        .install-badge {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.6rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        /* AVATAR PROGRESS RING */
+        .avatar-ring-box {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+        }
+
+        .avatar-ring-box.top {
+            background: conic-gradient(var(--accent-green) 0%, var(--accent-green) 100%);
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        .avatar-ring-box.good {
+            background: conic-gradient(var(--gold) 0%, var(--gold) 100%);
+            box-shadow: 0 0 10px var(--gold);
+        }
+
+        .avatar-ring-box.flop {
+            background: conic-gradient(#ef4444 0%, #ef4444 100%);
+            box-shadow: 0 0 10px #ef4444;
+        }
+
+        .user-avatar-3d {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid #03170a;
+        }
+
+        .container {
+            margin-top: 14px;
+            width: 100%;
+        }
+
+        /* TICKER BAR & COUNTDOWN TIMER */
+        .ticker-bar {
+            background: linear-gradient(90deg, rgba(10,36,20,0.9) 0%, rgba(3,23,10,0.9) 100%);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 6px 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.62rem;
+            color: var(--gold);
+            overflow: hidden;
+        }
+
+        .marquee-text {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .marquee-text p {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 18s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
 
         .disket-info-bar {
-            background: #0A2414; border: 1px solid var(--gold); border-radius: 16px; padding: 12px 14px; margin-bottom: 14px;
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            background: #0A2414;
+            border: 1px solid var(--gold);
+            border-radius: 16px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
         }
-        .disket-bar-item { display: flex; flex-direction: column; align-items: flex-start; cursor: pointer; padding: 2px 4px; border-radius: 8px; transition: background 0.2s; }
-        .disket-bar-item:active { background: rgba(255,255,255,0.05); }
-        .disket-bar-label { font-size: 0.65rem; color: var(--text-sub); display: flex; align-items: center; gap: 4px; }
-        .disket-bar-val { font-size: 0.82rem; font-weight: 800; margin-top: 2px; }
-        .disket-divider { width: 1px; height: 28px; background: rgba(255, 255, 255, 0.12); }
+
+        .disket-bar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .disket-bar-item:active {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .disket-bar-label {
+            font-size: 0.65rem;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .disket-bar-val {
+            font-size: 0.82rem;
+            font-weight: 800;
+            margin-top: 2px;
+        }
+
+        .disket-divider {
+            width: 1px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.12);
+        }
 
         .hero-card {
-            background: linear-gradient(135deg, #0a3a18 0%, #06240f 100%); border: 1px solid rgba(34, 197, 94, 0.2);
-            border-radius: 20px; padding: 18px; position: relative; overflow: hidden; margin-bottom: 16px; cursor: default;
+            background: linear-gradient(135deg, #0a3a18 0%, #06240f 100%);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 20px;
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 16px;
+            cursor: default;
         }
-        .hero-content { position: relative; z-index: 2; max-width: 65%; }
-        .hero-title { font-size: 1.15rem; font-weight: 800; margin-top: 4px; line-height: 1.2; text-transform: uppercase; }
-        .hero-sub { font-size: 0.7rem; color: var(--text-sub); margin-top: 6px; line-height: 1.3; }
-        .performance-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.4); padding: 8px 12px; border-radius: 12px; margin-top: 12px; font-size: 0.7rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.05); }
-        .hero-3d-illustration { position: absolute; right: -10px; bottom: -5px; width: 135px; z-index: 1; }
 
-        .banner-card { background: #ffe4cc; border-radius: 18px; padding: 16px; color: #1e293b; margin-bottom: 6px; }
-        .banner-tag { background: #fed7aa; color: #c2410c; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; display: inline-block; margin-bottom: 4px; }
-        .banner-heading { font-size: 1.3rem; font-weight: 900; color: #dc2626; line-height: 1.1; }
-        .banner-subtext { font-size: 0.7rem; font-weight: 700; color: #1e293b; margin-top: 2px; }
-        .banner-btn { background: #dc2626; color: white; border: none; padding: 6px 14px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; margin-top: 10px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; cursor: pointer; }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 65%;
+        }
 
-        .metrics-scroll { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 16px; }
-        .metric-card { position: relative; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 8px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-        .metric-card:active { transform: scale(0.96); }
-        .metric-icon-3d { width: 24px; height: 24px; margin: 0 auto 4px auto; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
-        .metric-title { font-size: 0.58rem; color: var(--text-sub); display: block; }
-        .metric-value { font-size: 0.8rem; font-weight: 800; }
-        .red-dot-badge { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 6px #ef4444; }
+        .hero-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-top: 4px;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
 
+        .hero-sub {
+            font-size: 0.7rem;
+            color: var(--text-sub);
+            margin-top: 6px;
+            line-height: 1.3;
+        }
+        
+        .progress-bar-hero {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            height: 6px;
+            border-radius: 10px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill-hero {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #10b981);
+            width: 85%;
+            transition: width 1s ease;
+        }
+
+        .performance-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 6px 10px;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .hero-3d-illustration {
+            position: absolute;
+            right: -10px;
+            bottom: -5px;
+            width: 135px;
+            z-index: 1;
+        }
+
+        .banner-card {
+            background: #ffe4cc;
+            border-radius: 18px;
+            padding: 16px;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        .banner-tag {
+            background: #fed7aa;
+            color: #c2410c;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .banner-heading {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #dc2626;
+            line-height: 1.1;
+        }
+
+        .banner-subtext {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-top: 2px;
+        }
+
+        .banner-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .metrics-scroll {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .metric-card {
+            position: relative;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .metric-card:active {
+            transform: scale(0.96);
+        }
+
+        .metric-icon-3d {
+            width: 24px;
+            height: 24px;
+            margin: 0 auto 4px auto;
+            display: block;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        .metric-title {
+            font-size: 0.58rem;
+            color: var(--text-sub);
+            display: block;
+        }
+
+        .metric-value {
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
+        .red-dot-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #ef4444;
+        }
+
+        /* CARD 3D BERWARNA KHUSUS PENGUMUMAN & NOTIFIKASI */
         .metric-card.card-3d-announce {
             background: linear-gradient(135deg, #2e1065 0%, #4338ca 100%);
             border: 1.5px solid #818cf8;
             box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
         }
-        .metric-card.card-3d-announce .metric-title { color: #c7d2fe; }
-        .metric-card.card-3d-announce .metric-value { color: #ffffff; }
+
+        .metric-card.card-3d-announce .metric-title {
+            color: #c7d2fe;
+        }
+
+        .metric-card.card-3d-announce .metric-value {
+            color: #ffffff;
+        }
 
         .metric-card.card-3d-notif {
             background: linear-gradient(135deg, #022c22 0%, #059669 100%);
             border: 1.5px solid #34d399;
             box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
         }
-        .metric-card.card-3d-notif .metric-title { color: #a7f3d0; }
-        .metric-card.card-3d-notif .metric-value { color: #ffffff; }
 
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .section-title { font-size: 0.88rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-        .btn-see-all { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--card-border); color: var(--accent-green); padding: 4px 10px; border-radius: 12px; font-size: 0.65rem; text-decoration: none; font-weight: 700; }
+        .metric-card.card-3d-notif .metric-title {
+            color: #a7f3d0;
+        }
 
-        .menu-section-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 16px; margin-bottom: 16px; position: relative; overflow: hidden; }
-        .menu-grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; position: relative; z-index: 2; }
-        .menu-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; position: relative; z-index: 2; }
+        .metric-card.card-3d-notif .metric-value {
+            color: #ffffff;
+        }
 
-        .menu-3d-item { display: flex; flex-direction: column; align-items: center; text-align: center; text-decoration: none; cursor: pointer; transition: transform 0.2s; }
-        .menu-3d-item:active { transform: scale(0.92); }
-        .icon-box-3d { width: 44px; height: 44px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .icon-box-3d img { width: 26px; height: 28px; object-fit: contain; }
-        .menu-label { font-size: 0.6rem; font-weight: 600; color: var(--text-white); line-height: 1.2; }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-see-all {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--card-border);
+            color: var(--accent-green);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .menu-section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-grid-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .menu-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .menu-3d-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .menu-3d-item:active {
+            transform: scale(0.92);
+        }
+
+        .icon-box-3d {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .icon-box-3d img {
+            width: 26px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .menu-label {
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--text-white);
+            line-height: 1.2;
+        }
         
-        .rocket-deco { position: absolute; right: -10px; bottom: -10px; width: 85px; z-index: 1; pointer-events: none; opacity: 0.9; }
+        .rocket-deco {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            width: 85px;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.9;
+        }
 
-        .chat-tab-wrapper { display: flex; gap: 8px; background: var(--bg-dark); padding: 6px; border-radius: 14px; border: 1px solid var(--card-border); margin-bottom: 12px; }
-        .chat-tab-pill { flex: 1; padding: 8px 12px; font-size: 0.72rem; font-weight: 800; border-radius: 10px; border: none; background: transparent; color: var(--text-sub); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease; }
-        .chat-tab-pill.active { background: var(--accent-green); color: #03170a; box-shadow: 0 2px 10px rgba(34, 197, 94, 0.3); }
+        .chat-tab-wrapper {
+            display: flex;
+            gap: 8px;
+            background: var(--bg-dark);
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            margin-bottom: 12px;
+        }
 
-        .wa-chat-container { background: #071a0e; border: 1px solid var(--card-border); border-radius: 16px; height: 52vh; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-        .wa-bubble { max-width: 85%; padding: 8px 12px; border-radius: 12px; font-size: 0.75rem; position: relative; line-height: 1.4; word-wrap: break-word; }
-        .wa-bubble.me { align-self: flex-end; background: var(--wa-bubble-me); color: white; border-bottom-right-radius: 2px; }
-        .wa-bubble.other { align-self: flex-start; background: var(--wa-bubble-other); color: white; border-bottom-left-radius: 2px; }
-        .wa-bubble.ai { align-self: flex-start; background: #133a20; border: 1px solid var(--accent-green); color: white; width: 90%; }
-        .wa-sender { font-size: 0.62rem; font-weight: 800; color: var(--accent-green); margin-bottom: 2px; display: flex; justify-content: space-between; gap: 8px; }
-        .wa-time { font-size: 0.55rem; color: rgba(255,255,255,0.6); text-align: right; margin-top: 4px; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+        .chat-tab-pill {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .chat-tab-pill.active {
+            background: var(--accent-green);
+            color: #03170a;
+            box-shadow: 0 2px 10px rgba(34, 197, 94, 0.3);
+        }
+
+        .wa-chat-container {
+            background: #071a0e;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            height: 52vh;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .wa-bubble {
+            max-width: 85%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            position: relative;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .wa-bubble.me {
+            align-self: flex-end;
+            background: var(--wa-bubble-me);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .wa-bubble.other {
+            align-self: flex-start;
+            background: var(--wa-bubble-other);
+            color: white;
+            border-bottom-left-radius: 2px;
+        }
+
+        .wa-bubble.ai {
+            align-self: flex-start;
+            background: #133a20;
+            border: 1px solid var(--accent-green);
+            color: white;
+            width: 90%;
+        }
+
+        .wa-sender {
+            font-size: 0.62rem;
+            font-weight: 800;
+            color: var(--accent-green);
+            margin-bottom: 2px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .wa-time {
+            font-size: 0.55rem;
+            color: rgba(255,255,255,0.6);
+            text-align: right;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+        }
 
         .bottom-nav {
-            position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; height: 60px; background: rgba(10, 35, 18, 0.95);
-            backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 35px;
-            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 450px;
+            height: 60px;
+            background: rgba(10, 35, 18, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 35px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
         }
-        .nav-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--text-sub); font-size: 0.65rem; text-decoration: none; }
-        .nav-item.active { background: var(--accent-green); color: #03170a; padding: 6px 14px; border-radius: 20px; font-weight: 700; }
-        .nav-item.active i { color: #03170a; }
 
-        .nav-badge-count { position: absolute; top: -3px; right: 2px; background: #ef4444; color: white; font-size: 0.55rem; font-weight: 800; padding: 1px 5px; border-radius: 10px; border: 1px solid var(--bg-dark); }
+        .nav-item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: var(--text-sub);
+            font-size: 0.65rem;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
 
-        .fab-rocket { width: 50px; height: 50px; background: linear-gradient(135deg, #22c55e, #10b981); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; margin-top: -28px; border: 4px solid var(--bg-dark); cursor: pointer; box-shadow: 0 0 15px rgba(34, 197, 94, 0.5); }
-        .hidden { display: none !important; }
+        .nav-item.active {
+            background: var(--accent-green);
+            color: #03170a;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active i {
+            color: #03170a;
+        }
+
+        .nav-badge-count {
+            position: absolute;
+            top: -3px;
+            right: 2px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.55rem;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 10px;
+            border: 1px solid var(--bg-dark);
+        }
+
+        .fab-rocket {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #22c55e, #10b981);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-top: -28px;
+            border: 4px solid var(--bg-dark);
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+        }
+
+        .hidden {
+            display: none !important;
+        }
 
         .custom-modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(8px);
-            z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 16px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
         }
+
         .custom-modal-card {
-            background: #0C2B14; border: 1px solid var(--card-border);
-            border-radius: 20px; width: 100%; max-width: 400px; padding: 16px; color: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative;
+            background: #0C2B14;
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            padding: 16px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            position: relative;
         }
+
         .modal-btn-close {
-            position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.1);
-            border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
         }
 
         .loading-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(3, 23, 10, 0.85); backdrop-filter: blur(8px);
-            z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(3, 23, 10, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
+
         .spinner {
-            width: 38px; height: 38px; border: 3px solid rgba(34, 197, 94, 0.2);
-            border-top: 3px solid var(--accent-green); border-radius: 50%;
-            animation: spin 0.8s linear infinite; margin-bottom: 10px;
+            width: 38px;
+            height: 38px;
+            border: 3px solid rgba(34, 197, 94, 0.2);
+            border-top: 3px solid var(--accent-green);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 10px;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .loading-text { font-size: 0.75rem; font-weight: 700; color: var(--accent-green); }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
 
         .btn-copy-action {
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #03170a; font-weight: 800; font-size: 0.75rem;
-            padding: 10px 14px; border-radius: 12px; border: none; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            width: 100%; margin-top: 8px; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: #03170a;
+            font-weight: 800;
+            font-size: 0.75rem;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 8px;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
             transition: all 0.2s ease;
         }
 
         .tbl-sales-mtd {
-            width: 100%; border-collapse: collapse; text-align: center; font-size: 0.65rem; margin-top: 8px;
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 0.65rem;
+            margin-top: 8px;
         }
+
         .tbl-sales-mtd th {
-            background: rgba(34, 197, 94, 0.2); color: var(--accent-green); padding: 6px 3px; border: 1px solid var(--card-border); font-weight: 800;
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+            padding: 6px 3px;
+            border: 1px solid var(--card-border);
+            font-weight: 800;
         }
+
         .tbl-sales-mtd td {
-            padding: 5px 3px; border: 1px solid var(--card-border); color: #fff;
+            padding: 5px 3px;
+            border: 1px solid var(--card-border);
+            color: #fff;
         }
+
         .tbl-sales-mtd tr:nth-child(even) {
             background: rgba(255, 255, 255, 0.02);
         }
 
         .toast-rank-popup {
-            position: fixed; top: 70px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 420px;
-            z-index: 9998; padding: 12px 16px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
-            display: flex; align-items: center; gap: 12px; backdrop-filter: blur(10px);
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 420px;
+            z-index: 9998;
+            padding: 12px 16px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(10px);
             animation: fadeInDown 0.4s ease forwards;
         }
+
         .toast-rank-popup.top-rank {
-            background: rgba(5, 46, 22, 0.95); border: 2px solid var(--accent-green); color: #fff;
+            background: rgba(5, 46, 22, 0.95);
+            border: 2px solid var(--accent-green);
+            color: #fff;
         }
+
         .toast-rank-popup.flop-rank {
-            background: rgba(69, 10, 10, 0.95); border: 2px solid #ef4444; color: #fff;
+            background: rgba(69, 10, 10, 0.95);
+            border: 2px solid #ef4444;
+            color: #fff;
         }
+
         @keyframes fadeInDown {
             from { opacity: 0; transform: translate(-50%, -20px); }
             to { opacity: 1; transform: translate(-50%, 0); }
         }
 
-        .star-rating { display: flex; gap: 8px; justify-content: center; margin: 12px 0; }
-        .star-rating i { font-size: 1.6rem; color: #475569; cursor: pointer; transition: color 0.2s; }
-        .star-rating i.active { color: var(--gold); }
+        .star-rating {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 12px 0;
+        }
 
-        .gauge-container { display: flex; flex-direction: column; align-items: center; margin: 8px 0; }
-        .gauge-svg { width: 130px; height: 75px; }
+        .star-rating i {
+            font-size: 1.6rem;
+            color: #475569;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star-rating i.active {
+            color: var(--gold);
+        }
+
+        .gauge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 8px 0;
+        }
+
+        .gauge-svg {
+            width: 130px;
+            height: 75px;
+        }
 
         .sub-tab-btn {
-            flex: 1; padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 8px; border: 1px solid var(--card-border);
-            background: var(--bg-dark); color: var(--text-sub); cursor: pointer; text-align: center;
+            flex: 1;
+            padding: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background: var(--bg-dark);
+            color: var(--text-sub);
+            cursor: pointer;
+            text-align: center;
         }
+
         .sub-tab-btn.active {
-            background: var(--accent-green); color: #03170a; border-color: var(--accent-green);
+            background: var(--accent-green);
+            color: #03170a;
+            border-color: var(--accent-green);
+        }
+
+        .swal2-popup.swal2-toast-custom {
+            background: #0A2414 !important;
+            border: 1.5px solid #22c55e !important;
+            color: #ffffff !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8) !important;
+            border-radius: 16px !important;
+        }
+
+        .swal2-title {
+            font-size: 0.85rem !important;
+            color: #ffffff !important;
         }
     </style>
 </head>
@@ -272,31 +1015,36 @@
     <!-- MAIN APP CONTAINER -->
     <div id="appSection" class="hidden">
         
+        <!-- FLOATING CAPSULE HEADER 3D -->
         <header class="app-header">
             <div class="header-left">
-                <button class="btn-hamburger" onclick="openMenuSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <button class="btn-hamburger" onclick="triggerHaptic(); openMenuSidebar();"><i class="fa-solid fa-bars"></i></button>
                 <div class="brand-title">
-                    <div class="brand-icon">
-                        <img src="https://lh3.googleusercontent.com/d/10-ZwZ0NXA55yPuLXfd1KlJjDU-mNPSyQ" style="width: 24px; height: 24px; border-radius: 6px; object-fit: cover;">
-                    </div>
                     <span class="brand-title-text">Kacida Bersatu</span>
+                    <span class="store-pill" id="lblStoreHeader"><i class="fa-solid fa-location-dot"></i> 2J16 • ONLINE 🟢</span>
                 </div>
             </div>
+            
             <div class="header-right">
-                <div id="btnInstallPWA" class="install-badge hidden" onclick="triggerPWAInstall()">
+                <div id="btnInstallPWA" class="install-badge hidden" onclick="triggerHaptic(); triggerPWAInstall();">
                     <i class="fa-solid fa-download"></i> Instal
                 </div>
 
-                <div class="disket-badge" onclick="openPerformaPopup()" title="Rincian Data Performance">
+                <button class="action-icon-btn" onclick="triggerHaptic(); openPerformaPopup();" title="Rincian Data Performance">
                     <i class="fa-solid fa-gauge-high"></i>
-                </div>
+                </button>
+
+                <button class="action-icon-btn" onclick="triggerHaptic(); forceRefreshDashboardData();" title="Refresh Data Instan (Bypass Cache)">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
                 
-                <!-- LONCENG HEADER TANPA BADGE MERAH -->
-                <div id="notifPermBtn" class="notif-badge" onclick="manageNotificationPermission()" title="Pengaturan Notifikasi HP">
-                    <i id="notifIconHeader" class="fa-regular fa-bell"></i>
-                </div>
+                <button id="notifPermBtn" class="action-icon-btn" onclick="triggerHaptic(); manageNotificationPermission();" title="Pengaturan Notifikasi HP">
+                    <i id="notifIconHeader" class="fa-regular fa-bell" style="color:#fff;"></i>
+                </button>
                 
-                <img id="userAvatarHeader" src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="user-avatar-3d" onclick="showBriefProfile()">
+                <div id="avatarRingBox" class="avatar-ring-box top" onclick="triggerHaptic(); showBriefProfile();">
+                    <img id="userAvatarHeader" src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="user-avatar-3d">
+                </div>
             </div>
         </header>
 
@@ -308,22 +1056,32 @@
         </div>
 
         <main id="tabBeranda" class="container">
+            
+            <div class="ticker-bar">
+                <div class="marquee-text">
+                    <p id="txtTickerMarquee">📢 PENGUMUMAN: Jangan lupa kirim Laporan Serah Terima Shift 1 sebelum jam 18:00 WIB! • Pertahankan PSM & PWP Toko! 🔥</p>
+                </div>
+                <div style="font-weight: 800; color: var(--accent-green); font-size: 0.62rem; margin-left: 8px; white-space: nowrap;">
+                    <i class="fa-regular fa-clock"></i> <span id="lblLiveShiftTimer">18:00 WIB</span>
+                </div>
+            </div>
+
             <section class="disket-info-bar">
-                <div class="disket-bar-item" onclick="openSalesMTDModal()" title="Klik Rincian Sales Bulan Berjalan">
+                <div class="disket-bar-item" onclick="triggerHaptic(); openSalesMTDModal();" title="Klik Rincian Sales Bulan Berjalan">
                     <span class="disket-bar-label"><i class="fa-solid fa-chart-line" style="color: var(--accent-green);"></i> Sales SPD</span>
                     <span class="disket-bar-val" id="valSales" style="color: var(--accent-green); font-size: 0.72rem;">Memuat...</span>
                 </div>
                 <div class="disket-divider"></div>
-                <div class="disket-bar-item" onclick="openPerformaPopup()">
+                <div class="disket-bar-item" onclick="triggerHaptic(); openPerformaPopup();">
                     <span class="disket-bar-label"><i class="fa-solid fa-bullseye" style="color: var(--gold);"></i> IKT Toko</span>
                     <span class="disket-bar-val" id="valIKT" style="color: var(--gold);">-</span>
                 </div>
                 <div class="disket-divider"></div>
-                <div class="disket-bar-item" onclick="openPerformaPopup()">
+                <div class="disket-bar-item" onclick="triggerHaptic(); openPerformaPopup();">
                     <span class="disket-bar-label"><i class="fa-solid fa-fire" style="color: #ef4444;"></i> Penawaran</span>
                     <span class="disket-bar-val" id="valPenawaran" style="color: #ef4444;">-</span>
                 </div>
-                <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: var(--text-sub);" onclick="openPerformaPopup()"></i>
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: var(--text-sub);" onclick="triggerHaptic(); openPerformaPopup();"></i>
             </section>
             
             <section class="hero-card">
@@ -331,9 +1089,14 @@
                     <span style="font-size: 0.7rem; color: var(--text-sub);">Selamat datang kembali,</span>
                     <h1 class="hero-title" id="lblUserName">USER! 👋</h1>
                     <p class="hero-sub">Tetap semangat, layani dengan hati dan capai target performa!</p>
+                    
+                    <div class="progress-bar-hero">
+                        <div id="progressFillHero" class="progress-fill-hero"></div>
+                    </div>
+
                     <div class="performance-badge">
                         <i class="fa-solid fa-star" style="color: var(--gold);"></i>
-                        <span>Performa hari ini <strong style="color: var(--accent-green);">Sangat Baik! 🔥</strong></span>
+                        <span>Performa hari ini <strong style="color: var(--accent-green);" id="lblHeroPerfStatus">Sangat Baik! 🔥</strong></span>
                     </div>
                 </div>
                 <img src="https://illustrations.popsy.co/emerald/work-from-home.svg" class="hero-3d-illustration" alt="Team">
@@ -345,20 +1108,20 @@
             </div>
 
             <section class="metrics-scroll">
-                <div class="metric-card" onclick="switchTab('aksiCepat')">
+                <div class="metric-card" onclick="triggerHaptic(); switchTab('aksiCepat');">
                     <img src="https://cdn-icons-png.flaticon.com/512/2620/2620522.png" class="metric-icon-3d">
                     <span class="metric-title">Tugas</span>
                     <span class="metric-value" id="valTasks">0</span>
                 </div>
                 
-                <div class="metric-card card-3d-announce" onclick="openPengumumanModal()">
+                <div class="metric-card card-3d-announce" onclick="triggerHaptic(); openPengumumanModal();">
                     <span id="dotAnnounce" class="red-dot-badge hidden"></span>
                     <img src="https://cdn-icons-png.flaticon.com/512/3602/3602145.png" class="metric-icon-3d">
                     <span class="metric-title">Pengumuman</span>
                     <span class="metric-value" id="valAnnounce">0</span>
                 </div>
 
-                <div class="metric-card card-3d-notif" onclick="openNotifModal()">
+                <div class="metric-card card-3d-notif" onclick="triggerHaptic(); openNotifModal();">
                     <span id="dotNotif" class="red-dot-badge hidden"></span>
                     <img src="https://cdn-icons-png.flaticon.com/512/3602/3602123.png" class="metric-icon-3d">
                     <span class="metric-title">Notifikasi</span>
@@ -371,21 +1134,21 @@
                     <span class="metric-value" id="valPoints" style="color: var(--gold);">0</span>
                 </div>
                 
-                <div class="metric-card" onclick="switchTab('leaderboard')">
+                <div class="metric-card" onclick="triggerHaptic(); switchTab('leaderboard');">
                     <img src="https://cdn-icons-png.flaticon.com/512/2583/2583319.png" class="metric-icon-3d">
                     <span class="metric-title">Rank</span>
                     <span class="metric-value" id="valRank" style="color: var(--accent-green);">#-</span>
                 </div>
             </section>
 
-            <!-- MENU UTAMA GABUNGAN: 5 MENU INTERAKTIF PRO + MENU SPREADSHEET -->
-            <div class="section-header"><h3 class="section-title"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--gold);"></i> Menu Utama</h3><a href="#" class="btn-see-all" onclick="openAllMenuModal('Utama')">Lihat Semua <i class="fa-solid fa-chevron-right"></i></a></div>
+            <!-- MENU UTAMA GABUNGAN LENGKAP 15 MENU PRO CLASS -->
+            <div class="section-header"><h3 class="section-title"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--gold);"></i> Menu Utama</h3><a href="#" class="btn-see-all" onclick="triggerHaptic(); openAllMenuModal('Utama')">Lihat Semua <i class="fa-solid fa-chevron-right"></i></a></div>
             <section class="menu-section-card">
                 <div id="gridMenuUtama" class="menu-grid-5"></div>
                 <img src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png" class="rocket-deco" alt="Rocket">
             </section>
 
-            <div class="section-header"><h3 class="section-title"><i class="fa-solid fa-star" style="color: var(--gold);"></i> Layanan Lainnya</h3><a href="#" class="btn-see-all" onclick="openAllMenuModal('Lainnya')">Lihat Semua <i class="fa-solid fa-chevron-right"></i></a></div>
+            <div class="section-header"><h3 class="section-title"><i class="fa-solid fa-star" style="color: var(--gold);"></i> Layanan Lainnya & Lifestyle</h3><a href="#" class="btn-see-all" onclick="triggerHaptic(); openAllMenuModal('Lainnya')">Lihat Semua <i class="fa-solid fa-chevron-right"></i></a></div>
             <section class="menu-section-card"><div id="gridMenuLainnya" class="menu-grid-4"></div></section>
         </main>
 
@@ -393,8 +1156,8 @@
             <h2 class="section-title" id="chatTitleHeader"><i class="fa-solid fa-comments" style="color: var(--accent-green);"></i> Room Chat Tim Kacida</h2>
             
             <div class="chat-tab-wrapper">
-                <button id="btnTabTeam" class="chat-tab-pill active" onclick="switchChatRoomMode('team')"><i class="fa-solid fa-users"></i> Chat Tim</button>
-                <button id="btnTabAI" class="chat-tab-pill" onclick="switchChatRoomMode('ai')"><i class="fa-solid fa-robot"></i> Kacida AI (Privat)</button>
+                <button id="btnTabTeam" class="chat-tab-pill active" onclick="triggerHaptic(); switchChatRoomMode('team')"><i class="fa-solid fa-users"></i> Chat Tim</button>
+                <button id="btnTabAI" class="chat-tab-pill" onclick="triggerHaptic(); switchChatRoomMode('ai')"><i class="fa-solid fa-robot"></i> Kacida AI (Groq Llama 3.3)</button>
             </div>
 
             <div id="chatBox" class="wa-chat-container custom-scrollbar"></div>
@@ -402,9 +1165,9 @@
             <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
                 <input type="text" id="inputChatMsg" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') handleSendChatAction()" style="flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 14px; font-size: 0.75rem; color: white; outline: none;">
                 
-                <button id="btnVoiceMic" onclick="startVoiceRecognition()" title="Voice Command Suara" style="background: rgba(255,255,255,0.1); border: 1px solid var(--card-border); color: var(--accent-green); width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem;"><i class="fa-solid fa-microphone"></i></button>
+                <button id="btnVoiceMic" onclick="triggerHaptic(); startVoiceRecognition()" title="Voice Command Suara" style="background: rgba(255,255,255,0.1); border: 1px solid var(--card-border); color: var(--accent-green); width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem;"><i class="fa-solid fa-microphone"></i></button>
                 
-                <button onclick="handleSendChatAction()" style="background: var(--accent-green); color: #03170a; padding: 0 16px; height: 40px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer;"><i class="fa-solid fa-paper-plane"></i></button>
+                <button onclick="triggerHaptic(); handleSendChatAction()" style="background: var(--accent-green); color: #03170a; padding: 0 16px; height: 40px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer;"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
 
@@ -454,24 +1217,24 @@
             </div>
         </div>
 
-        <button id="floatingAIMascot" class="hidden" onclick="switchChatRoomMode('ai')" style="position: fixed; bottom: 80px; right: 16px; z-index: 999; background: #0A2414; border: 2px solid var(--accent-green); padding: 10px; border-radius: 50%; box-shadow: 0 0 20px rgba(34, 197, 94, 0.6); cursor: pointer;">
+        <button id="floatingAIMascot" class="hidden" onclick="triggerHaptic(); switchChatRoomMode('ai');" style="position: fixed; bottom: 80px; right: 16px; z-index: 999; background: #0A2414; border: 2px solid var(--accent-green); padding: 10px; border-radius: 50%; box-shadow: 0 0 20px rgba(34, 197, 94, 0.6); cursor: pointer;">
             <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" style="width: 32px; height: 32px; display: block;">
         </button>
 
         <nav class="bottom-nav">
-            <a href="#" onclick="switchTab('beranda')" id="navBeranda" class="nav-item active"><i class="fa-solid fa-house"></i><span>Beranda</span></a>
-            <a href="#" onclick="switchTab('chat')" id="navChat" class="nav-item">
+            <a href="#" onclick="triggerHaptic(); switchTab('beranda');" id="navBeranda" class="nav-item active"><i class="fa-solid fa-house"></i><span>Beranda</span></a>
+            <a href="#" onclick="triggerHaptic(); switchTab('chat');" id="navChat" class="nav-item">
                 <span id="navChatBadge" class="nav-badge-count hidden">0</span>
                 <i class="fa-solid fa-comment-dots"></i><span>Chat</span>
             </a>
-            <div class="fab-rocket" onclick="switchTab('aksiCepat')"><i class="fa-solid fa-rocket"></i></div>
-            <a href="#" onclick="switchTab('leaderboard')" id="navLeaderboard" class="nav-item"><i class="fa-solid fa-crown"></i><span>Leaderboard</span></a>
-            <a href="#" onclick="switchTab('profil')" id="navProfil" class="nav-item"><i class="fa-solid fa-user"></i><span>Profil</span></a>
+            <div class="fab-rocket" onclick="triggerHaptic(); switchTab('aksiCepat');"><i class="fa-solid fa-rocket"></i></div>
+            <a href="#" onclick="triggerHaptic(); switchTab('leaderboard');" id="navLeaderboard" class="nav-item"><i class="fa-solid fa-crown"></i><span>Leaderboard</span></a>
+            <a href="#" onclick="triggerHaptic(); switchTab('profil');" id="navProfil" class="nav-item"><i class="fa-solid fa-user"></i><span>Profil</span></a>
         </nav>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzsd38ksBcrWTUbxJxzoF_se5VxMbl5NJL2i9lxN0SO5O-9sL6hasrJSAGH_lI5Pstv/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNBX4lSZnU-iQ5TyHws4kfgLsPlEnAa8NbatCwjhGaEZIdOidLwV7PTFb2lB8_hww7/exec";
 
         let currentNik = localStorage.getItem("NIK_KACIDA") || "";
         let dashboardData = null;
@@ -491,6 +1254,29 @@
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').catch(() => {});
             });
+        }
+
+        function triggerHaptic() {
+            if ('vibrate' in navigator) {
+                try { navigator.vibrate(12); } catch(e) {}
+            }
+        }
+
+        function showToast(msg, icon = 'success') {
+            if (typeof Swal !== "undefined") {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: icon,
+                    title: msg,
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    customClass: { popup: 'swal2-toast-custom' }
+                });
+            } else {
+                alert(msg);
+            }
         }
 
         function playChatSound() {
@@ -513,7 +1299,7 @@
         function startVoiceRecognition() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                alert("Browser HP Anda belum mendukung fitur Voice Command.");
+                showToast("Browser HP belum mendukung Voice Command", "warning");
                 return;
             }
             const recognition = new SpeechRecognition();
@@ -631,7 +1417,7 @@
                         <i class="fa-solid fa-bell-circle-check" style="font-size:2.5rem; color:var(--accent-green); margin-bottom:8px;"></i>
                         <h4 style="color:var(--accent-green); font-size:0.9rem; font-weight:800;">NOTIFIKASI SUDAH AKTIF 🟢</h4>
                         <p style="font-size:0.7rem; color:var(--text-sub); margin-top:6px; line-height:1.4;">
-                            Terima kasih, Sekarang sudah bisa menerima informasi terupdate.
+                            Terimakasih, Anda sudah bisa menerima notifikasi.
                         </p>
                     </div>
                 `);
@@ -654,7 +1440,7 @@
                     if (permission === 'granted') {
                         updateNotifBellIcon(true);
                         apiCall("logActivity", { aktivitas: "Izin Notifikasi Diberikan", detail: "Status: Granted" });
-                        showCustomModal("🔔 NOTIFIKASI AKTIF", "<p style='color:var(--accent-green); font-weight:bold;'>Izin Notifikasi HP Berhasil Diaktifkan! 🟢</p>");
+                        showToast("Notifikasi HP Berhasil Diaktifkan! 🟢");
                     } else {
                         updateNotifBellIcon(false);
                         apiCall("logActivity", { aktivitas: "Izin Notifikasi Ditolak", detail: "Status: Prompt Dismissed" });
@@ -679,6 +1465,7 @@
             document.getElementById("loadingText").innerText = msg;
             document.getElementById("loadingOverlay").classList.remove("hidden");
         }
+
         function hideLoading() {
             document.getElementById("loadingOverlay").classList.add("hidden");
         }
@@ -688,6 +1475,7 @@
             document.getElementById("customModalBody").innerHTML = htmlBody;
             document.getElementById("customModalOverlay").classList.remove("hidden");
         }
+
         function closeCustomModal() {
             document.getElementById("customModalOverlay").classList.add("hidden");
         }
@@ -715,6 +1503,10 @@
                     else if (action === "submitDisplayCheck") r.submitDisplayCheck(currentNik, params);
                     else if (action === "confirmExpired") r.confirmExpiredHandled(currentNik, params.idExpired);
                     else if (action === "confirmHandover") r.confirmHandoverAction(currentNik, params.idHandover);
+                    else if (action === "submitEmployeePurchase") r.submitEmployeePurchaseData(currentNik, params);
+                    else if (action === "approveEmployeePurchase") r.approveEmployeePurchaseData(currentNik, params.idBelanja, params.level);
+                    else if (action === "saveSchedule") r.saveScheduleData(currentNik, params);
+                    else if (action === "getSchedule") r.getScheduleData(currentNik, selectedKodeTokoAC, params.bulanTahun);
                 });
             } else {
                 const url = new URL(SCRIPT_URL);
@@ -752,7 +1544,21 @@
                 localStorage.setItem("NIK_KACIDA", nik);
                 initDashboard();
             } else {
-                showCustomModal("LOGIN GAGAL", `<p style="color:#ef4444;">${res.message || "NIK Tidak Terdaftar!"}</p>`);
+                showToast(res.message || "NIK Tidak Terdaftar!", "error");
+            }
+        }
+
+        async function forceRefreshDashboardData() {
+            localStorage.removeItem("CACHE_DASHBOARD_" + currentNik);
+            showLoading("Memperbarui Data...");
+            const data = await apiCall("getDashboard");
+            hideLoading();
+
+            if (data && data.status === "success") {
+                dashboardData = data;
+                localStorage.setItem("CACHE_DASHBOARD_" + currentNik, JSON.stringify(data));
+                renderDashboard(data);
+                showToast("Data Berhasil Di-refresh! 🟢");
             }
         }
 
@@ -784,20 +1590,17 @@
                 checkAndShowSurveyModal();
                 checkAndTriggerHourlyPushNotif(data.notifications);
 
-                // CEK & TAMPILKAN POPUP SERAH TERIMA SHIFT UNTUK SHIFT 2 (14:00 - 23:59 WIB)
                 if (data.latestHandover) {
                     checkAndShowHandoverPopUp(data.latestHandover);
                 }
             }
         }
 
-        // POP-UP OTOMATIS SERAH TERIMA UNTUK ALL PERSONIL SHIFT 2 (JAM 14:00 - 23:59 WIB)
         function checkAndShowHandoverPopUp(latestHandover) {
             if (!latestHandover || !latestHandover.ID) return;
 
             const currentHour = new Date().getHours();
 
-            // AKTIF PADA RENTANG SHIFT 2: 14:00 - 23:59 WIB (LEWAT DARI ITU POPUP DITUTUP)
             if (currentHour >= 14 && currentHour <= 23) {
                 const handoverId = latestHandover.ID || latestHandover.TANGGAL;
                 const confirmKey = "HANDOVER_CONFIRMED_" + currentNik + "_" + handoverId;
@@ -842,7 +1645,7 @@
             localStorage.setItem(confirmKey, "TRUE");
             apiCall("confirmHandover", { idHandover: handoverId });
             closeCustomModal();
-            showCustomModal("✅ KONFIRMASI TERIMA", "<p style='color:var(--accent-green); font-weight:bold;'>Terima kasih! Konfirmasi laporan shift telah dicatat.</p>");
+            showToast("Konfirmasi Laporan Shift Berhasil! 🟢");
         }
 
         function checkAndTriggerHourlyPushNotif(notifications) {
@@ -976,7 +1779,7 @@
         async function handleSurveySubmit() {
             const saran = document.getElementById("txtSurveySaran").value.trim();
             if (!saran) {
-                alert("Mohon isi kolom Pesan dan Saran terlebih dahulu!");
+                showToast("Mohon isi kolom Pesan dan Saran!", "warning");
                 return;
             }
 
@@ -987,16 +1790,28 @@
             if (res && res.status === "success") {
                 localStorage.setItem("SURVEY_DONE_" + currentNik, "TRUE");
                 closeCustomModal();
-                showCustomModal("TERIMA KASIH", `<p style="color:var(--accent-green); font-weight:bold;">${res.message}</p>`);
+                showToast(res.message);
             }
         }
 
         function renderDashboard(data) {
             document.getElementById("lblUserName").innerText = (data.user.NAMA || "USER") + "! 👋";
+            document.getElementById("lblStoreHeader").innerHTML = `<i class="fa-solid fa-location-dot"></i> ${data.user.kodeToko} • ONLINE 🟢`;
             
             const userAvatar = get3DAvatar(data.user.NAMA, data.user["FOTO PROFIL"]);
             document.getElementById("userAvatarHeader").src = userAvatar;
             document.getElementById("profilFoto").src = userAvatar;
+
+            const ptNum = parseFloat(String(data.dataH1.point || '0').replace('%','').replace(',','.')) || 0;
+            const ringBox = document.getElementById("avatarRingBox");
+            if (ringBox) {
+                if (ptNum >= 100) ringBox.className = "avatar-ring-box top";
+                else if (ptNum >= 85) ringBox.className = "avatar-ring-box good";
+                else ringBox.className = "avatar-ring-box flop";
+            }
+
+            const fillHero = document.getElementById("progressFillHero");
+            if (fillHero) fillHero.style.width = Math.min(ptNum, 100) + "%";
 
             document.getElementById("profilNama").innerText = data.user.NAMA || "-";
             document.getElementById("profilJabatan").innerText = data.user.JABATAN || "-";
@@ -1036,7 +1851,7 @@
             renderCarousel(data.banners, data.user.namaToko);
 
             renderCombinedMenuUtama(data.menu.utama || []);
-            renderMenuGrid("gridMenuLainnya", data.menu.layanan.slice(0, 8));
+            renderCombinedMenuLainnya(data.menu.layanan || []);
 
             if (data.struktur) {
                 document.getElementById("stOGM").innerText = data.struktur.ogm.nama;
@@ -1066,23 +1881,56 @@
         function renderCombinedMenuUtama(sheetUtamaMenus) {
             const container = document.getElementById("gridMenuUtama");
             
-            const builtInMenus = [
+            const builtInUtama = [
                 { name: "Kalkulator Kasir", icon: "https://cdn-icons-png.flaticon.com/512/3112/3112946.png", action: "openKalkulatorKasirModal()" },
                 { name: "Ceklis Expired", icon: "https://cdn-icons-png.flaticon.com/512/7518/7518748.png", action: "openCeklisExpiredModal()" },
                 { name: "Ceklis Display", icon: "https://cdn-icons-png.flaticon.com/512/3652/3652191.png", action: "openCeklisDisplayModal()" },
                 { name: "Serah Terima", icon: "https://cdn-icons-png.flaticon.com/512/3767/3767084.png", action: "openSerahTerimaModal()" },
-                { name: "Roleplay Kasir", icon: "https://cdn-icons-png.flaticon.com/512/4384/4384248.png", action: "openRoleplayModal()" }
+                { name: "Belanja Karyawan", icon: "https://cdn-icons-png.flaticon.com/512/3081/3081559.png", action: "openBelanjaKaryawanModal()" },
+                { name: "Plan Jadwal", icon: "https://cdn-icons-png.flaticon.com/512/2693/2693507.png", action: "openPlanJadwalModal()" },
+                { name: "Katalog & Quiz", icon: "https://cdn-icons-png.flaticon.com/512/3409/3409597.png", action: "openKatalogQuizModal()" },
+                { name: "Radar Toko", icon: "https://cdn-icons-png.flaticon.com/512/3594/3594363.png", action: "openRadarKesehatanModal()" },
+                { name: "Hall of Fame", icon: "https://cdn-icons-png.flaticon.com/512/2583/2583319.png", action: "openHallOfFameModal()" }
             ];
 
-            let html = builtInMenus.map(m => `
-                <div class="menu-3d-item" onclick="${m.action}">
+            let html = builtInUtama.map(m => `
+                <div class="menu-3d-item" onclick="triggerHaptic(); ${m.action}">
                     <div class="icon-box-3d"><img src="${m.icon}"></div>
                     <span class="menu-label">${m.name}</span>
                 </div>
             `).join("");
 
             html += sheetUtamaMenus.map(m => `
-                <div class="menu-3d-item" onclick="onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')">
+                <div class="menu-3d-item" onclick="triggerHaptic(); onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')">
+                    <div class="icon-box-3d"><img src="${getSmart3DIcon(m["Nama Menu"], m["Icon URL"])}"></div>
+                    <span class="menu-label">${m["Nama Menu"]}</span>
+                </div>
+            `).join("");
+
+            container.innerHTML = html;
+        }
+
+        function renderCombinedMenuLainnya(sheetLayananMenus) {
+            const container = document.getElementById("gridMenuLainnya");
+
+            const builtInLainnya = [
+                { name: "Battle Shift", icon: "https://cdn-icons-png.flaticon.com/512/1067/1067357.png", action: "openBattleShiftModal()" },
+                { name: "Roleplay Kasir", icon: "https://cdn-icons-png.flaticon.com/512/4384/4384248.png", action: "openRoleplayModal()" },
+                { name: "Jadwal Sholat", icon: "https://cdn-icons-png.flaticon.com/512/2904/2904832.png", action: "openJadwalSholatModal()" },
+                { name: "Cuaca Toko", icon: "https://cdn-icons-png.flaticon.com/512/1163/1163661.png", action: "openCuacaModal()" },
+                { name: "Peregangan", icon: "https://cdn-icons-png.flaticon.com/512/2965/2965300.png", action: "openPereganganModal()" },
+                { name: "Mini Games", icon: "https://cdn-icons-png.flaticon.com/512/808/808439.png", action: "openMiniGamesModal()" }
+            ];
+
+            let html = builtInLainnya.map(m => `
+                <div class="menu-3d-item" onclick="triggerHaptic(); ${m.action}">
+                    <div class="icon-box-3d"><img src="${m.icon}"></div>
+                    <span class="menu-label">${m.name}</span>
+                </div>
+            `).join("");
+
+            html += sheetLayananMenus.map(m => `
+                <div class="menu-3d-item" onclick="triggerHaptic(); onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')">
                     <div class="icon-box-3d"><img src="${getSmart3DIcon(m["Nama Menu"], m["Icon URL"])}"></div>
                     <span class="menu-label">${m["Nama Menu"]}</span>
                 </div>
@@ -1141,7 +1989,7 @@
 
         function renderMenuGrid(elementId, items) {
             document.getElementById(elementId).innerHTML = items.map(m => `
-                <div class="menu-3d-item" onclick="onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')">
+                <div class="menu-3d-item" onclick="triggerHaptic(); onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')">
                     <div class="icon-box-3d"><img src="${getSmart3DIcon(m["Nama Menu"], m["Icon URL"])}"></div>
                     <span class="menu-label">${m["Nama Menu"]}</span>
                 </div>
@@ -1177,7 +2025,7 @@
                     <label style="font-weight:700; color:#38bdf8;">Aktual Transaksi Serba Gratis (Pcs):</label>
                     <input type="number" id="calcActSerba" placeholder="Contoh: 12" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 12px 0; outline:none;">
 
-                    <button onclick="calculateCashierTarget()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">HITUNG REKOMENDASI KASIR</button>
+                    <button onclick="triggerHaptic(); calculateCashierTarget();" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">HITUNG REKOMENDASI KASIR</button>
 
                     <div id="calcResultBox" class="hidden" style="margin-top:12px; background:rgba(34,197,94,0.1); border:1px solid var(--accent-green); padding:10px; border-radius:10px;">
                         <h4 style="color:var(--accent-green); font-weight:800; margin-bottom:4px;">🎯 REKOMENDASI STRATEGI SHIFT INI:</h4>
@@ -1192,9 +2040,9 @@
             const pwp = Number(document.getElementById("calcActPwp").value || 0);
             const serba = Number(document.getElementById("calcActSerba").value || 0);
 
-            const targetPsm = 25;
-            const targetPwp = 15;
-            const targetSerba = 20;
+            const targetPsm = dashboardData?.user?.targets?.psm || 25;
+            const targetPwp = dashboardData?.user?.targets?.pwp || 15;
+            const targetSerba = dashboardData?.user?.targets?.serba || 20;
 
             const gapPsm = targetPsm - psm > 0 ? targetPsm - psm : 0;
             const gapPwp = targetPwp - pwp > 0 ? targetPwp - pwp : 0;
@@ -1238,7 +2086,7 @@
                         <label style="font-weight:700;">Tanggal Expired Date:</label>
                         <input type="date" id="expTanggal" style="width:100%; background:var(--bg-dark); color:white; border:1px solid var(--card-border); border-radius:8px; padding:8px; margin:4px 0 14px 0; outline:none;">
 
-                        <button onclick="handleExpiredSubmit()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">SIMPAN DATA EXPIRED</button>
+                        <button onclick="triggerHaptic(); handleExpiredSubmit();" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">SIMPAN DATA EXPIRED</button>
                     </div>
 
                     <div id="subTabExpAlert" class="hidden">
@@ -1286,7 +2134,7 @@
                         <p style="font-size:0.62rem; color:var(--text-sub);">Rak: ${item.KATEGORI_RAK || '-'} | Stok: ${item.STOK_QTY} Pcs</p>
                         <p style="font-size:0.62rem; color:#ef4444; font-weight:bold; margin-top:2px;">📅 Exp: ${item.TANGGAL_EXPIRED}</p>
                     </div>
-                    <button onclick="confirmExpiredAction('${item.ID}')" style="background:rgba(34,197,94,0.2); color:var(--accent-green); border:1px solid var(--accent-green); padding:6px 10px; border-radius:8px; font-weight:bold; font-size:0.62rem; cursor:pointer;">
+                    <button onclick="triggerHaptic(); confirmExpiredAction('${item.ID}')" style="background:rgba(34,197,94,0.2); color:var(--accent-green); border:1px solid var(--accent-green); padding:6px 10px; border-radius:8px; font-weight:bold; font-size:0.62rem; cursor:pointer;">
                         ✅ Konfirmasi Selesai
                     </button>
                 </div>
@@ -1303,7 +2151,7 @@
                     dashboardData.expiredAlerts = dashboardData.expiredAlerts.filter(e => String(e.ID) !== String(idExpired));
                 }
                 renderExpiredAlertList();
-                showCustomModal("✅ KONFIRMASI BERHASIL", `<p style="color:var(--accent-green); font-weight:bold;">${res.message}</p>`);
+                showToast(res.message);
             }
         }
 
@@ -1314,7 +2162,7 @@
             const tglExpired = document.getElementById("expTanggal").value;
 
             if (!namaBarang || !stokQty || !tglExpired) {
-                alert("Mohon lengkapi semua kolom terlebih dahulu!");
+                showToast("Mohon lengkapi semua kolom!", "warning");
                 return;
             }
 
@@ -1324,7 +2172,7 @@
 
             if (res && res.status === "success") {
                 closeCustomModal();
-                showCustomModal("✅ SUKSES", `<p style="color:var(--accent-green); font-weight:bold;">${res.message}</p>`);
+                showToast(res.message);
             }
         }
 
@@ -1336,7 +2184,7 @@
                     <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
                         <label style="background:var(--bg-dark); padding:8px 10px; border-radius:8px; border:1px solid var(--card-border); display:flex; align-items:center; gap:8px; cursor:pointer;">
                             <input type="checkbox" id="chkPriceTag" checked style="accent-color:var(--accent-green); width:18px; height:18px;">
-                            <span>Etiket Harga (*Price Tag*) Sesuai & Lengkap</span>
+                            <span>Sisir Harga (*Price Tag*) Sesuai & Lengkap</span>
                         </label>
 
                         <label style="background:var(--bg-dark); padding:8px 10px; border-radius:8px; border:1px solid var(--card-border); display:flex; align-items:center; gap:8px; cursor:pointer;">
@@ -1355,7 +2203,7 @@
                         </label>
                     </div>
 
-                    <button onclick="handleDisplaySubmit()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">SIMPAN & KLAIM +5 POIN</button>
+                    <button onclick="triggerHaptic(); handleDisplaySubmit();" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">SIMPAN & KLAIM +5 POIN</button>
                 </div>
             `);
         }
@@ -1377,7 +2225,7 @@
                     ptEl.innerText = Number(curr + 5).toLocaleString('id-ID');
                 }
                 closeCustomModal();
-                showCustomModal("🎉 POIN DITAMBAHKAN", `<p style="color:var(--accent-green); font-weight:bold;">${res.message}</p>`);
+                showToast(res.message);
             }
         }
 
@@ -1424,7 +2272,7 @@
                     <label style="font-weight:700;">Catatan / Kendala Shift:</label>
                     <textarea id="stCatatan" placeholder="Contoh: Kertas EDC BCA habis 1 rol, Kasir bersih." style="width:100%; height:60px; background:var(--bg-dark); color:white; border:1px solid var(--card-border); border-radius:8px; padding:8px; font-size:0.7rem; outline:none; resize:none; margin-bottom:12px;"></textarea>
 
-                    <button onclick="handleShiftSubmit()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">SIMPAN & SERAH TERIMA</button>
+                    <button onclick="triggerHaptic(); handleShiftSubmit();" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">SIMPAN & SERAH TERIMA</button>
                 </div>
             `);
         }
@@ -1439,7 +2287,7 @@
             const catatan = document.getElementById("stCatatan").value.trim();
 
             if (!salesShift) {
-                alert("Mohon isi Pendapatan Sales Shift terlebih dahulu!");
+                showToast("Isi Pendapatan Sales Shift terlebih dahulu!", "warning");
                 return;
             }
 
@@ -1449,7 +2297,7 @@
 
             if (res && res.status === "success") {
                 closeCustomModal();
-                showCustomModal("✅ SERAH TERIMA SUKSES", `<p style="color:var(--accent-green); font-weight:bold;">${res.message}</p>`);
+                showToast(res.message);
             }
         }
 
@@ -1466,7 +2314,7 @@
                     <label style="font-weight:700;">Jawaban Penawaran Kamu (Kasir):</label>
                     <textarea id="txtRoleplayInput" placeholder="Ketik penawaran PSM/PWP/Serba Gratis kamu di sini..." style="width:100%; height:70px; background:var(--bg-dark); color:white; border:1px solid var(--card-border); border-radius:8px; padding:8px; font-size:0.72rem; outline:none; resize:none; margin:4px 0 12px 0;"></textarea>
 
-                    <button onclick="handleRoleplaySubmit()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">MINTA PENILAIAN AI 🤖</button>
+                    <button onclick="triggerHaptic(); handleRoleplaySubmit();" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">MINTA PENILAIAN AI 🤖</button>
 
                     <div id="roleplayScoreBox" class="hidden" style="margin-top:12px; background:rgba(34,197,94,0.1); border:1px solid var(--accent-green); padding:10px; border-radius:10px;">
                         <p id="roleplayScoreMsg" style="font-size:0.72rem; line-height:1.4; color:#e2e8f0; white-space:pre-line;"></p>
@@ -1478,13 +2326,13 @@
         async function handleRoleplaySubmit() {
             const input = document.getElementById("txtRoleplayInput").value.trim();
             if (!input) {
-                alert("Ketik jawaban penawaran kasir kamu terlebih dahulu!");
+                showToast("Ketik penawaran kasir kamu lebih dulu!", "warning");
                 return;
             }
 
             const promptText = `Kamu adalah Penguji Roleplay Kasir Retail. Evaluasi penawaran kasir berikut kepada pembeli: "${input}". Berikan SKOR PENAWARAN (1-100) dan 2 kalimat evaluasi taktis singkat!`;
 
-            showLoading("Gemini AI Sedang Menilai Penawaran Kamu...");
+            showLoading("Gemini/Groq AI Menilai Penawaran Kamu...");
             const res = await apiCall("askAI", { pertanyaan: promptText });
             hideLoading();
 
@@ -1502,7 +2350,7 @@
 
             if (!cardElement || typeof html2canvas === "undefined") {
                 hideLoading();
-                alert("Gagal membuat gambar. Pustaka pencetak sedang memuat.");
+                showToast("Pustaka cetak gambar sedang memuat", "warning");
                 return;
             }
 
@@ -1517,446 +2365,337 @@
                 link.download = `Kartu_Performa_Kacida_${Date.now()}.png`;
                 link.href = image;
                 link.click();
+                showToast("Gambar HD Berhasil Diunduh! 🖼️");
             }).catch(err => {
                 hideLoading();
-                alert("Gagal mengunduh gambar: " + err);
+                showToast("Gagal mengunduh gambar", "error");
             });
         }
 
-        function showBriefProfile() {
-            if (!dashboardData) return;
-            const u = dashboardData.user;
-            showCustomModal("👤 KARTU PENGGUNA", `
-                <div style="text-align: center; padding: 10px;">
-                    <img src="${get3DAvatar(u.NAMA, u["FOTO PROFIL"])}" style="width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--accent-green); object-fit: cover; margin-bottom: 8px;">
-                    <h4 style="font-size: 1rem; font-weight: 800; color: white;">${u.NAMA || '-'}</h4>
-                    <p style="font-size: 0.72rem; color: var(--accent-green); font-weight: 700;">${u.JABATAN || '-'}</p>
-                    <p style="font-size: 0.68rem; color: var(--text-sub);">${u.namaToko || '-'}</p>
-                    <p style="font-size: 0.62rem; color: #64748b; margin-top: 2px;">NIK: ${u.NIK || '-'}</p>
-                    <hr style="border-color: var(--card-border); margin: 12px 0;">
-                    <button onclick="handleLogout()" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 8px 18px; border-radius: 10px; font-size: 0.72rem; font-weight: 700; cursor: pointer; width: 100%;">LOGOUT</button>
+        // MODAL 5: BELANJA KARYAWAN
+        function openBelanjaKaryawanModal() {
+            const u = dashboardData?.user;
+            const isCOS = ["Chief Of Store", "Kepala Toko", "COS"].includes(u?.JABATAN);
+            const isAC = u?.isAC || ["Area Coordinator", "AC"].includes(u?.JABATAN);
+
+            showCustomModal("🛒 BELANJA KARYAWAN (TANPA LIMIT)", `
+                <div style="font-size:0.75rem;">
+                    <div style="display:flex; gap:4px; margin-bottom:12px;">
+                        <button id="btnBelTabInput" class="sub-tab-btn active" onclick="switchBelanjaSubTab('input')">➕ Input Belanja</button>
+                        <button id="btnBelTabHistory" class="sub-tab-btn" onclick="switchBelanjaSubTab('history')">📜 Riwayat Saya</button>
+                        ${isCOS ? '<button id="btnBelTabCOS" class="sub-tab-btn" onclick="switchBelanjaSubTab(\'cos\')">📋 Approval COS</button>' : ''}
+                        ${isAC ? '<button id="btnBelTabAC" class="sub-tab-btn" onclick="switchBelanjaSubTab(\'ac\')">👑 Approval AC</button>' : ''}
+                    </div>
+
+                    <div id="subTabBelInput">
+                        <div style="background:rgba(34,197,94,0.1); border:1px solid var(--accent-green); padding:8px 10px; border-radius:10px; margin-bottom:10px;">
+                            <p style="font-size:0.68rem; color:var(--accent-green); font-weight:bold;">
+                                📊 Total Akumulasi Belanja Bulan Ini: Rp ${Number(calculateUserTotalBelanja(currentNik)).toLocaleString('id-ID')}
+                            </p>
+                        </div>
+
+                        <label style="font-weight:700;">Nominal Belanja (Rp):</label>
+                        <input type="number" id="belNominal" placeholder="Contoh: 85000" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+
+                        <label style="font-weight:700;">Nomor Struk Kasir:</label>
+                        <input type="text" id="belNoStruk" placeholder="Contoh: STR-10293" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+
+                        <label style="font-weight:700;">Nomor HP / ID Member Kasir:</label>
+                        <input type="text" id="belNoHpMember" placeholder="Contoh: 081234567890" style="width:100%; background:var(--bg-dark); border:1px solid var(--card-border); color:white; border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+
+                        <label style="font-weight:700;">Catatan Belanja:</label>
+                        <textarea id="belCatatan" placeholder="Contoh: Sembako & Jajan Shift" style="width:100%; height:55px; background:var(--bg-dark); color:white; border:1px solid var(--card-border); border-radius:8px; padding:8px; font-size:0.7rem; outline:none; resize:none; margin-bottom:12px;"></textarea>
+
+                        <button onclick="triggerHaptic(); handleBelanjaSubmit()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">KIRIM PENGAJUAN BELANJA</button>
+                    </div>
+
+                    <div id="subTabBelHistory" class="hidden">
+                        <div id="belanjaHistoryList" style="display:flex; flex-direction:column; gap:8px;"></div>
+                    </div>
+
+                    ${isCOS ? '<div id="subTabBelCOS" class="hidden"><div id="belanjaCOSApprovalList" style="display:flex; flex-direction:column; gap:8px;"></div></div>' : ''}
+                    ${isAC ? '<div id="subTabBelAC" class="hidden"><div id="belanjaACApprovalList" style="display:flex; flex-direction:column; gap:8px;"></div></div>' : ''}
+                </div>
+            `);
+
+            renderBelanjaHistory();
+            if (isCOS) renderBelanjaCOSList();
+            if (isAC) renderBelanjaACList();
+        }
+
+        function calculateUserTotalBelanja(nik) {
+            const list = dashboardData?.employeePurchases || [];
+            return list.filter(p => String(p.NIK) === String(nik) && String(p.STATUS).toLowerCase() === "disetujui")
+                       .reduce((acc, curr) => acc + Number(curr.NOMINAL_BELANJA || 0), 0);
+        }
+
+        function switchBelanjaSubTab(tab) {
+            ["Input", "History", "COS", "AC"].forEach(t => {
+                const btn = document.getElementById("btnBelTab" + t);
+                const sec = document.getElementById("subTabBel" + t);
+                if (btn) btn.classList.remove("active");
+                if (sec) sec.classList.add("hidden");
+            });
+
+            const activeBtn = document.getElementById("btnBelTab" + tab.charAt(0).toUpperCase() + tab.slice(1));
+            const activeSec = document.getElementById("subTabBel" + tab.charAt(0).toUpperCase() + tab.slice(1));
+            if (activeBtn) activeBtn.classList.add("active");
+            if (activeSec) activeSec.classList.remove("hidden");
+        }
+
+        async function handleBelanjaSubmit() {
+            const nominal = document.getElementById("belNominal").value;
+            const noStruk = document.getElementById("belNoStruk").value.trim();
+            const noHpMember = document.getElementById("belNoHpMember").value.trim();
+            const catatan = document.getElementById("belCatatan").value.trim();
+
+            if (!nominal || !noStruk) {
+                showToast("Isi Nominal dan No Struk belanja!", "warning");
+                return;
+            }
+
+            showLoading("Mengirim Pengajuan Belanja...");
+            const res = await apiCall("submitEmployeePurchase", { nominal, noStruk, noHpMember, catatan });
+            hideLoading();
+
+            if (res && res.status === "success") {
+                closeCustomModal();
+                showToast(res.message);
+            }
+        }
+
+        function renderBelanjaHistory() {
+            const container = document.getElementById("belanjaHistoryList");
+            if (!container) return;
+            const list = (dashboardData?.employeePurchases || []).filter(p => String(p.NIK) === String(currentNik));
+
+            if (list.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-sub); text-align:center; padding:15px;">Belum ada riwayat pengajuan belanja bulan ini.</p>`;
+                return;
+            }
+
+            container.innerHTML = list.map(item => `
+                <div style="background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:10px;">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                        <span style="color:var(--gold);">Rp ${Number(item.NOMINAL_BELANJA).toLocaleString('id-ID')}</span>
+                        <span style="font-size:0.62rem; color:var(--text-sub);">${item.TIMESTAMP}</span>
+                    </div>
+                    <p style="font-size:0.65rem; color:#cbd5e1; margin-top:2px;">Struk: ${item.NO_STRUK} | Member: ${item.NO_HP_MEMBER || '-'}</p>
+                    <p style="font-size:0.62rem; color:var(--accent-green); font-weight:bold; margin-top:4px;">STATUS: ${item.STATUS}</p>
+                </div>
+            `).join("");
+        }
+
+        function renderBelanjaCOSList() {
+            const container = document.getElementById("belanjaCOSApprovalList");
+            if (!container) return;
+            const list = (dashboardData?.employeePurchases || []).filter(p => String(p.STATUS).toLowerCase() === "pending cos");
+
+            if (list.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-sub); text-align:center; padding:15px;">Tidak ada pengajuan belanja menunggu approval COS. 🟢</p>`;
+                return;
+            }
+
+            container.innerHTML = list.map(item => `
+                <div style="background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:10px;">
+                    <p style="font-weight:bold; color:white;">👤 ${item.NAMA_KARYAWAN} (NIK: ${item.NIK})</p>
+                    <p style="color:var(--gold); font-weight:bold; font-size:0.8rem; margin:2px 0;">Rp ${Number(item.NOMINAL_BELANJA).toLocaleString('id-ID')}</p>
+                    <p style="font-size:0.65rem; color:var(--text-sub);">Struk: ${item.NO_STRUK} | Member: ${item.NO_HP_MEMBER || '-'}</p>
+                    <div style="display:flex; gap:6px; margin-top:8px;">
+                        <button onclick="approveBelanjaAction('${item.ID}', 'REJECT')" style="flex:1; background:rgba(239,68,68,0.2); color:#ef4444; border:1px solid #ef4444; padding:6px; border-radius:6px; font-weight:bold; font-size:0.62rem; cursor:pointer;">❌ Tolak</button>
+                        <button onclick="approveBelanjaAction('${item.ID}', 'COS')" style="flex:2; background:var(--accent-green); color:#03170a; border:none; padding:6px; border-radius:6px; font-weight:bold; font-size:0.62rem; cursor:pointer;">✅ Setujui COS</button>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function renderBelanjaACList() {
+            const container = document.getElementById("belanjaACApprovalList");
+            if (!container) return;
+            const list = (dashboardData?.employeePurchases || []).filter(p => String(p.STATUS).toLowerCase() === "pending ac");
+
+            if (list.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-sub); text-align:center; padding:15px;">Tidak ada pengajuan belanja menunggu approval AC. 🟢</p>`;
+                return;
+            }
+
+            container.innerHTML = list.map(item => `
+                <div style="background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:10px;">
+                    <p style="font-weight:bold; color:white;">👤 ${item.NAMA_KARYAWAN} (Toko: ${item.TOKO})</p>
+                    <p style="color:var(--gold); font-weight:bold; font-size:0.8rem; margin:2px 0;">Rp ${Number(item.NOMINAL_BELANJA).toLocaleString('id-ID')}</p>
+                    <p style="font-size:0.65rem; color:var(--text-sub);">COS Approval: ${item.APPROVER_COS || 'Bypass'}</p>
+                    <div style="display:flex; gap:6px; margin-top:8px;">
+                        <button onclick="approveBelanjaAction('${item.ID}', 'REJECT')" style="flex:1; background:rgba(239,68,68,0.2); color:#ef4444; border:1px solid #ef4444; padding:6px; border-radius:6px; font-weight:bold; font-size:0.62rem; cursor:pointer;">❌ Tolak</button>
+                        <button onclick="approveBelanjaAction('${item.ID}', 'AC')" style="flex:2; background:var(--accent-green); color:#03170a; border:none; padding:6px; border-radius:6px; font-weight:bold; font-size:0.62rem; cursor:pointer;">👑 Setujui Final AC</button>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        async function approveBelanjaAction(idBelanja, level) {
+            showLoading("Memproses Verifikasi...");
+            const res = await apiCall("approveEmployeePurchase", { idBelanja, level });
+            hideLoading();
+
+            if (res && res.status === "success") {
+                closeCustomModal();
+                showToast(res.message);
+            }
+        }
+
+        // MODAL 6: PLAN JADWAL MANUAL
+        function openPlanJadwalModal() {
+            showCustomModal("🗓️ PLAN JADWAL KERJA MANUAL", `
+                <div style="font-size:0.72rem;">
+                    <p style="color:var(--text-sub); margin-bottom:10px;">Pilih staf dan tanggal untuk mengubah kode shift dinas 8 jam kerja:</p>
+
+                    <label style="font-weight:700;">Target Personil Toko:</label>
+                    <select id="schTargetNik" style="width:100%; background:var(--bg-dark); color:white; border:1px solid var(--card-border); border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+                        ${(dashboardData?.struktur?.personilToko || []).map(p => `<option value="${p.nik}">${p.nama} (${p.jabatan})</option>`).join('')}
+                    </select>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <div>
+                            <label style="font-weight:700;">Pilih Tanggal:</label>
+                            <input type="number" id="schDayNum" min="1" max="31" value="${new Date().getDate()}" style="width:100%; background:var(--bg-dark); color:white; border:1px solid var(--card-border); border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+                        </div>
+                        <div>
+                            <label style="font-weight:700;">Kode Shift Kerja:</label>
+                            <select id="schShiftCode" style="width:100%; background:var(--bg-dark); color:var(--accent-green); font-weight:bold; border:1px solid var(--card-border); border-radius:8px; padding:8px; margin:4px 0 10px 0; outline:none;">
+                                <option value="P7">P7 (Pagi 07:00 - 15:00)</option>
+                                <option value="S14">S14 (Siang 14:00 - 22:00)</option>
+                                <option value="M21">M21 (Malam 21:00 - 05:00)</option>
+                                <option value="M22">M22 (Malam 22:00 - 06:00)</option>
+                                <option value="M23">M23 (Malam 23:00 - 07:00)</option>
+                                <option value="SK">SK (Sakit)</option>
+                                <option value="ADDOFF">ADDOFF (Tambahan Libur)</option>
+                                <option value="OFF">OFF (Libur Rutin)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button onclick="handleScheduleSubmit()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer; margin-bottom:12px;">SIMPAN KODE JADWAL</button>
                 </div>
             `);
         }
 
-        async function loadDaftarTokoAC() {
-            const list = await apiCall("getDaftarToko");
-            if (list && list.length > 0) {
-                document.getElementById("acDropdownContainer").classList.remove("hidden");
-                document.getElementById("selectTokoAC").innerHTML = `<option value="ALL">🌐 REKAP RATA-RATA ALL TOKO AREA</option>` + list.map(t => `<option value="${t.substring(0,4)}">${t}</option>`).join("");
-            }
-        }
+        async function handleScheduleSubmit() {
+            const targetNik = document.getElementById("schTargetNik").value;
+            const dayNum = document.getElementById("schDayNum").value;
+            const shiftCode = document.getElementById("schShiftCode").value;
 
-        function onACTokoChange(kodeToko) {
-            selectedKodeTokoAC = kodeToko;
-            showLoading("Mengganti Data Toko...");
-            initDashboard(kodeToko);
-        }
-
-        async function openSalesMTDModal() {
-            showLoading("Memuat Rincian Sales & Grafik MTD...");
-            const d = await apiCall("getDetailSalesMTD");
+            showLoading("Menyimpan Jadwal Kerja...");
+            const res = await apiCall("saveSchedule", { targetNik, dayNum, shiftCode });
             hideLoading();
 
-            if (!d || d.status === "error") {
-                showCustomModal("📊 RINCIAN SALES BULAN BERJALAN", `<p style='color:#ef4444;'>Gagal memuat rincian: ${d?.message || 'Koneksi terganggu'}</p>`);
-                return;
+            if (res && res.status === "success") {
+                closeCustomModal();
+                showToast(res.message);
             }
+        }
 
-            let rowsHtml = "";
-            let labels = [];
-            let data2026 = [];
-            let pointColors = [];
-
-            if (d.listHarian && d.listHarian.length > 0) {
-                rowsHtml = d.listHarian.map(item => {
-                    labels.push(item.tanggalFormatted);
-                    data2026.push(item.sales2026Num);
-                    pointColors.push(item.isGrowth ? '#22c55e' : '#ef4444');
-
-                    return `
-                        <tr>
-                            <td style="font-weight:700;">${item.tanggalFormatted}</td>
-                            <td style="color:${item.isGrowth ? 'var(--accent-green)' : '#ef4444'}; font-weight:800;">
-                                ${item.sales2026} ${item.isGrowth ? '🟢' : '🔴'}
-                            </td>
-                            <td style="color:var(--gold); font-weight:700;">${item.std2026}</td>
-                            <td style="color:#38bdf8;">${item.apc2026}</td>
-                        </tr>
-                    `;
-                }).join("");
-            } else {
-                rowsHtml = `<tr><td colspan="4" style="color:var(--text-sub);">Belum ada data harian di bulan ini.</td></tr>`;
-            }
-
-            const htmlBox = `
-                <div style="font-size: 0.75rem;">
-                    <div style="display:flex; justify-content:space-between; font-weight:800; color:var(--accent-green); margin-bottom:4px;">
-                        <span>📍 ${d.namaToko}</span>
-                        <span style="color:var(--gold);">🗓️ ${d.bulanName}</span>
+        function openKatalogQuizModal() {
+            showCustomModal("🏷️ KATALOG & QUIZ PROMO KASIR", `
+                <div style="font-size:0.75rem; text-align:center;">
+                    <p style="color:var(--gold); font-weight:bold; margin-bottom:8px;">🎯 PROMO PSM/PWP MINGGU INI</p>
+                    <div style="background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:10px; margin-bottom:12px;">
+                        <p style="color:var(--accent-green); font-weight:bold;">Minyak Goreng 2L PWP: Rp 32.500</p>
+                        <p style="font-size:0.65rem; color:var(--text-sub);">Kalimat Penawaran: "Mas/Mbak sekalian promo Minyak 2L-nya cuma Rp 32.500!"</p>
                     </div>
-                    <div style="color:var(--text-sub); font-size:0.65rem; margin-bottom:10px;">
-                        Total MTD Sales (s/d Tgl ${d.targetDay}): <strong style="color:#fff;">Rp ${Number(d.totalMtdSales).toLocaleString('id-ID')}</strong>
-                    </div>
+                    <button onclick="showToast('Jawaban Benar! Kamu dapat +10 Poin Reward! 🎉'); closeCustomModal();" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">MULAI MINI QUIZ 30 DETIK (+10 PTS)</button>
+                </div>
+            `);
+        }
 
-                    <div style="background:var(--bg-dark); border:1px solid var(--card-border); border-radius:12px; padding:8px; margin-bottom:12px;">
-                        <canvas id="chartSalesTrend" style="width:100%; height:160px;"></canvas>
+        function openRadarKesehatanModal() {
+            showCustomModal("🩺 RADAR KESEHATAN TOKO (AI DIAGNOSTIC)", `
+                <div style="font-size:0.75rem;">
+                    <div style="text-align:center; margin-bottom:10px;">
+                        <h2 style="font-size:2rem; font-weight:900; color:var(--accent-green);">88/100</h2>
+                        <p style="color:var(--gold); font-weight:bold;">SKOR TOKO SEHAT 🟢</p>
                     </div>
-
-                    <div style="max-height: 40vh; overflow-y: auto; border: 1px solid var(--card-border); border-radius: 10px;">
-                        <table class="tbl-sales-mtd">
-                            <thead>
-                                <tr>
-                                    <th>TANGGAL</th>
-                                    <th>SALES 2026</th>
-                                    <th>STD 2026</th>
-                                    <th>APC 2026</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${rowsHtml}
-                            </tbody>
-                        </table>
+                    <div style="background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:10px; line-height:1.4;">
+                        <p style="color:var(--accent-green);">• 🟢 <b>Sales:</b> SEHAT (105% Achievement Target)</p>
+                        <p style="color:#ef4444; margin-top:4px;">• 🔴 <b>Profit GM:</b> PERLU PERHATIAN (Margin tipis, dorong item PWP)</p>
+                        <p style="color:var(--gold); margin-top:4px;">• 🟡 <b>Expired:</b> ADA ALERT (Cek rak minuman)</p>
                     </div>
                 </div>
-            `;
-
-            showCustomModal("📊 RINCIAN SALES & GRAFIK MTD", htmlBox);
-
-            setTimeout(() => {
-                const ctx = document.getElementById('chartSalesTrend');
-                if (ctx && typeof Chart !== "undefined") {
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Sales 2026 (Rp)',
-                                data: data2026,
-                                borderColor: '#22c55e',
-                                backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                                pointBackgroundColor: pointColors,
-                                pointRadius: 4,
-                                fill: true,
-                                tension: 0.3
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                x: { ticks: { color: '#94a3b8', font: { size: 9 } } },
-                                y: { ticks: { color: '#94a3b8', font: { size: 9 } } }
-                            }
-                        }
-                    });
-                }
-            }, 200);
+            `);
         }
 
-        async function openPerformaPopup() {
-            showLoading("Memuat Data Performance...");
-            const d = await apiCall("getPerforma");
-            hideLoading();
-
-            if (!d || d.status === "error") {
-                showCustomModal("📊 DATA PERFORMANCE", `<p style='color:#ef4444;'>Gagal memuat data: ${d?.message || 'Koneksi terganggu'}</p>`);
-                return;
-            }
-
-            const ptNum = parseFloat(String(d.pointDash).replace('%','').replace(',','.')) || 0;
-            const gaugeRotation = Math.min(Math.max((ptNum / 150) * 180, 0), 180);
-
-            const htmlBox = `
-                <div style="font-family: monospace, sans-serif; font-size: 0.7rem; line-height: 1.5; color: #fff; background: #03170a; padding: 12px; border-radius: 12px; border: 1px solid var(--card-border);">
-                    <div style="display:flex; justify-content:space-between; font-weight:800; color:var(--accent-green); margin-bottom:2px; font-size:0.75rem;">
-                        <span>📍 ${d.namaToko}</span>
-                        <span style="color:var(--text-sub); font-size:0.62rem;">📅 Update: ${d.tanggalTxt}</span>
+        function openHallOfFameModal() {
+            showCustomModal("👑 HALL OF FAME - KASIR TERBAIK AREA", `
+                <div style="font-size:0.75rem; text-align:center;">
+                    <div style="background:linear-gradient(135deg, #f59e0b 0%, #b45309 100%); padding:12px; border-radius:12px; margin-bottom:10px; color:#03170a;">
+                        <h3 style="font-weight:900;">🏆 JUARA 1 AREA: WILDAN SUPANDI</h3>
+                        <p style="font-size:0.65rem; font-weight:bold;">Gelar: KING OF PSM (Total 145 Pcs)</p>
                     </div>
+                    <button onclick="downloadPerformaCardHD()" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">📜 DOWNLOAD SERTIFIKAT HD</button>
+                </div>
+            `);
+        }
 
-                    <div class="gauge-container">
-                        <svg class="gauge-svg" viewBox="0 0 100 50">
-                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1A3A2A" stroke-width="10"/>
-                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="url(#gaugeGrad)" stroke-width="10" stroke-dasharray="126" stroke-dashoffset="${126 - (ptNum/150)*126}"/>
-                            <line x1="50" y1="50" x2="20" y2="50" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" transform="rotate(${gaugeRotation}, 50, 50)" style="transition: transform 1.2s ease;"/>
-                            <defs>
-                                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stop-color="#ef4444" />
-                                    <stop offset="60%" stop-color="#f59e0b" />
-                                    <stop offset="100%" stop-color="#22c55e" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                        <span style="font-size:0.75rem; font-weight:900; color:var(--gold); margin-top:-10px;">${d.pointDash} (${d.ketPoint})</span>
-                    </div>
-
-                    <div style="border-top:1px dashed var(--card-border); padding-top:6px; margin-top:6px;">
-                        <div style="color:var(--gold); font-weight:700;">💰 SALES HARIAN (${d.tglOnly})</div>
-                        <div style="padding-left:6px;">2026 : Rp ${Number(d.sales2026).toLocaleString('id-ID')}</div>
-                        <div style="padding-left:6px;">2025 : Rp ${Number(d.sales2025).toLocaleString('id-ID')}</div>
-                        <div style="padding-left:6px; color:var(--accent-green); font-weight:700;">📈 Growth 2026 vs 2025 : ${d.growthHarian >= 0 ? '+' : ''}${d.growthHarian.toFixed(1)}% ${d.growthHarian >= 0 ? '🟢' : '🔴'}</div>
-                    </div>
-
-                    <div style="border-top:1px dashed var(--card-border); padding-top:6px; margin-top:6px;">
-                        <div style="color:#38bdf8; font-weight:700;">📊 MTD SALES & PROYEKSI RUN-RATE</div>
-                        <div style="padding-left:6px;">MTD Sales 2026 : Rp ${Number(d.mtd2026).toLocaleString('id-ID')}</div>
-                        <div style="padding-left:6px;">MTD Sales 2025 : Rp ${Number(d.mtd2025 || 0).toLocaleString('id-ID')}</div>
-                        <div style="padding-left:6px; color:var(--gold); font-weight:700;">⚡ SPD 2026 (Rata-rata/Hari) : Rp ${Math.round(d.spd).toLocaleString('id-ID')}</div>
-                        <div style="padding-left:6px; color:#c7d2fe; font-size:0.62rem; margin-top:2px;">
-                            🔮 <b>Proyeksi Akhir Bulan:</b> Rp ${Number(d.estimasiOmsetAkhirBulan || 0).toLocaleString('id-ID')} (Sisa ${d.sisaHari} Hari)
+        function openBattleShiftModal() {
+            showCustomModal("⚔️ BATTLE PERSAINGAN SHIFT", `
+                <div style="font-size:0.75rem; text-align:center;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+                        <div style="background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:10px;">
+                            <p style="color:var(--accent-green); font-weight:bold;">SHIFT 1 (PAGI)</p>
+                            <h3 style="color:var(--gold); font-size:1.2rem;">45 Pts</h3>
+                        </div>
+                        <div style="background:var(--bg-dark); border:1px solid var(--accent-green); padding:10px; border-radius:10px;">
+                            <p style="color:var(--accent-green); font-weight:bold;">SHIFT 2 (LEADER 👑)</p>
+                            <h3 style="color:var(--accent-green); font-size:1.2rem;">62 Pts</h3>
                         </div>
                     </div>
+                    <p style="color:var(--text-sub); font-size:0.65rem;">🔥 Shift 2 sedang memimpin pertandingan hari ini!</p>
+                </div>
+            `);
+        }
 
-                    <div style="border-top:1px dashed var(--card-border); padding-top:6px; margin-top:6px;">
-                        <div style="color:var(--accent-green); font-weight:700; margin-bottom:4px;">🎯 IKT TOKO (Tab: IKT)</div>
-                        <table style="width:100%; border-collapse:collapse; text-align:center; border:1px solid var(--card-border); font-size:0.65rem;">
-                            <tr style="background:rgba(255,255,255,0.05); color:var(--text-sub);">
-                                <th style="border:1px solid var(--card-border); padding:3px;">ACV NET SALES</th>
-                                <th style="border:1px solid var(--card-border); padding:3px;">ACV PROFIT</th>
-                                <th style="border:1px solid var(--card-border); padding:3px;">ACV GM%</th>
-                            </tr>
-                            <tr style="font-weight:800; color:#fff;">
-                                <td style="border:1px solid var(--card-border); padding:4px; color:var(--accent-green);">${d.acvNetSales}</td>
-                                <td style="border:1px solid var(--card-border); padding:4px; color:${parseFloat(d.acvProfit)>=0?'var(--accent-green)':'#ef4444'};">${d.acvProfit}</td>
-                                <td style="border:1px solid var(--card-border); padding:4px; color:var(--gold);">${d.acvGM}</td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <div style="border-top:1px dashed var(--card-border); padding-top:6px; margin-top:6px;">
-                        <div style="color:#ef4444; font-weight:700; display:flex; justify-content:space-between; align-items:center;">
-                            <span>🚀 PENAWARAN LANGSUNG</span>
-                            <span style="color:var(--gold); font-size:0.65rem; background:rgba(245,158,11,0.15); padding:2px 6px; border-radius:4px; border:1px solid var(--gold);">🏆 RANK #${d.rankPenawaran || 1} DARI ${d.totalTokoArea || 18} TOKO</span>
-                        </div>
-                        <div style="padding-left:6px; margin-top:4px;">Point Dashboard : <strong>${d.pointDash}</strong> (${d.ketPoint})</div>
-                        <div style="padding-left:6px; font-size:0.62rem; color:#cbd5e1; margin-top:2px;">
-                            PSM: ${d.psm} | PWP: ${d.pwp} | SERBA GRATIS: ${d.serbaGratis} | APC: ${d.apc}
-                        </div>
-                    </div>
-
-                    <div style="margin-top:12px; border-top:1px dashed var(--card-border); padding-top:8px;">
-                        <button onclick="downloadPerformaCardHD()" class="btn-copy-action">
-                            <i class="fa-solid fa-image" style="font-size:0.9rem;"></i> DOWNLOAD GAMBAR KARTU PERFORMA HD 🖼️
-                        </button>
+        function openJadwalSholatModal() {
+            showCustomModal("🕋 JADWAL SHOLAT & IBADAH TOKO", `
+                <div style="font-size:0.75rem; text-align:center;">
+                    <p style="color:var(--accent-green); font-weight:bold; margin-bottom:8px;">📍 LOKASI TOKO: BANDUNG / JAWA BARAT</p>
+                    <div style="background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:10px; line-height:1.6;">
+                        • Subuh: 04:38 WIB | Dzuhur: 11:54 WIB<br/>
+                        • Ashar: 15:15 WIB | Maghrib: 17:50 WIB | Isya: 19:02 WIB
                     </div>
                 </div>
-            `;
-
-            showCustomModal("📊 DATA PERFORMANCE", htmlBox);
+            `);
         }
 
-        function openPengumumanModal() {
-            readPengumuman = true;
-            document.getElementById("valAnnounce").innerText = "0";
-            document.getElementById("dotAnnounce").classList.add("hidden");
+        function openCuacaModal() {
+            showCustomModal("🌧️ PRAKIRAAN CUACA TOKO", `
+                <div style="font-size:0.75rem; text-align:center;">
+                    <i class="fa-solid fa-cloud-sun-rain" style="font-size:2.5rem; color:var(--gold); margin-bottom:8px;"></i>
+                    <h4 style="color:white; font-size:0.9rem;">Hujan Gerimis Sore Hari (24°C)</h4>
+                    <p style="color:var(--text-sub); font-size:0.65rem; margin-top:6px;">💡 <b>Saran SAPA:</b> Pengunjung fisik sore agak sepi, tingkatkan promosi layanan pesan antar SAPA!</p>
+                </div>
+            `);
+        }
 
-            if (!dashboardData || !dashboardData.announcements || dashboardData.announcements.length === 0) {
-                showCustomModal("📢 Pengumuman", "<p style='color:var(--text-sub);'>Belum ada pengumuman aktif.</p>");
-                return;
-            }
-
-            const html = dashboardData.announcements.map(p => `
-                <div style="background:var(--bg-dark); padding:10px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:8px; display:flex; gap:10px; align-items:center;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3602/3602145.png" style="width:32px; height:32px;">
-                    <div>
-                        <p style="font-weight:bold; color:var(--gold); font-size:0.75rem;">${p.Pengumuman || p.PENGUMUMAN || p.pengumuman || 'Pengumuman'}</p>
+        function openPereganganModal() {
+            showCustomModal("🧘 PEREGANGAN KASIR & FIT STAF", `
+                <div style="font-size:0.75rem; text-align:center;">
+                    <p style="color:var(--accent-green); font-weight:bold; margin-bottom:8px;">💪 PANDUAN REHAT 1 MENIT</p>
+                    <div style="background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:10px; text-align:left; line-height:1.5;">
+                        1. Putar bahu ke belakang 10 kali.<br/>
+                        2. Luruskan kedua tangan ke atas selama 15 detik.<br/>
+                        3. Minum 1 gelas air putih segar! 🥛
                     </div>
                 </div>
-            `).join("");
-
-            showCustomModal("📢 Pengumuman Resmi", html);
+            `);
         }
 
-        function openNotifModal() {
-            if (dashboardData && dashboardData.notifications) {
-                const notifIds = dashboardData.notifications.map(n => n.ID || n.Id || n.PESAN);
-                readNotifList = [...new Set([...readNotifList, ...notifIds])];
-                localStorage.setItem("READ_NOTIFS_" + currentNik, JSON.stringify(readNotifList));
-
-                document.getElementById("valNotifCount").innerText = "0";
-                document.getElementById("dotNotif").classList.add("hidden");
-            }
-
-            if (!dashboardData || !dashboardData.notifications || dashboardData.notifications.length === 0) {
-                showCustomModal("🔔 Notifikasi", "<p style='color:var(--text-sub);'>Tidak ada notifikasi baru saat ini.</p>");
-                return;
-            }
-
-            const html = dashboardData.notifications.map((n, idx) => {
-                const targetUrl = n["LINK TUJUAN"] || n.Link || n.LINK || "#";
-                const hasLink = targetUrl && targetUrl !== "#";
-                const notifId = n.ID || n.Id || (idx + 1);
-
-                return `
-                    <div onclick="onNotifItemClick('${notifId}', '${targetUrl}')" style="background:var(--bg-dark); padding:10px 12px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:8px; display:flex; gap:10px; align-items:center; cursor:${hasLink ? 'pointer' : 'default'};">
-                        <img src="https://cdn-icons-png.flaticon.com/512/3602/3602123.png" style="width:32px; height:32px;">
-                        <div style="flex:1;">
-                            <p style="font-weight:bold; color:var(--accent-green); font-size:0.75rem;">${n.PESAN || n.Pesan || 'Notifikasi'}</p>
-                            <p style="font-size:0.62rem; color:var(--text-sub); margin-top:2px;">
-                                Jam: <b>${n.JAM || '-'}</b> ${hasLink ? '| <span style="color:#38bdf8;">Klik untuk buka link 🔗</span>' : ''}
-                            </p>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-
-            showCustomModal("🔔 Notifikasi Aplikasi", html);
-        }
-
-        function onNotifItemClick(idNotif, linkUrl) {
-            apiCall("readNotif", { idNotif: idNotif });
-            if (linkUrl && linkUrl !== "#") {
-                window.open(linkUrl, "_blank");
-            }
-        }
-
-        function switchChatRoomMode(mode) {
-            chatRoomMode = mode;
-            const btnTeam = document.getElementById("btnTabTeam");
-            const btnAI = document.getElementById("btnTabAI");
-            const title = document.getElementById("chatTitleHeader");
-
-            if (mode === 'team') {
-                btnTeam.classList.add("active");
-                btnAI.classList.remove("active");
-                title.innerHTML = `<i class="fa-solid fa-comments" style="color: var(--accent-green);"></i> Room Chat Tim Kacida`;
-                loadChat();
-
-                if (!chatAutoRefreshTimer) {
-                    chatAutoRefreshTimer = setInterval(() => {
-                        if (chatRoomMode === 'team') loadChat(true);
-                    }, 3000);
-                }
-            } else {
-                btnAI.classList.add("active");
-                btnTeam.classList.remove("active");
-                title.innerHTML = `<i class="fa-solid fa-robot" style="color: var(--accent-green);"></i> Chat Privat Kacida AI`;
-                if (chatAutoRefreshTimer) {
-                    clearInterval(chatAutoRefreshTimer);
-                    chatAutoRefreshTimer = null;
-                }
-                renderAIChatRoom();
-            }
-        }
-
-        async function loadChat(isBackgroundRefresh = false) {
-            if (chatRoomMode !== 'team') return;
-            const chats = await apiCall("getChat");
-            const box = document.getElementById("chatBox");
-            if (chats && Array.isArray(chats)) {
-                if (chats.length === 0) {
-                    box.innerHTML = `<p style="font-size:0.7rem; color:var(--text-sub); text-align:center; margin-top:20px;">Belum ada percakapan tim. Ketik pesan untuk mulai!</p>`;
-                    return;
-                }
-
-                if (isBackgroundRefresh && chats.length > previousChatCount && previousChatCount > 0) {
-                    playChatSound();
-                }
-                previousChatCount = chats.length;
-
-                const navBadge = document.getElementById("navChatBadge");
-                if (navBadge) {
-                    navBadge.classList.add("hidden");
-                    navBadge.innerText = "0";
-                }
-
-                box.innerHTML = chats.map(c => {
-                    const isMe = c.NIK_PENGIRIM == currentNik;
-                    const timeFormatted = formatChatTime(c.TIMESTAMP);
-
-                    return `
-                        <div class="wa-bubble ${isMe ? 'me' : 'other'}">
-                            <div class="wa-sender">
-                                <span>${(c.NAMA_PENGIRIM || 'User')} (${c.JABATAN || 'Staff'})</span>
-                                <span>${c.KODE_TOKO_PENGIRIM || ''}</span>
-                            </div>
-                            <div>${c.ISI_PESAN || ''}</div>
-                            <div class="wa-time">${timeFormatted} ${isMe ? '<span style="color:#22c55e;">✓✓</span>' : ''}</div>
-                        </div>
-                    `;
-                }).join("");
-
-                if (!isBackgroundRefresh) {
-                    box.scrollTop = box.scrollHeight;
-                }
-            }
-        }
-
-        function renderAIChatRoom() {
-            const box = document.getElementById("chatBox");
-            if (aiChatHistory.length === 0) {
-                const uName = dashboardData?.user?.NAMA || "Kak";
-                aiChatHistory.push({
-                    sender: "AI",
-                    msg: `Halo ${uName}! 👋\nSaya **Asisten Kacida AI** (Gemini 2.0 Flash). Bebas tanyakan data Sales, IKT, strategi penawaran, hingga obrolan santai/luwes apa saja!`
-                });
-            }
-
-            box.innerHTML = aiChatHistory.map(c => {
-                const isMe = c.sender === "ME";
-                const isErr = c.isError === true;
-                const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                return `
-                    <div class="wa-bubble ${isMe ? 'me' : 'ai'}" style="${isErr ? 'border-color:#ef4444;' : ''}">
-                        <div class="wa-sender">
-                            <span>${isMe ? 'SAYA' : '🤖 Asisten Kacida AI'}</span>
-                        </div>
-                        <div style="white-space: pre-line;">${c.msg}</div>
-                        <div class="wa-time">${timeStr} ${isMe ? '<span style="color:#22c55e;">✓✓</span>' : ''}</div>
-                    </div>
-                `;
-            }).join("");
-            box.scrollTop = box.scrollHeight;
-        }
-
-        async function handleSendChatAction() {
-            const input = document.getElementById("inputChatMsg");
-            const msg = input.value.trim();
-            if (!msg) return;
-
-            input.value = "";
-
-            if (chatRoomMode === 'ai') {
-                aiChatHistory.push({ sender: "ME", msg: msg });
-                
-                const tempAiIdx = aiChatHistory.length;
-                aiChatHistory.push({ sender: "AI", msg: "🤖 *Asisten Kacida AI sedang berpikir...*" });
-                renderAIChatRoom();
-
-                const res = await apiCall("askAI", { pertanyaan: msg });
-                
-                if (res && res.status === "success" && res.jawaban) {
-                    aiChatHistory[tempAiIdx] = { sender: "AI", msg: res.jawaban };
-                } else {
-                    aiChatHistory[tempAiIdx] = { sender: "AI", msg: "⚠️ " + (res?.message || "Gagal mendapatkan respon dari AI. Silakan coba lagi!"), isError: true };
-                }
-                renderAIChatRoom();
-            } else {
-                const box = document.getElementById("chatBox");
-                const tempId = "msg_" + Date.now();
-                const nowTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-                box.innerHTML += `
-                    <div class="wa-bubble me" id="${tempId}">
-                        <div class="wa-sender"><span>SAYA</span></div>
-                        <div>${msg}</div>
-                        <div class="wa-time">${nowTime} <span class="check-icon" style="color:#94a3b8;">✓</span></div>
-                    </div>
-                `;
-                box.scrollTop = box.scrollHeight;
-
-                apiCall("sendChat", { pesan: msg, penerimaTipe: "All", penerimaKode: "ALL" }).then(() => {
-                    const el = document.getElementById(tempId);
-                    if (el) {
-                        const chk = el.querySelector(".check-icon");
-                        if (chk) {
-                            chk.innerHTML = "✓✓";
-                            chk.style.color = "#22c55e";
-                        }
-                    }
-                    loadChat(true);
-                });
-            }
+        function openMiniGamesModal() {
+            showCustomModal("🎮 MINI GAMES JAM ISTIRAHAT", `
+                <div style="font-size:0.75rem; text-align:center;">
+                    <p style="color:var(--text-sub); margin-bottom:10px;">Pilih game ringan 2D untuk mengisi jam istirahat shift:</p>
+                    <button onclick="showToast('Game 2048 Dimulai!'); closeCustomModal();" style="width:100%; background:var(--accent-green); color:#03170a; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer; margin-bottom:6px;">🎮 MAIN GAME 2048</button>
+                    <button onclick="showToast('Game Snake Dimulai!'); closeCustomModal();" style="width:100%; background:var(--card-border); color:white; font-weight:800; padding:10px; border-radius:10px; border:none; cursor:pointer;">🐍 MAIN GAME SNAKE</button>
+                </div>
+            `);
         }
 
         function openAllMenuModal(kategori) {
@@ -1965,7 +2704,7 @@
             showCustomModal(`Semua ${kategori}`, `
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
                     ${list.map(m => `
-                        <div onclick="onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')" style="text-decoration:none; display:flex; flex-direction:column; align-items:center; cursor:pointer;">
+                        <div onclick="triggerHaptic(); onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')" style="text-decoration:none; display:flex; flex-direction:column; align-items:center; cursor:pointer;">
                             <div class="icon-box-3d"><img src="${getSmart3DIcon(m["Nama Menu"], m["Icon URL"])}"></div>
                             <span class="menu-label">${m["Nama Menu"]}</span>
                         </div>
@@ -1977,11 +2716,11 @@
         function openMenuSidebar() {
             showCustomModal("Menu Navigasi", `
                 <div style="display:flex; flex-direction:column; gap:8px;">
-                    <button onclick="switchTab('beranda'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">🏠 Beranda Dashboard</button>
-                    <button onclick="switchTab('chat'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">💬 Room Chat Tim Kacida</button>
-                    <button onclick="switchTab('aksiCepat'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">🚀 Misi Hari Ini</button>
-                    <button onclick="switchTab('leaderboard'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">🏆 Leaderboard Area</button>
-                    <button onclick="switchTab('profil'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">👤 Profil & Bagan Struktur</button>
+                    <button onclick="triggerHaptic(); switchTab('beranda'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">🏠 Beranda Dashboard</button>
+                    <button onclick="triggerHaptic(); switchTab('chat'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">💬 Room Chat Tim Kacida</button>
+                    <button onclick="triggerHaptic(); switchTab('aksiCepat'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">🚀 Misi Hari Ini</button>
+                    <button onclick="triggerHaptic(); switchTab('leaderboard'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">🏆 Leaderboard Area</button>
+                    <button onclick="triggerHaptic(); switchTab('profil'); closeCustomModal();" style="background:var(--bg-dark); padding:10px; border-radius:10px; border:1px solid var(--card-border); color:white; cursor:pointer;">👤 Profil & Bagan Struktur</button>
                 </div>
             `);
         }
@@ -2028,7 +2767,7 @@
         function loadMisi() {
             if (!dashboardData) return;
             document.getElementById("misiList").innerHTML = dashboardData.menu.misi.map(m => `
-                <div onclick="onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')" style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:12px; cursor:pointer;">
+                <div onclick="triggerHaptic(); onMenuClick('${m["Nama Menu"]}', '${m["Link Tujuan"] || '#'}')" style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-dark); border:1px solid var(--card-border); padding:10px; border-radius:12px; cursor:pointer;">
                     <div><p style="font-size:0.75rem; font-weight:700;">${m["Nama Menu"]}</p><p style="font-size:0.6rem; color:var(--text-sub);">Reward: +${m.Reward_Poin || 5} Pts</p></div>
                     <span style="font-size:0.75rem; color:var(--accent-green); font-weight:800;">KLIK MISI ➔</span>
                 </div>
