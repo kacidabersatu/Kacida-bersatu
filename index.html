@@ -1606,7 +1606,15 @@
 
         function isUserCOS() {
             const j = String(dashboardData?.user?.jabatan || dashboardData?.user?.JABATAN || '').toUpperCase();
-            return (j.includes("CHIEF") || j.includes("COS") || j.includes("STORE MANAGER") || j.includes("KEPALA TOKO")) && !isUserAC();
+            
+            // ❌ JIKA USER ADALAH ACOS / ASSISTANT / CREW / STAFF -> KEMBALIKAN FALSE!
+            if (j.includes("ACOS") || j.includes("ASSISTANT") || j.includes("ASISTEN") || j.includes("CREW") || j.includes("STAFF")) {
+                return false;
+            }
+
+            // ✅ HANYA CHIEF OF STORE / COS / STORE MANAGER / KEPALA TOKO ASLI YANG TRUE
+            const isChief = j.includes("COS") || j.includes("CHIEF") || j.includes("STORE MANAGER") || j.includes("KEPALA TOKO");
+            return isChief && !isUserAC();
         }
 
         function renderDashboard(data) {
