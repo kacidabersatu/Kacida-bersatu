@@ -5647,9 +5647,62 @@
                 }
             });
         }
+                                                                
+            // =================================================================
+        // STATE & HELPER JOBDESK HARIAN (CONFIRMATION, FILTER, & RESUME)
         // =================================================================
-        // LOGIKA & MODAL UI JOBDESK HARIAN
-        // =================================================================
+        let searchJobdeskQuery = "";
+        let selectedJobdeskResumeFilter = "ALL"; // 'ALL' | 'DAILY_DONE' | 'DAILY_PENDING' | 'BRIEFING_DONE' | 'BRIEFING_PENDING'
+
+        function confirmJobdeskAction(title, text, icon, confirmText, callbackAction) {
+            triggerAndroidHaptic('medium');
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: icon || 'question',
+                showCancelButton: true,
+                confirmButtonText: confirmText || 'Ya, Lanjutkan',
+                cancelButtonText: 'Batal',
+                customClass: { popup: 'swal-light-custom', confirmButton: 'swal-btn-green' }
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    callbackAction();
+                }
+            });
+        }
+
+        function filterJobdeskByDOM(query) {
+            searchJobdeskQuery = query;
+            const q = query.toLowerCase().trim();
+            const container = document.getElementById("jobdeskLogCardContainer");
+            if (!container) return;
+
+            const cards = container.querySelectorAll(".jobdesk-log-card");
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const text = card.getAttribute("data-search") || "";
+                if (!q || text.includes(q)) {
+                    card.style.display = "";
+                    visibleCount++;
+                } else {
+                    card.style.display = "none";
+                }
+            });
+
+            const clearBtn = document.getElementById("btnClearJobdeskSearch");
+            if (clearBtn) {
+                if (q) clearBtn.classList.remove("hidden");
+                else clearBtn.classList.add("hidden");
+            }
+
+            const noMatchMsg = document.getElementById("noJobdeskMatchMsg");
+            if (noMatchMsg) {
+                if (visibleCount === 0 && q) noMatchMsg.classList.remove("hidden");
+                else noMatchMsg.classList.add("hidden");
+            }
+        }
+
         function openJobdeskHarianModal(activeTab = 'input') {
             if (isUserAC() && activeTab === 'input') activeTab = 'resume';
             renderJobdeskModalView(activeTab);
@@ -5664,6 +5717,9 @@
             }
         }
 
+        // =================================================================
+        // JOBDESK HARIAN: LAYOUT HARI DI PALING ATAS (ALL TABS & AC SUPPORT)
+        // =================================================================
         function renderJobdeskModalView(activeTab = 'input') {
             const userCOS = isUserCOS();
             const userAC = isUserAC();
@@ -5676,7 +5732,7 @@
 
             let tabContentHtml = '';
 
-            // TAB 1: FORM INPUT JOBDESK
+            // TAB 1: FORM INPUT JOBDESK (CREW & COS)
             if (activeTab === 'input' && !userAC) {
                 const tasks = JOBDESK_MASTER_TASKS[selectedJobdeskCategory]?.[selectedJobdeskDay] || [];
 
@@ -5722,7 +5778,7 @@
 
                             ${isLocked ? `
                                 <button disabled style="width:100%; background:var(--input-bg); color:var(--text-sub); font-weight:800; padding:8px; border-radius:10px; border:1px solid var(--card-border); opacity:0.7; cursor:not-allowed;">
-                                    🔒 Tugas Sudah Selesai
+                                    🔒 Tugas Sudah Selesai Dikerjakan
                                 </button>
                             ` : `
                                 <button onclick="openJobdeskTaskFormModal('${escapeHTML(task.title)}')" style="width:100%; background:${isRejected ? '#fee2e2' : 'var(--accent-green-grad)'}; color:${isRejected ? '#dc2626' : '#ffffff'}; border:${isRejected ? '1px solid #fca5a5' : 'none'}; font-weight:800; padding:10px; border-radius:10px; cursor:pointer;">
@@ -5735,15 +5791,7 @@
 
                 tabContentHtml = `
                     <div class="modal-grid-1">
-                        <div style="display:flex; gap:6px; overflow-x:auto; padding-bottom:4px;">
-                            ${['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'].map(d => `
-                                <button onclick="selectedJobdeskDay='${d}'; renderJobdeskModalView('input');" class="sub-tab-btn ${selectedJobdeskDay === d ? 'active' : ''}" style="white-space:nowrap; padding:6px 12px; font-size:0.7rem;">
-                                    ${d} ${d === getTodayNameIndo() ? '📍' : ''}
-                                </button>
-                            `).join('')}
-                        </div>
-
-                        <div class="modal-grid-2">
+                        <div class="modal-grid-2" style="margin-bottom:8px;">
                             <button onclick="selectedJobdeskCategory='Daily Activity'; renderJobdeskModalView('input');" class="sub-tab-btn ${selectedJobdeskCategory==='Daily Activity'?'active':''}" style="font-size:0.68rem;">Daily Activity</button>
                             <button onclick="selectedJobdeskCategory='Materi Briefing Shift 1 & 2'; renderJobdeskModalView('input');" class="sub-tab-btn ${selectedJobdeskCategory==='Materi Briefing Shift 1 & 2'?'active':''}" style="font-size:0.68rem;">Briefing Shift 1 & 2</button>
                         </div>
@@ -5752,13 +5800,79 @@
                     </div>
                 `;
             } 
-            // TAB 2: RESUME PROGRESS (DILENGKAPI RESUME JOBDESK HARIAN + BRIEFING SHIFT 1 & 2)
+            // TAB 2: RESUME PROGRESS & LOG PENGERJAAN
             else if (activeTab === 'resume') {
                 const dailyTasks = JOBDESK_MASTER_TASKS["Daily Activity"]?.[selectedJobdeskDay] || [];
                 const briefingTasks = JOBDESK_MASTER_TASKS["Materi Briefing Shift 1 & 2"]?.[selectedJobdeskDay] || [];
 
+                let myStoreReports = userAC ? jobdeskReports : jobdeskReports.filter(r => r.kodeToko === userKodeToko);
+
+                // Filter berdasarkan hari & kategori yang dipilih
+                myStoreReports = myStoreReports.filter(r => r.day === selectedJobdeskDay);
+
+                if (selectedJobdeskResumeFilter === 'DAILY_DONE') {
+                    myStoreReports = myStoreReports.filter(r => r.category === 'Daily Activity' && (r.status === 'APPROVED' || r.status === 'PENDING_AC' || r.status === 'PENDING_COS'));
+                } else if (selectedJobdeskResumeFilter === 'DAILY_PENDING') {
+                    myStoreReports = myStoreReports.filter(r => r.category === 'Daily Activity' && r.status !== 'APPROVED');
+                } else if (selectedJobdeskResumeFilter === 'BRIEFING_DONE') {
+                    myStoreReports = myStoreReports.filter(r => r.category === 'Materi Briefing Shift 1 & 2' && (r.status === 'APPROVED' || r.status === 'PENDING_AC' || r.status === 'PENDING_COS'));
+                } else if (selectedJobdeskResumeFilter === 'BRIEFING_PENDING') {
+                    myStoreReports = myStoreReports.filter(r => r.category === 'Materi Briefing Shift 1 & 2' && r.status !== 'APPROVED');
+                }
+
+                const historyCardsHtml = myStoreReports.map(item => {
+                    let statusBadge = '';
+                    if (item.status === 'APPROVED') {
+                        statusBadge = `<span style="background:#d1fae5; color:#047857; padding:2px 8px; border-radius:6px; font-weight:800; font-size:0.62rem;">✅ Approved Final (${escapeHTML(item.approvedBy||'AC')})</span>`;
+                    } else if (item.status === 'PENDING_AC') {
+                        statusBadge = `<span style="background:#cff4fc; color:#0891b2; padding:2px 8px; border-radius:6px; font-weight:800; font-size:0.62rem;">⌛ Review AC (${escapeHTML(item.approvedBy||'Disetujui COS')})</span>`;
+                    } else if (item.status === 'PENDING_COS') {
+                        statusBadge = `<span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:6px; font-weight:800; font-size:0.62rem;">⏳ Review Chief Of Store (COS)</span>`;
+                    } else if (item.status.startsWith('REJECTED')) {
+                        statusBadge = `<span style="background:#fee2e2; color:#dc2626; padding:2px 8px; border-radius:6px; font-weight:800; font-size:0.62rem;">🚫 Ditolak oleh ${escapeHTML(item.rejectedBy||'Atasan')}</span>`;
+                    }
+
+                    const searchData = `${item.submittedBy || ''} ${item.taskTitle || ''} ${item.namaToko || item.kodeToko || ''} ${item.day || ''} ${item.status || ''}`.toLowerCase();
+
+                    return `
+                        <div class="modal-card-box jobdesk-log-card" data-search="${searchData}" style="margin-bottom:8px; border-left:4px solid ${item.status==='APPROVED'?'#10b981':(item.status.startsWith('REJECTED')?'#ef4444':'#f59e0b')};">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                                <div>
+                                    <span style="font-size:0.6rem; background:var(--input-bg); color:var(--text-sub); border:1px solid var(--card-border); padding:2px 6px; border-radius:4px; font-weight:800;">
+                                        📅 Hari ${escapeHTML(item.day)} • ${escapeHTML(item.namaToko || item.kodeToko)}
+                                    </span>
+                                    <h5 style="font-size:0.85rem; font-weight:800; color:var(--text-main); margin-top:4px;">${escapeHTML(item.taskTitle)}</h5>
+                                </div>
+                                ${statusBadge}
+                            </div>
+
+                            <p style="font-size:0.68rem; color:var(--text-sub);">
+                                Petugas: <b style="color:var(--accent-primary);">${escapeHTML(item.submittedBy)}</b> (${escapeHTML(item.role || 'Crew')}) • ${item.submittedAt || ''}
+                            </p>
+
+                            ${item.notes ? `<p style="font-size:0.65rem; color:var(--text-main); margin-top:2px;">📝 Catatan: <i>"${escapeHTML(item.notes)}"</i></p>` : ''}
+                            ${item.rejectReason ? `<p style="font-size:0.62rem; color:#dc2626; font-weight:bold; margin-top:2px;">🚫 Alasan Penolakan: ${escapeHTML(item.rejectReason)}</p>` : ''}
+
+                            ${item.photoUrl ? `
+                                <div style="margin-top:8px;">
+                                    <img src="${item.photoUrl}" onclick="showFullImageModal('${item.photoUrl}')" style="width:100%; height:110px; object-fit:cover; border-radius:8px; cursor:pointer;" title="Klik Pratinjau Foto Fullscreen">
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join("");
+
+                const searchBarHtml = `
+                    <div class="modal-card-box" style="padding:10px; margin-bottom:10px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-magnifying-glass" style="color:var(--accent-primary);"></i>
+                            <input type="text" id="searchJobdeskInput" value="${escapeHTML(searchJobdeskQuery)}" oninput="filterJobdeskByDOM(this.value)" placeholder="Cari nama petugas / tugas / toko..." style="flex:1; background:var(--input-bg); color:var(--text-main); border:1px solid var(--card-border); padding:8px 12px; border-radius:10px; font-size:0.75rem; outline:none;">
+                            <button id="btnClearJobdeskSearch" onclick="document.getElementById('searchJobdeskInput').value=''; filterJobdeskByDOM('');" class="${searchJobdeskQuery ? '' : 'hidden'}" style="background:#fee2e2; color:#dc2626; border:none; padding:6px 10px; border-radius:8px; font-size:0.65rem; font-weight:800; cursor:pointer;">Clear</button>
+                        </div>
+                    </div>
+                `;
+
                 if (userAC && daftarToko.length > 0) {
-                    // MODE AREA COORDINATOR: REKAP AKUMULASI SELURUH TOKO AREA
                     let totalDailyArea = dailyTasks.length * daftarToko.length;
                     let doneDailyArea = 0;
                     let totalBriefingArea = briefingTasks.length * daftarToko.length;
@@ -5805,15 +5919,15 @@
                         <div class="modal-grid-1">
                             <h5 style="font-size:0.75rem; font-weight:800; color:var(--accent-primary);"><i class="fa-solid fa-broom"></i> RESUME JOBDESK HARIAN AREA (${selectedJobdeskDay})</h5>
                             <div class="modal-grid-3" style="margin-bottom:8px;">
-                                <div class="modal-card-box" style="text-align:center; padding:8px; border-left:4px solid var(--accent-primary);">
+                                <div class="modal-card-box" onclick="selectedJobdeskResumeFilter='ALL'; renderJobdeskModalView('resume');" style="text-align:center; cursor:pointer; ${selectedJobdeskResumeFilter==='ALL'?'border:2px solid var(--accent-primary);':''}">
                                     <span style="font-size:0.55rem; color:var(--text-sub); font-weight:700; display:block;">TOTAL TUGAS</span>
                                     <p style="font-size:1rem; font-weight:800; color:var(--accent-primary); margin-top:2px;">${totalDailyArea}</p>
                                 </div>
-                                <div class="modal-card-box" style="text-align:center; padding:8px; border-left:4px solid #10b981;">
+                                <div class="modal-card-box" onclick="selectedJobdeskResumeFilter='DAILY_DONE'; renderJobdeskModalView('resume');" style="text-align:center; cursor:pointer; ${selectedJobdeskResumeFilter==='DAILY_DONE'?'border:2px solid #10b981;':''}">
                                     <span style="font-size:0.55rem; color:var(--text-sub); font-weight:700; display:block;">SUDAH SELESAI</span>
                                     <p style="font-size:1rem; font-weight:800; color:#047857; margin-top:2px;">${doneDailyArea}</p>
                                 </div>
-                                <div class="modal-card-box" style="text-align:center; padding:8px; border-left:4px solid #ef4444;">
+                                <div class="modal-card-box" onclick="selectedJobdeskResumeFilter='DAILY_PENDING'; renderJobdeskModalView('resume');" style="text-align:center; cursor:pointer; ${selectedJobdeskResumeFilter==='DAILY_PENDING'?'border:2px solid #ef4444;':''}">
                                     <span style="font-size:0.55rem; color:var(--text-sub); font-weight:700; display:block;">BELUM SELESAI</span>
                                     <p style="font-size:1rem; font-weight:800; color:#dc2626; margin-top:2px;">${pendingDailyArea}</p>
                                 </div>
@@ -5821,15 +5935,15 @@
 
                             <h5 style="font-size:0.75rem; font-weight:800; color:var(--gold);"><i class="fa-solid fa-bullhorn"></i> RESUME BRIEFING SHIFT 1 & 2 AREA (${selectedJobdeskDay})</h5>
                             <div class="modal-grid-3" style="margin-bottom:12px;">
-                                <div class="modal-card-box" style="text-align:center; padding:8px; border-left:4px solid var(--gold);">
+                                <div class="modal-card-box" onclick="selectedJobdeskResumeFilter='ALL'; renderJobdeskModalView('resume');" style="text-align:center; cursor:pointer;">
                                     <span style="font-size:0.55rem; color:var(--text-sub); font-weight:700; display:block;">TOTAL BRIEFING</span>
                                     <p style="font-size:1rem; font-weight:800; color:var(--gold); margin-top:2px;">${totalBriefingArea}</p>
                                 </div>
-                                <div class="modal-card-box" style="text-align:center; padding:8px; border-left:4px solid #10b981;">
+                                <div class="modal-card-box" onclick="selectedJobdeskResumeFilter='BRIEFING_DONE'; renderJobdeskModalView('resume');" style="text-align:center; cursor:pointer; ${selectedJobdeskResumeFilter==='BRIEFING_DONE'?'border:2px solid #10b981;':''}">
                                     <span style="font-size:0.55rem; color:var(--text-sub); font-weight:700; display:block;">SUDAH BRIEFING</span>
                                     <p style="font-size:1rem; font-weight:800; color:#047857; margin-top:2px;">${doneBriefingArea}</p>
                                 </div>
-                                <div class="modal-card-box" style="text-align:center; padding:8px; border-left:4px solid #ef4444;">
+                                <div class="modal-card-box" onclick="selectedJobdeskResumeFilter='BRIEFING_PENDING'; renderJobdeskModalView('resume');" style="text-align:center; cursor:pointer; ${selectedJobdeskResumeFilter==='BRIEFING_PENDING'?'border:2px solid #ef4444;':''}">
                                     <span style="font-size:0.55rem; color:var(--text-sub); font-weight:700; display:block;">BELUM BRIEFING</span>
                                     <p style="font-size:1rem; font-weight:800; color:#dc2626; margin-top:2px;">${pendingBriefingArea}</p>
                                 </div>
@@ -5837,10 +5951,17 @@
 
                             <h5 style="font-size:0.8rem; font-weight:800; color:var(--accent-primary);">🏪 MONITORING RINCIAN PER-TOKO (${selectedJobdeskDay})</h5>
                             ${storeCards}
+
+                            <h5 style="font-size:0.8rem; font-weight:800; color:var(--accent-primary); margin-top:10px;"><i class="fa-solid fa-clock-rotate-left"></i> RIWAYAT LOG HASIL PENGERJAAN (${selectedJobdeskDay})</h5>
+                            ${searchBarHtml}
+                            <div id="jobdeskLogCardContainer" class="modal-grid-1">
+                                ${historyCardsHtml || '<p style="text-align:center; color:var(--text-sub); padding:10px;">Belum ada log pengerjaan hari ' + selectedJobdeskDay + '.</p>'}
+                                <p id="noJobdeskMatchMsg" class="hidden" style="text-align:center; color:var(--text-sub); padding:10px;">Tidak ada log yang cocok dengan pencarian.</p>
+                            </div>
                         </div>
                     `;
                 } else {
-                    // MODE USER TOKO (STAFF & COS)
+                    // STORE USER (COS/STAFF)
                     let totalDailyStore = dailyTasks.length;
                     let doneDailyStore = 0;
                     dailyTasks.forEach(t => {
@@ -5861,15 +5982,15 @@
                         <div class="modal-grid-1">
                             <h5 style="font-size:0.75rem; font-weight:800; color:var(--accent-primary);"><i class="fa-solid fa-broom"></i> RESUME JOBDESK HARIAN TOKO (${userNamaToko})</h5>
                             <div class="modal-grid-3" style="margin-bottom:8px;">
-                                <div class="modal-card-box" style="text-align:center; padding:8px; border-left:4px solid var(--accent-primary);">
+                                <div class="modal-card-box" onclick="selectedJobdeskResumeFilter='ALL'; renderJobdeskModalView('resume');" style="text-align:center; cursor:pointer; ${selectedJobdeskResumeFilter==='ALL'?'border:2px solid var(--accent-primary);':''}">
                                     <span style="font-size:0.55rem; color:var(--text-sub); font-weight:700; display:block;">TOTAL TUGAS</span>
                                     <p style="font-size:1rem; font-weight:800; color:var(--accent-primary); margin-top:2px;">${totalDailyStore}</p>
                                 </div>
-                                <div class="modal-card-box" style="text-align:center; padding:8px; border-left:4px solid #10b981;">
+                                <div class="modal-card-box" onclick="selectedJobdeskResumeFilter='DAILY_DONE'; renderJobdeskModalView('resume');" style="text-align:center; cursor:pointer; ${selectedJobdeskResumeFilter==='DAILY_DONE'?'border:2px solid #10b981;':''}">
                                     <span style="font-size:0.55rem; color:var(--text-sub); font-weight:700; display:block;">SUDAH SELESAI</span>
                                     <p style="font-size:1rem; font-weight:800; color:#047857; margin-top:2px;">${doneDailyStore}</p>
                                 </div>
-                                <div class="modal-card-box" style="text-align:center; padding:8px; border-left:4px solid #ef4444;">
+                                <div class="modal-card-box" onclick="selectedJobdeskResumeFilter='DAILY_PENDING'; renderJobdeskModalView('resume');" style="text-align:center; cursor:pointer; ${selectedJobdeskResumeFilter==='DAILY_PENDING'?'border:2px solid #ef4444;':''}">
                                     <span style="font-size:0.55rem; color:var(--text-sub); font-weight:700; display:block;">BELUM SELESAI</span>
                                     <p style="font-size:1rem; font-weight:800; color:#dc2626; margin-top:2px;">${pendingDailyStore}</p>
                                 </div>
@@ -5877,18 +5998,25 @@
 
                             <h5 style="font-size:0.75rem; font-weight:800; color:var(--gold);"><i class="fa-solid fa-bullhorn"></i> RESUME BRIEFING SHIFT 1 & 2 TOKO (${userNamaToko})</h5>
                             <div class="modal-grid-3" style="margin-bottom:12px;">
-                                <div class="modal-card-box" style="text-align:center; padding:8px; border-left:4px solid var(--gold);">
+                                <div class="modal-card-box" onclick="selectedJobdeskResumeFilter='ALL'; renderJobdeskModalView('resume');" style="text-align:center; cursor:pointer;">
                                     <span style="font-size:0.55rem; color:var(--text-sub); font-weight:700; display:block;">TOTAL BRIEFING</span>
                                     <p style="font-size:1rem; font-weight:800; color:var(--gold); margin-top:2px;">${totalBriefingStore}</p>
                                 </div>
-                                <div class="modal-card-box" style="text-align:center; padding:8px; border-left:4px solid #10b981;">
+                                <div class="modal-card-box" onclick="selectedJobdeskResumeFilter='BRIEFING_DONE'; renderJobdeskModalView('resume');" style="text-align:center; cursor:pointer; ${selectedJobdeskResumeFilter==='BRIEFING_DONE'?'border:2px solid #10b981;':''}">
                                     <span style="font-size:0.55rem; color:var(--text-sub); font-weight:700; display:block;">SUDAH BRIEFING</span>
                                     <p style="font-size:1rem; font-weight:800; color:#047857; margin-top:2px;">${doneBriefingStore}</p>
                                 </div>
-                                <div class="modal-card-box" style="text-align:center; padding:8px; border-left:4px solid #ef4444;">
+                                <div class="modal-card-box" onclick="selectedJobdeskResumeFilter='BRIEFING_PENDING'; renderJobdeskModalView('resume');" style="text-align:center; cursor:pointer; ${selectedJobdeskResumeFilter==='BRIEFING_PENDING'?'border:2px solid #ef4444;':''}">
                                     <span style="font-size:0.55rem; color:var(--text-sub); font-weight:700; display:block;">BELUM BRIEFING</span>
                                     <p style="font-size:1rem; font-weight:800; color:#dc2626; margin-top:2px;">${pendingBriefingStore}</p>
                                 </div>
+                            </div>
+
+                            <h5 style="font-size:0.8rem; font-weight:800; color:var(--accent-primary);"><i class="fa-solid fa-clock-rotate-left"></i> RIWAYAT LOG HASIL PENGERJAAN (${selectedJobdeskDay})</h5>
+                            ${searchBarHtml}
+                            <div id="jobdeskLogCardContainer" class="modal-grid-1">
+                                ${historyCardsHtml || '<p style="text-align:center; color:var(--text-sub); padding:10px;">Belum ada log pengerjaan hari ' + selectedJobdeskDay + '.</p>'}
+                                <p id="noJobdeskMatchMsg" class="hidden" style="text-align:center; color:var(--text-sub); padding:10px;">Tidak ada log yang cocok dengan pencarian.</p>
                             </div>
                         </div>
                     `;
@@ -5903,11 +6031,14 @@
                     pendingList = jobdeskReports.filter(r => r.status === 'PENDING_COS' && r.kodeToko === userKodeToko);
                 }
 
+                // Saring antrean berdasarkan Hari yang sedang aktif di Pilihan Hari Atas
+                pendingList = pendingList.filter(r => r.day === selectedJobdeskDay);
+
                 let cardsHtml = pendingList.map(item => `
                     <div class="modal-card-box">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
                             <div>
-                                <span style="font-size:0.62rem; background:#d1fae5; color:#047857; padding:2px 6px; border-radius:4px; font-weight:800;">${escapeHTML(item.namaToko || item.kodeToko)} • ${item.day}</span>
+                                <span style="font-size:0.62rem; background:#d1fae5; color:#047857; padding:2px 6px; border-radius:4px; font-weight:800;">${escapeHTML(item.namaToko || item.kodeToko)} • Hari ${item.day}</span>
                                 <h4 style="font-size:0.85rem; font-weight:800; color:var(--text-main); margin-top:4px;">${escapeHTML(item.taskTitle)}</h4>
                             </div>
                             <span style="font-size:0.6rem; color:var(--text-sub);">${item.submittedAt || ''}</span>
@@ -5928,12 +6059,23 @@
                     </div>
                 `).join("");
 
-                tabContentHtml = `<div class="modal-grid-1">${cardsHtml || '<p style="text-align:center; color:var(--text-sub);">Tidak ada antrean approval jobdesk saat ini.</p>'}</div>`;
+                tabContentHtml = `<div class="modal-grid-1">${cardsHtml || '<p style="text-align:center; color:var(--text-sub);">Tidak ada antrean approval untuk hari ' + selectedJobdeskDay + '.</p>'}</div>`;
             }
 
+            // 🚀 BINGKAI UTAMA: TOMBOL HARI BERADA DI PALING ATAS MODAL
             const htmlBox = `
                 <div class="modal-grid-1" style="font-size:0.78rem;">
-                    <div style="display:flex; gap:6px;">
+                    <!-- 1. TOMBOL HARI DI PALING ATAS (MEMPENGARUHI SELURUH TAB & SEMUA USER) -->
+                    <div style="display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; margin-bottom:4px;">
+                        ${['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'].map(d => `
+                            <button onclick="selectedJobdeskDay='${d}'; renderJobdeskModalView('${activeTab}');" class="sub-tab-btn ${selectedJobdeskDay === d ? 'active' : ''}" style="white-space:nowrap; padding:6px 12px; font-size:0.7rem;">
+                                ${d} ${d === getTodayNameIndo() ? '📍' : ''}
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <!-- 2. TOMBOL TAB NAVIGASI -->
+                    <div style="display:flex; gap:6px; overflow-x:auto; margin-bottom:6px;">
                         ${!userAC ? `<button class="sub-tab-btn ${activeTab==='input'?'active':''}" onclick="renderJobdeskModalView('input')">📝 Jobdesk</button>` : ''}
                         <button class="sub-tab-btn ${activeTab==='resume'?'active':''}" onclick="renderJobdeskModalView('resume')">📊 Resume</button>
                         ${(userCOS || userAC) ? `
@@ -5942,11 +6084,17 @@
                             </button>
                         ` : ''}
                     </div>
+
+                    <!-- 3. KONTEN TAB ACTIVE -->
                     ${tabContentHtml}
                 </div>
             `;
             showCustomModal("📋 JOBDESK HARIAN & BRIEFING", htmlBox);
-        }
+
+            if (searchJobdeskQuery && activeTab === 'resume') {
+                filterJobdeskByDOM(searchJobdeskQuery);
+            }
+        }                    
 
         // FUNGSI DETAIL PERTOKO UNTUK USER AC (DAILY + BRIEFING)
         function viewStoreJobdeskDetailAC(kodeToko, storeName) {
@@ -6064,7 +6212,15 @@
                         return;
                     }
                     const notes = document.getElementById("jobdeskNotesInput")?.value || '';
-                    submitJobdeskReportAction(taskTitle, notes);
+                    
+                    // ✅ KONFIRMASI PENEGASAN SWEETALERT YA / TIDAK
+                    confirmJobdeskAction(
+                        'Konfirmasi Pengiriman',
+                        'Apakah Anda yakin ingin mengirim laporan pengerjaan jobdesk ini?',
+                        'question',
+                        'Ya, Kirim Laporan',
+                        () => submitJobdeskReportAction(taskTitle, notes)
+                    );
                 }
             });
         }
@@ -6111,44 +6267,63 @@
             const nextStatus = userAC ? 'APPROVED' : 'PENDING_AC';
             const approverName = `${dashboardData?.user?.NAMA || 'User'} (${dashboardData?.user?.JABATAN || 'Atasan'})`;
 
-            if (rtdb) {
-                rtdb.ref('jobdesk_reports/' + reportId).update({
-                    status: nextStatus,
-                    approvedBy: approverName,
-                    approvedAt: new Date().toLocaleString('id-ID')
-                });
-            }
+            // ✅ KONFIRMASI PENEGASAN SWEETALERT YA / TIDAK
+            confirmJobdeskAction(
+                'Konfirmasi Approval',
+                'Apakah Anda yakin ingin menyetujui laporan pengerjaan jobdesk ini?',
+                'question',
+                'Ya, Setujui',
+                () => {
+                    if (rtdb) {
+                        rtdb.ref('jobdesk_reports/' + reportId).update({
+                            status: nextStatus,
+                            approvedBy: approverName,
+                            approvedAt: new Date().toLocaleString('id-ID')
+                        });
+                    }
 
-            trackUserActivity(2, "Approve Jobdesk");
-            renderJobdeskModalView('approval');
-            showSwalSuccess('Approved ✅', userAC ? 'Persetujuan Final berhasil!' : 'Diteruskan ke Area Coordinator (AC).');
+                    trackUserActivity(1, "Approve Jobdesk");
+                    renderJobdeskModalView('approval');
+                    showSwalSuccess('Approved ✅', userAC ? 'Persetujuan Final berhasil!' : 'Diteruskan ke Area Coordinator (AC).');
+                }
+            );
         }
 
         function rejectJobdeskReport(reportId) {
             const userAC = isUserAC();
             const rejectStatus = userAC ? 'REJECTED_AC' : 'REJECTED_COS';
 
-            Swal.fire({
-                title: 'Alasan Penolakan Jobdesk',
-                input: 'textarea',
-                inputPlaceholder: 'Tuliskan instruksi perbaikan...',
-                showCancelButton: true,
-                confirmButtonText: '🚫 Tolak Pekerjaan',
-                customClass: { popup: 'swal-light-custom', confirmButton: 'swal-btn-green' }
-            }).then((res) => {
-                if (res.isConfirmed && res.value) {
-                    if (rtdb) {
-                        rtdb.ref('jobdesk_reports/' + reportId).update({
-                            status: rejectStatus,
-                            rejectReason: res.value,
-                            rejectedBy: dashboardData?.user?.NAMA || 'User'
-                        });
-                    }
-                    renderJobdeskModalView('approval');
-                    showSwalSuccess('Ditolak', 'Status pekerjaan diubah menjadi Ditolak.');
+            // ✅ KONFIRMASI PENEGASAN SWEETALERT YA / TIDAK SEBELUM REJECT
+            confirmJobdeskAction(
+                'Konfirmasi Penolakan',
+                'Apakah Anda yakin ingin menolak laporan pengerjaan jobdesk ini?',
+                'warning',
+                'Ya, Tolak',
+                () => {
+                    Swal.fire({
+                        title: 'Alasan Penolakan Jobdesk',
+                        input: 'textarea',
+                        inputPlaceholder: 'Tuliskan instruksi perbaikan...',
+                        showCancelButton: true,
+                        confirmButtonText: '🚫 Kirim Penolakan',
+                        customClass: { popup: 'swal-light-custom', confirmButton: 'swal-btn-green' }
+                    }).then((res) => {
+                        if (res.isConfirmed && res.value) {
+                            if (rtdb) {
+                                rtdb.ref('jobdesk_reports/' + reportId).update({
+                                    status: rejectStatus,
+                                    rejectReason: res.value,
+                                    rejectedBy: dashboardData?.user?.NAMA || 'User'
+                                });
+                            }
+                            renderJobdeskModalView('approval');
+                            showSwalSuccess('Ditolak', 'Status pekerjaan diubah menjadi Ditolak.');
+                        }
+                    });
                 }
-            });
-        }
+            );
+         }
+        
         function downloadPerformaCardHD() {
             const cardElement = document.getElementById("customModalCard");
             if (!cardElement || typeof html2canvas === "undefined") return;
